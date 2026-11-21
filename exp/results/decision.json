@@ -1,0 +1,68 @@
+{
+  "frozen_at": "2026-11-21T14:28:40",
+  "decision": "ADOPT fused policy over TF-IDF-only triage (recommendation to team; integration is theirs)",
+  "system": {
+    "leaderboard": "lb_v5",
+    "sources": [
+      "tfidf",
+      "ft:e5b_s13",
+      "knn_ft_e5b_s13",
+      "knn_e5-small"
+    ],
+    "fine_tune": "e5b_s13 (multilingual-e5-base, 4 epochs, lr 3e-5, multi-task heads)",
+    "gate_near": 0.97,
+    "far": 0.93,
+    "far_knn_weight": 0.7,
+    "hp_tau": 0.13559,
+    "conf_threshold": {
+      "type": 0.3,
+      "queue": 0.4
+    },
+    "ood_sim": 0.89
+  },
+  "evidence_dev_tune": {
+    "mean_main_f1": {
+      "tfidf": 0.6808,
+      "policy": 0.8436
+    },
+    "hp_flag_rate_at_95_recall": {
+      "tfidf": 0.5551,
+      "policy": 0.3512
+    },
+    "escalation_rate_classifier_rules": {
+      "tfidf": 0.9186,
+      "policy": 0.4564
+    },
+    "neighbour_removed_protocol_mean_f1": {
+      "tfidf": 0.5462,
+      "frozen_knn_e5s": 0.5073,
+      "ft_head": 0.585,
+      "knn_ft": 0.641,
+      "knn_ft_0.7+head_0.3": 0.6404
+    }
+  },
+  "evidence_novel_tickets_28_inscope": {
+    "tfidf": {
+      "outages_flagged": "9/12",
+      "false_flags": "4/16"
+    },
+    "policy_bundle_cpu": {
+      "outages_flagged": "12/12",
+      "false_flags": "1/16",
+      "type_acc": 0.75,
+      "queue_in_set": 0.82,
+      "priority_in_set": 0.96
+    }
+  },
+  "latency_cpu_4_pcores_ms": {
+    "p50": 165,
+    "p95": 212
+  },
+  "not_chosen": {
+    "e5-large": "best kNN embeddings (0.850 dev) but ~3x CPU latency, 2.2 GB",
+    "e5b_long (8 epochs)": "no generalization gain in the neighbour-removed sweep; kept the exported 4-epoch model",
+    "int8": "breaks e5-base predictions (queue agreement 0.78-0.85); serve fp32",
+    "mdeberta-v3-base": "collapsed in bf16"
+  },
+  "test_protocol": "test predictions made on GPU box from inputs only; labels read once on the Mac by eval_test_preds.py"
+}

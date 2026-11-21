@@ -1,0 +1,455 @@
+{
+  "model": "intfloat/multilingual-e5-small",
+  "prefix": "query: ",
+  "source": "kb_train.parquet split==dev",
+  "debias": {
+    "file": "live/e5_debias.npz",
+    "fit_on": "6000 random kb base rows",
+    "n_pcs": 2
+  },
+  "random_pairs": {
+    "raw": {
+      "n_pairs": 2000,
+      "mean": 0.8498,
+      "quantiles": {
+        "0.5": 0.8499,
+        "0.9": 0.8936,
+        "0.99": 0.9221,
+        "0.995": 0.9279,
+        "0.999": 0.9437
+      },
+      "share_ge": {
+        "0.84": 0.6085,
+        "0.85": 0.498,
+        "0.86": 0.3905,
+        "0.87": 0.2925,
+        "0.88": 0.1945,
+        "0.89": 0.123,
+        "0.90": 0.065,
+        "0.92": 0.0125,
+        "0.93": 0.0045
+      },
+      "share_ge_same_language": {
+        "0.84": 0.74364,
+        "0.85": 0.65264,
+        "0.86": 0.55186,
+        "0.87": 0.44325,
+        "0.88": 0.32094,
+        "0.89": 0.21233,
+        "0.90": 0.11644,
+        "0.92": 0.02153,
+        "0.93": 0.00783
+      },
+      "top_pairs": [
+        {
+          "cos": 0.9488,
+          "a": "Could you share insights on how digital strategies can effectively promote brand developme",
+          "b": "Enquiries on Digital Strategies for Brand Growth in Marketing Agencies\n\nHello customer ser"
+        },
+        {
+          "cos": 0.9443,
+          "a": "Anfrage zu Sicherheitsmaßnahmen in Krankenhaus-IT-Systemen\n\nSehr geehrter Kundenservice, i",
+          "b": "Sicherheitsaspekte bei der Verwaltung von Patientendaten\n\nSehr geehrte Kundenservice, ich "
+        },
+        {
+          "cos": 0.9437,
+          "a": "Anfrage zu erweiterten Analytik-Tools im Support\n\nSehr geehrter Kundendienst, ich möchte a",
+          "b": "Optimierung von Investitionsentscheidungen durch Data Analytics\n\nSehr geehrte Kundenservic"
+        }
+      ]
+    },
+    "debiased": {
+      "n_pairs": 2000,
+      "mean": -0.0009,
+      "quantiles": {
+        "0.5": -0.0082,
+        "0.9": 0.1392,
+        "0.99": 0.3468,
+        "0.995": 0.4115,
+        "0.999": 0.4849
+      },
+      "share_ge": {
+        "0.35": 0.01,
+        "0.38": 0.0085,
+        "0.40": 0.0065,
+        "0.42": 0.005,
+        "0.45": 0.003,
+        "0.48": 0.0015,
+        "0.50": 0.001,
+        "0.55": 0.0
+      },
+      "share_ge_same_language": {
+        "0.35": 0.01468,
+        "0.38": 0.01272,
+        "0.40": 0.00978,
+        "0.42": 0.00783,
+        "0.45": 0.00489,
+        "0.48": 0.00294,
+        "0.50": 0.00196,
+        "0.55": 0.0
+      },
+      "top_pairs": [
+        {
+          "cos": 0.5384,
+          "a": "Options for Billing in Maple Investment Analytics Subscriptions\n\nCould you please clarify ",
+          "b": "Query on SaaS Project Management Tool\n\nHello, I am inquiring about the pricing tiers and b"
+        },
+        {
+          "cos": 0.5383,
+          "a": "Anfrage zu Sicherheitsmaßnahmen in Krankenhaus-IT-Systemen\n\nSehr geehrter Kundenservice, i",
+          "b": "Sicherheitsaspekte bei der Verwaltung von Patientendaten\n\nSehr geehrte Kundenservice, ich "
+        },
+        {
+          "cos": 0.4848,
+          "a": "Could you share insights on how digital strategies can effectively promote brand developme",
+          "b": "Enquiries on Digital Strategies for Brand Growth in Marketing Agencies\n\nHello customer ser"
+        }
+      ]
+    }
+  },
+  "stream_200_windows": {
+    "raw": {
+      "0.84": {
+        "windows": 20,
+        "windows_with_banner": 18,
+        "banner_ticket_rate": 0.30525,
+        "median_max_cluster": 199.5
+      },
+      "0.85": {
+        "windows": 20,
+        "windows_with_banner": 19,
+        "banner_ticket_rate": 0.2995,
+        "median_max_cluster": 188.5
+      },
+      "0.86": {
+        "windows": 20,
+        "windows_with_banner": 19,
+        "banner_ticket_rate": 0.295,
+        "median_max_cluster": 182.0
+      },
+      "0.87": {
+        "windows": 20,
+        "windows_with_banner": 20,
+        "banner_ticket_rate": 0.25925,
+        "median_max_cluster": 176.0
+      },
+      "0.88": {
+        "windows": 20,
+        "windows_with_banner": 20,
+        "banner_ticket_rate": 0.364,
+        "median_max_cluster": 107.0
+      },
+      "0.89": {
+        "windows": 20,
+        "windows_with_banner": 20,
+        "banner_ticket_rate": 0.38525,
+        "median_max_cluster": 102.5
+      },
+      "0.90": {
+        "windows": 20,
+        "windows_with_banner": 20,
+        "banner_ticket_rate": 0.3745,
+        "median_max_cluster": 90.5
+      },
+      "0.92": {
+        "windows": 20,
+        "windows_with_banner": 20,
+        "banner_ticket_rate": 0.227,
+        "median_max_cluster": 63.5
+      },
+      "0.93": {
+        "windows": 20,
+        "windows_with_banner": 20,
+        "banner_ticket_rate": 0.146,
+        "median_max_cluster": 43.0
+      }
+    },
+    "debiased": {
+      "0.35": {
+        "windows": 20,
+        "windows_with_banner": 20,
+        "banner_ticket_rate": 0.103,
+        "median_max_cluster": 15.0
+      },
+      "0.38": {
+        "windows": 20,
+        "windows_with_banner": 20,
+        "banner_ticket_rate": 0.06425,
+        "median_max_cluster": 12.0
+      },
+      "0.40": {
+        "windows": 20,
+        "windows_with_banner": 20,
+        "banner_ticket_rate": 0.05025,
+        "median_max_cluster": 11.0
+      },
+      "0.42": {
+        "windows": 20,
+        "windows_with_banner": 20,
+        "banner_ticket_rate": 0.03375,
+        "median_max_cluster": 9.5
+      },
+      "0.45": {
+        "windows": 20,
+        "windows_with_banner": 18,
+        "banner_ticket_rate": 0.02175,
+        "median_max_cluster": 9.0
+      },
+      "0.48": {
+        "windows": 20,
+        "windows_with_banner": 17,
+        "banner_ticket_rate": 0.01225,
+        "median_max_cluster": 6.5
+      },
+      "0.50": {
+        "windows": 20,
+        "windows_with_banner": 14,
+        "banner_ticket_rate": 0.0075,
+        "median_max_cluster": 4.5
+      },
+      "0.55": {
+        "windows": 20,
+        "windows_with_banner": 5,
+        "banner_ticket_rate": 0.0015,
+        "median_max_cluster": 3.0
+      }
+    }
+  },
+  "stream_burst_examples": {
+    "raw@0.84": [
+      [
+        "Security Concern in Medical Data\n\nThe healthcare organization is unable to effectively saf",
+        "Incident of Data Theft\n\nThe hospital recently experienced an incident compromising the sec",
+        "Security Breach in Medical Data Management\n\nOur healthcare provider is facing security bre",
+        "IT Issue in Healthcare Sector\n\nHealthcare providers experienced an unexpected outage, disr"
+      ],
+      [
+        "Financial Assistance Needed\n\nThe investment analytics platform of the financial company is",
+        "Assistance with Data Encryption Backup Failure\n\nThe data encryption backup process unexpec",
+        "Support for Zoho CRM Project Management Software\n\nHello, I am looking to integrate Zoho CR",
+        "Unanticipated Decline in Brand Engagement Metrics Noted\n\nThere has been a decline in brand"
+      ]
+    ],
+    "raw@0.85": [
+      [
+        "Anfrage zur Menüänderung\n\nGrüezi, Support-Team,\n\nich melde mich, um eine Änderung an unser",
+        "Bestätigung Supportanfrage autorisierten Zugriff Krankenhaus-IT-Systeme\n\nWir bestätigen di",
+        "Critical Issue Reported\n\nIncident: A critical problem has been identified with the scalabl",
+        "Assistance with Service Unavailability\n\nDear Customer Support, our agency is experiencing "
+      ],
+      [
+        "Security Concern in Medical Data\n\nThe healthcare organization is unable to effectively saf",
+        "Incident of Data Theft\n\nThe hospital recently experienced an incident compromising the sec",
+        "Security Breach in Medical Data Management\n\nOur healthcare provider is facing security bre",
+        "IT Issue in Healthcare Sector\n\nHealthcare providers experienced an unexpected outage, disr"
+      ]
+    ],
+    "raw@0.86": [
+      [
+        "Anfrage zur Menüänderung\n\nGrüezi, Support-Team,\n\nich melde mich, um eine Änderung an unser",
+        "Bestätigung Supportanfrage autorisierten Zugriff Krankenhaus-IT-Systeme\n\nWir bestätigen di",
+        "Critical Issue Reported\n\nIncident: A critical problem has been identified with the scalabl",
+        "Assistance with Service Unavailability\n\nDear Customer Support, our agency is experiencing "
+      ],
+      [
+        "Security Concern in Medical Data\n\nThe healthcare organization is unable to effectively saf",
+        "Incident of Data Theft\n\nThe hospital recently experienced an incident compromising the sec",
+        "Security Breach in Medical Data Management\n\nOur healthcare provider is facing security bre",
+        "IT Issue in Healthcare Sector\n\nHealthcare providers experienced an unexpected outage, disr"
+      ]
+    ],
+    "raw@0.87": [
+      [
+        "A user has reported intermittent access issues with the project management dashboard, whic",
+        "Delayed Load Speeds\n\nNoticing sluggish load times when accessing project dashboards due to",
+        "Problems with the Project Management SaaS Application\n\nThe project management SaaS applica",
+        "Issue with Network Switch\n\nFacing connectivity stability issues with the TP-Link 16-Port S"
+      ],
+      [
+        "Security Concern in Medical Data\n\nThe healthcare organization is unable to effectively saf",
+        "Incident of Data Theft\n\nThe hospital recently experienced an incident compromising the sec",
+        "Security Breach in Medical Data Management\n\nOur healthcare provider is facing security bre",
+        "IT Issue in Healthcare Sector\n\nHealthcare providers experienced an unexpected outage, disr"
+      ]
+    ],
+    "raw@0.88": [
+      [
+        "Urgent Request for Immediate System Maintenance Today\n\nCustomer Support, I am submitting a",
+        "Data Analytics System Performance Issues at Financial Firm\n\nA financial company focused on",
+        "Support for Financial Analytics Dashboard\n\nExperienced an unresponsive financial analytics",
+        "Support Needed\n\nCustomer Support, facing issues with unauthorized access attempts to medic"
+      ],
+      [
+        "Critical Issue Reported\n\nIncident: A critical problem has been identified with the scalabl",
+        "Assistance with Service Unavailability\n\nDear Customer Support, our agency is experiencing ",
+        "A user has reported intermittent access issues with the project management dashboard, whic",
+        "Resolve problems with Google Nest Wifi Router\n\nI am encountering connectivity issues with "
+      ]
+    ],
+    "raw@0.89": [
+      [
+        "Urgent Request for Immediate System Maintenance Today\n\nCustomer Support, I am submitting a",
+        "Support Needed\n\nCustomer Support, facing issues with unauthorized access attempts to medic",
+        "Assistance with Marketing Strategy\n\nCustomer Support,\n\nI am encountering issues with the m",
+        "Assistance Required with Digital Campaign Analytics\n\nI am encountering problems with the a"
+      ],
+      [
+        "Critical Issue Reported\n\nIncident: A critical problem has been identified with the scalabl",
+        "Assistance with Service Unavailability\n\nDear Customer Support, our agency is experiencing ",
+        "Resolve problems with Google Nest Wifi Router\n\nI am encountering connectivity issues with ",
+        "Assistance Required with Secure Handling of Medical Data\n\nThere are concerns about the hea"
+      ]
+    ],
+    "raw@0.90": [
+      [
+        "Urgent Request for Immediate System Maintenance Today\n\nCustomer Support, I am submitting a",
+        "Support Needed\n\nCustomer Support, facing issues with unauthorized access attempts to medic",
+        "Assistance with Marketing Strategy\n\nCustomer Support,\n\nI am encountering issues with the m",
+        "Assistance Required with Digital Campaign Analytics\n\nI am encountering problems with the a"
+      ],
+      [
+        "Critical Issue Reported\n\nIncident: A critical problem has been identified with the scalabl",
+        "Assistance with Service Unavailability\n\nDear Customer Support, our agency is experiencing ",
+        "Resolve problems with Google Nest Wifi Router\n\nI am encountering connectivity issues with ",
+        "Implement Real-Time Status Updates for Impacted Products\n\nRequesting the implementation of"
+      ]
+    ],
+    "raw@0.92": [
+      [
+        "Notification of Login Challenges\n\nSeveral users are encountering login difficulties on the",
+        "Issue with Evernote Integration\n\nOur users frequently encounter synchronization issues wit",
+        "SaaS Platform Efficiency Concerns\n\nDear Customer Support Team,\n\nI am writing to report a n",
+        "Concern about Service Disruption\n\nA service disruption has affected several software integ"
+      ],
+      [
+        "Critical Issue Reported\n\nIncident: A critical problem has been identified with the scalabl",
+        "Assistance with Service Unavailability\n\nDear Customer Support, our agency is experiencing ",
+        "Support Request for Project Data Issue\n\nI am writing to report an unexpected disappearance",
+        "Multiple Equipment Failures Affecting Operations\n\nDear Customer Support Team,\n\nI am urgent"
+      ]
+    ],
+    "raw@0.93": [
+      [
+        "Support Needed\n\nCustomer Support, facing issues with unauthorized access attempts to medic",
+        "Support for Security Breach\n\nA potential security breach has been detected in the hospital",
+        "request for improvements to security protocols for managing medical data in management sys",
+        "Security Weakness\n\nA healthcare provider's customer support system encountered a possible "
+      ],
+      [
+        "Bestätigung Supportanfrage autorisierten Zugriff Krankenhaus-IT-Systeme\n\nWir bestätigen di",
+        "Sicherheitsprobleme im Medizinischen Datenystem\n\nSehr geehrte Kundensupport, ein Versuch d",
+        "Mögliche Datensperrverletzung im Medizinischen Datensystem\n\nBewährten Sie sich, geachtete ",
+        "Unerwarteter Ausfall des Datenauswertungs-Platforms gemeldet\n\nSehr geehrte Kundensupport, "
+      ]
+    ],
+    "debiased@0.35": [
+      [
+        "Assistance with Marketing Strategy\n\nCustomer Support,\n\nI am encountering issues with the m",
+        "Concern Regarding the Marketing Campaign\n\nCustomer Support, I hope this message finds you ",
+        "Request for Assistance with Digital Strategy Alignment\n\nI am reaching out to express conce",
+        "Concerns Over Recent Decreased Performance of Digital Campaigns\n\nHello Customer Support,\n\n"
+      ],
+      [
+        "A user has reported intermittent access issues with the project management dashboard, whic",
+        "Delayed Load Speeds\n\nNoticing sluggish load times when accessing project dashboards due to",
+        "Problems with the Project Management SaaS Application\n\nThe project management SaaS applica",
+        "experienced substantial delays in project load times. This may be due to heightened user t"
+      ]
+    ],
+    "debiased@0.38": [
+      [
+        "Assistance with Marketing Strategy\n\nCustomer Support,\n\nI am encountering issues with the m",
+        "Concern Regarding the Marketing Campaign\n\nCustomer Support, I hope this message finds you ",
+        "Request for Assistance with Digital Strategy Alignment\n\nI am reaching out to express conce",
+        "Concerns Over Recent Decreased Performance of Digital Campaigns\n\nHello Customer Support,\n\n"
+      ],
+      [
+        "A user has reported intermittent access issues with the project management dashboard, whic",
+        "Delayed Load Speeds\n\nNoticing sluggish load times when accessing project dashboards due to",
+        "Problems with the Project Management SaaS Application\n\nThe project management SaaS applica",
+        "Problem with Project Management Dashboard Loading\n\nDear Customer Support, I am encounterin"
+      ]
+    ],
+    "debiased@0.40": [
+      [
+        "Assistance with Marketing Strategy\n\nCustomer Support,\n\nI am encountering issues with the m",
+        "Concern Regarding the Marketing Campaign\n\nCustomer Support, I hope this message finds you ",
+        "Request for Assistance with Digital Strategy Alignment\n\nI am reaching out to express conce",
+        "Concerns Over Recent Decreased Performance of Digital Campaigns\n\nHello Customer Support,\n\n"
+      ],
+      [
+        "A user has reported intermittent access issues with the project management dashboard, whic",
+        "Delayed Load Speeds\n\nNoticing sluggish load times when accessing project dashboards due to",
+        "Problems with the Project Management SaaS Application\n\nThe project management SaaS applica",
+        "Problem with Project Management Dashboard Loading\n\nDear Customer Support, I am encounterin"
+      ]
+    ],
+    "debiased@0.42": [
+      [
+        "Assistance with Marketing Strategy\n\nCustomer Support,\n\nI am encountering issues with the m",
+        "Concern Regarding the Marketing Campaign\n\nCustomer Support, I hope this message finds you ",
+        "Request for Assistance with Digital Strategy Alignment\n\nI am reaching out to express conce",
+        "Concerns Over Recent Decreased Performance of Digital Campaigns\n\nHello Customer Support,\n\n"
+      ],
+      [
+        "A user has reported intermittent access issues with the project management dashboard, whic",
+        "Delayed Load Speeds\n\nNoticing sluggish load times when accessing project dashboards due to",
+        "Problem with Project Management Dashboard Loading\n\nDear Customer Support, I am encounterin",
+        "Server Troubles\n\nUsers are experiencing frequent timeouts when accessing project dashboard"
+      ]
+    ],
+    "debiased@0.45": [
+      [
+        "Assistance with Marketing Strategy\n\nCustomer Support,\n\nI am encountering issues with the m",
+        "Concern Regarding the Marketing Campaign\n\nCustomer Support, I hope this message finds you ",
+        "Request for Assistance with Digital Strategy Alignment\n\nI am reaching out to express conce",
+        "Concerns Over Recent Decreased Performance of Digital Campaigns\n\nHello Customer Support,\n\n"
+      ],
+      [
+        "A user has reported intermittent access issues with the project management dashboard, whic",
+        "Delayed Load Speeds\n\nNoticing sluggish load times when accessing project dashboards due to",
+        "Problem with Project Management Dashboard Loading\n\nDear Customer Support, I am encounterin",
+        "Server Troubles\n\nUsers are experiencing frequent timeouts when accessing project dashboard"
+      ]
+    ],
+    "debiased@0.48": [
+      [
+        "Assistance with Marketing Strategy\n\nCustomer Support,\n\nI am encountering issues with the m",
+        "Request for Assistance with Digital Strategy Alignment\n\nI am reaching out to express conce",
+        "Concerns Over Recent Decreased Performance of Digital Campaigns\n\nHello Customer Support,\n\n",
+        "Problems with Campaign\n\nDear Support Team,\nRecently conducted digital campaign has resulte"
+      ],
+      [
+        "Sicherheitsprobleme im Medizinischen Datenystem\n\nSehr geehrte Kundensupport, ein Versuch d",
+        "Mögliche Datensperrverletzung im Medizinischen Datensystem\n\nBewährten Sie sich, geachtete ",
+        "Gemeldeter Datenschutzverstoß\n\nBitte melden Sie ein Datenschutzproblem im System des Gesun"
+      ]
+    ],
+    "debiased@0.50": [
+      [
+        "Assistance with Marketing Strategy\n\nCustomer Support,\n\nI am encountering issues with the m",
+        "Request for Assistance with Digital Strategy Alignment\n\nI am reaching out to express conce",
+        "Concerns Over Recent Decreased Performance of Digital Campaigns\n\nHello Customer Support,\n\n",
+        "Problems with Campaign\n\nDear Support Team,\nRecently conducted digital campaign has resulte"
+      ],
+      [
+        "Datensperrverletzung in den Krankenhaus-IT-Systemen wurde kürzlich festgestellt\n\nEs wurde ",
+        "Technische Anrufbetreff: Unautorisierten Zugriff auf Krankenhausauftritte\n\nEs wurde ein un",
+        "Sicherheitsrisiko im Gesundheitswesen\n\nSehr geehrter Kundenservice, ich möchte Ihre Aufmer"
+      ]
+    ],
+    "debiased@0.55": [
+      [
+        "Assistance Needed for Marketing Agency\n\nCustomer Support, I am reaching out to highlight a",
+        "Required Assistance with Marketing Strategies\n\nOur marketing agency is facing challenges i",
+        "Dear Customer Support, I am expressing significant worry about the marketing agency's digi"
+      ],
+      [
+        "Growth Metrics Discrepancy in Marketing Agency's Digital Campaigns\n\nDear Customer Support,",
+        "Marketing Agency Observes Decline in Client Engagement Despite Recent Efforts\n\nCustomer Su",
+        "Request for Assistance with Digital Strategy Alignment\n\nI am reaching out to express conce"
+      ]
+    ]
+  },
+  "seconds": 81
+}

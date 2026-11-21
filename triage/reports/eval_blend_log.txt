@@ -1,0 +1,46 @@
+
+== clean_test (n=8,437)
+  type      macroF1 0.898  acc 0.897  ECE 0.014
+  queue     macroF1 0.680  acc 0.690  ECE 0.049
+  queue_all macroF1 0.881  acc 0.640  ECE 0.030
+  priority  macroF1 0.826  acc 0.825  ECE 0.028
+  hp_incident {"n_positive": 1036, "classifier_recall": 0.7954, "hp_head_recall": 0.8909, "hp_head_precision": 0.5834, "gate_recall_any_classifier_rule": 0.8909, "hp_flag_rate": 0.4284, "escalation_rate_classifier_rules": 0.4284, "threshold": 0.3067}
+
+== full_official_test (n=12,351)
+  type      macroF1 0.933  acc 0.931  ECE 0.012
+  queue     macroF1 0.791  acc 0.792  ECE 0.039
+  queue_all macroF1 0.911  acc 0.706  ECE 0.041
+  priority  macroF1 0.865  acc 0.865  ECE 0.028
+  hp_incident {"n_positive": 1692, "classifier_recall": 0.8652, "hp_head_recall": 0.9279, "hp_head_precision": 0.6832, "gate_recall_any_classifier_rule": 0.9279, "hp_flag_rate": 0.353, "escalation_rate_classifier_rules": 0.353, "threshold": 0.3067}
+
+by eval_subset: {
+ "clean": {
+  "n": 8437,
+  "type_accuracy": 0.8969,
+  "queue_accuracy": 0.6896,
+  "priority_accuracy": 0.8245,
+  "hp_head_recall": 0.8909
+ },
+ "exact_kb_twin": {
+  "n": 2689,
+  "type_accuracy": 0.9888,
+  "queue_accuracy": 0.9636,
+  "priority_accuracy": 0.9658,
+  "hp_head_recall": 0.9958
+ },
+ "near_kb_twin": {
+  "n": 876,
+  "type_accuracy": 0.9892,
+  "queue_accuracy": 0.9687,
+  "priority_accuracy": 0.9658,
+  "hp_head_recall": 0.992
+ },
+ "test_internal_dup": {
+  "n": 349,
+  "type_accuracy": 0.931,
+  "queue_accuracy": 0.7701,
+  "priority_accuracy": 0.8023,
+  "hp_head_recall": 0.8947
+ }
+}
+latency {'n': 200, 'p50_ms': 631.7, 'p95_ms': 642.2}

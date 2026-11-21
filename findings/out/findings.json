@@ -1,0 +1,215 @@
+{
+  "threshold_used": 0.7,
+  "family_thresholds": {
+    "0.7": {
+      "n_families": 36447,
+      "largest_share": 0.0003,
+      "singletons_share": 0.7096,
+      "rows_in_families_ge5": 0.0086
+    },
+    "0.75": {
+      "n_families": 38714,
+      "largest_share": 0.0002,
+      "singletons_share": 0.794,
+      "rows_in_families_ge5": 0.0059
+    },
+    "0.8": {
+      "n_families": 40575,
+      "largest_share": 0.0001,
+      "singletons_share": 0.8641,
+      "rows_in_families_ge5": 0.0029
+    },
+    "0.85": {
+      "n_families": 42196,
+      "largest_share": 0.0001,
+      "singletons_share": 0.9264,
+      "rows_in_families_ge5": 0.0005
+    }
+  },
+  "family_size_hist": {
+    "1": 31232,
+    "2": 3446,
+    "3": 1284,
+    "4": 414,
+    "5": 65,
+    "7": 2,
+    "8": 1,
+    "9": 2,
+    "14": 1
+  },
+  "label_agreement": {
+    "type": {
+      "within_family": 0.9998,
+      "random_pairs": 0.2967
+    },
+    "queue": {
+      "within_family": 0.996,
+      "random_pairs": 0.1064
+    },
+    "priority": {
+      "within_family": 0.996,
+      "random_pairs": 0.3551
+    },
+    "language": {
+      "within_family": 0.9783,
+      "random_pairs": 0.5035
+    },
+    "families_with_both_en_and_de": 0.0286
+  },
+  "heldout": {
+    "random_split": {
+      "type": {
+        "lr": {
+          "macro_f1": 0.8573,
+          "accuracy": 0.8468
+        },
+        "knn1": {
+          "macro_f1": 0.8963,
+          "accuracy": 0.8962
+        },
+        "blend": {
+          "macro_f1": 0.9142,
+          "accuracy": 0.912
+        },
+        "n_train": 28372,
+        "n_holdout": 5047,
+        "top1_sim_median": 0.5349
+      },
+      "queue": {
+        "lr": {
+          "macro_f1": 0.5702,
+          "accuracy": 0.5766
+        },
+        "knn1": {
+          "macro_f1": 0.6983,
+          "accuracy": 0.7254
+        },
+        "blend": {
+          "macro_f1": 0.7305,
+          "accuracy": 0.7396
+        },
+        "n_train": 28372,
+        "n_holdout": 5047,
+        "top1_sim_median": 0.5349
+      },
+      "priority": {
+        "lr": {
+          "macro_f1": 0.703,
+          "accuracy": 0.705
+        },
+        "knn1": {
+          "macro_f1": 0.8191,
+          "accuracy": 0.8194
+        },
+        "blend": {
+          "macro_f1": 0.8271,
+          "accuracy": 0.8261
+        },
+        "n_train": 37422,
+        "n_holdout": 6589,
+        "top1_sim_median": 0.5638
+      }
+    },
+    "family_held_out": {
+      "type": {
+        "lr": {
+          "macro_f1": 0.8235,
+          "accuracy": 0.8141
+        },
+        "knn1": {
+          "macro_f1": 0.8369,
+          "accuracy": 0.8409
+        },
+        "blend": {
+          "macro_f1": 0.8672,
+          "accuracy": 0.8684
+        },
+        "n_train": 28396,
+        "n_holdout": 5023,
+        "top1_sim_median": 0.4399
+      },
+      "queue": {
+        "lr": {
+          "macro_f1": 0.3937,
+          "accuracy": 0.44
+        },
+        "knn1": {
+          "macro_f1": 0.4999,
+          "accuracy": 0.5544
+        },
+        "blend": {
+          "macro_f1": 0.5465,
+          "accuracy": 0.5911
+        },
+        "n_train": 28396,
+        "n_holdout": 5023,
+        "top1_sim_median": 0.4399
+      },
+      "priority": {
+        "lr": {
+          "macro_f1": 0.6182,
+          "accuracy": 0.6225
+        },
+        "knn1": {
+          "macro_f1": 0.7138,
+          "accuracy": 0.7174
+        },
+        "blend": {
+          "macro_f1": 0.7313,
+          "accuracy": 0.7349
+        },
+        "n_train": 37407,
+        "n_holdout": 6604,
+        "top1_sim_median": 0.4747
+      }
+    }
+  },
+  "example_family": [
+    {
+      "ticket_id": "TKT-04075",
+      "language": "de",
+      "type": "Incident",
+      "queue": "Service Outages and Maintenance",
+      "priority": "medium",
+      "subject": "Support for Multiple Product Downtime",
+      "body": "Experienced unexpected downtimes with several products, including Twitch Studio Beta and MATLAB. The downtime of the latest software updates might have been caused by network issues. So far, restarting the affected appli"
+    },
+    {
+      "ticket_id": "TKT-06364",
+      "language": "de",
+      "type": "Incident",
+      "queue": "Service Outages and Maintenance",
+      "priority": "medium",
+      "subject": "Support for Unexpected Operating Hours in Multiple Products",
+      "body": "Experienced unexpected operating hours for several products, including Twitch Studio Beta and MATLAB recently. The outage was likely caused by recent software updates or network issues. So far, restarting affected applic"
+    },
+    {
+      "ticket_id": "TKT-07113",
+      "language": "en",
+      "type": "Incident",
+      "queue": "Service Outages and Maintenance",
+      "priority": "medium",
+      "subject": "Assistance with Downtime Problems",
+      "body": "went through unforeseen downtime with various products, such as Twitch Studio Beta and MATLAB. outage possibly due to recent software updates or network troubles. so far, restarted involved applications and verified serv"
+    },
+    {
+      "ticket_id": "TKT-35599",
+      "language": "en",
+      "type": "Incident",
+      "queue": "Service Outages and Maintenance",
+      "priority": "medium",
+      "subject": "Support Downtime Concerns",
+      "body": "Encountered unexpected downtime on various products, such as Twitch Studio Beta and MATLAB. The outage may be due to recent software updates or network issues. So far, restarting affected applications and checking server"
+    },
+    {
+      "ticket_id": "TKT-48230",
+      "language": "en",
+      "type": "Incident",
+      "queue": "Service Outages and Maintenance",
+      "priority": "medium",
+      "subject": "Assistance with Downtime Concerns",
+      "body": "Encountered unexpected downtime across various products, such as Twitch Studio Beta and MATLAB. The outage may have been due to recent software updates or network issues. So far, restarting the affected applications and "
+    }
+  ],
+  "secs": 207
+}

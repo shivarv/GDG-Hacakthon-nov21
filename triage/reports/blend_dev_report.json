@@ -1,0 +1,114 @@
+{
+  "heads": {
+    "type": {
+      "params": {
+        "alpha": 0.5,
+        "k": 50,
+        "beta": 30.0,
+        "T": 0.7656702300107482
+      },
+      "dev_tune": {
+        "lr": 0.8491,
+        "knn1": 0.865,
+        "blend": 0.9003,
+        "metric": "macro_f1",
+        "ece_lr": 0.0194,
+        "ece_blend": 0.021
+      },
+      "secs": 28
+    },
+    "queue": {
+      "params": {
+        "alpha": 0.8,
+        "k": 50,
+        "beta": 10.0,
+        "T": 0.7870689162913999
+      },
+      "dev_tune": {
+        "lr": 0.5115,
+        "knn1": 0.6758,
+        "blend": 0.7163,
+        "metric": "macro_f1",
+        "ece_lr": 0.02,
+        "ece_blend": 0.0497
+      },
+      "secs": 28
+    },
+    "priority": {
+      "params": {
+        "alpha": 0.8,
+        "k": 20,
+        "beta": 10.0,
+        "T": 0.7577258265147727
+      },
+      "dev_tune": {
+        "lr": 0.6817,
+        "knn1": 0.8051,
+        "blend": 0.8086,
+        "metric": "macro_f1",
+        "ece_lr": 0.0278,
+        "ece_blend": 0.0406
+      },
+      "secs": 51
+    },
+    "hp_incident": {
+      "params": {
+        "alpha": 1.0,
+        "k": 50,
+        "beta": 30.0,
+        "T": 2.7905116185573
+      },
+      "dev_tune": {
+        "lr": 0.5907,
+        "knn1": 0.5945,
+        "blend": 0.8656,
+        "metric": "average_precision",
+        "ece_lr": 0.0123,
+        "ece_blend": 0.0143
+      },
+      "secs": 27
+    }
+  },
+  "gate": {
+    "hp_incident_threshold": 0.3067,
+    "conf_threshold": {
+      "type": 0.0,
+      "queue": 0.0
+    },
+    "dev_tune_hp_recall": 0.9015,
+    "dev_tune_hp_flag_rate": 0.4218,
+    "dev_tune_escalation_rate_classifier_rules": 0.4218,
+    "hp_recall_vs_flag_rate": [
+      {
+        "recall_target": 0.8,
+        "threshold": 0.4241,
+        "flag_rate": 0.2246
+      },
+      {
+        "recall_target": 0.85,
+        "threshold": 0.3636,
+        "flag_rate": 0.3366
+      },
+      {
+        "recall_target": 0.9,
+        "threshold": 0.3067,
+        "flag_rate": 0.4218
+      },
+      {
+        "recall_target": 0.95,
+        "threshold": 0.2168,
+        "flag_rate": 0.4808
+      },
+      {
+        "recall_target": 0.98,
+        "threshold": 0.1241,
+        "flag_rate": 0.5317
+      }
+    ],
+    "targets": {
+      "hp_recall": 0.9,
+      "escalation_budget": 0.35
+    }
+  },
+  "secs": 209
+}

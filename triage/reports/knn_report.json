@@ -1,0 +1,180 @@
+{
+  "dev_tune": {
+    "type": {
+      "n": 2181,
+      "n_classes": 4,
+      "by_k": {
+        "1": {
+          "macro_f1": 0.865,
+          "accuracy": 0.8643
+        },
+        "5": {
+          "macro_f1": 0.8296,
+          "accuracy": 0.8308
+        },
+        "10": {
+          "macro_f1": 0.7995,
+          "accuracy": 0.8116
+        },
+        "25": {
+          "macro_f1": 0.7762,
+          "accuracy": 0.8028
+        },
+        "50": {
+          "macro_f1": 0.7329,
+          "accuracy": 0.7813
+        }
+      },
+      "best_k": 1,
+      "cover_hart": {
+        "one_nn_error": 0.1357,
+        "bayes_error_lower": 0.0712,
+        "bayes_error_upper": 0.1357,
+        "max_accuracy_upper_bound": 0.9288,
+        "note": "asymptotic, within this TF-IDF representation only"
+      },
+      "one_nn_error_curve": {
+        "0.1": 0.3031,
+        "0.25": 0.2403,
+        "0.5": 0.1994,
+        "1.0": 0.1357
+      }
+    },
+    "queue": {
+      "n": 2181,
+      "n_classes": 10,
+      "by_k": {
+        "1": {
+          "macro_f1": 0.6758,
+          "accuracy": 0.6928
+        },
+        "5": {
+          "macro_f1": 0.5481,
+          "accuracy": 0.586
+        },
+        "10": {
+          "macro_f1": 0.4346,
+          "accuracy": 0.525
+        },
+        "25": {
+          "macro_f1": 0.3375,
+          "accuracy": 0.4613
+        },
+        "50": {
+          "macro_f1": 0.2847,
+          "accuracy": 0.4397
+        }
+      },
+      "best_k": 1,
+      "cover_hart": {
+        "one_nn_error": 0.3072,
+        "bayes_error_lower": 0.1696,
+        "bayes_error_upper": 0.3072,
+        "max_accuracy_upper_bound": 0.8304,
+        "note": "asymptotic, within this TF-IDF representation only"
+      },
+      "one_nn_error_curve": {
+        "0.1": 0.6584,
+        "0.25": 0.5759,
+        "0.5": 0.4512,
+        "1.0": 0.3072
+      }
+    },
+    "priority": {
+      "n": 2947,
+      "n_classes": 3,
+      "by_k": {
+        "1": {
+          "macro_f1": 0.8051,
+          "accuracy": 0.8056
+        },
+        "5": {
+          "macro_f1": 0.727,
+          "accuracy": 0.7265
+        },
+        "10": {
+          "macro_f1": 0.6858,
+          "accuracy": 0.6875
+        },
+        "25": {
+          "macro_f1": 0.6467,
+          "accuracy": 0.6522
+        },
+        "50": {
+          "macro_f1": 0.6076,
+          "accuracy": 0.6193
+        }
+      },
+      "best_k": 1,
+      "cover_hart": {
+        "one_nn_error": 0.1944,
+        "bayes_error_lower": 0.1056,
+        "bayes_error_upper": 0.1944,
+        "max_accuracy_upper_bound": 0.8944,
+        "note": "asymptotic, within this TF-IDF representation only"
+      },
+      "one_nn_error_curve": {
+        "0.1": 0.4432,
+        "0.25": 0.3797,
+        "0.5": 0.3027,
+        "1.0": 0.1944
+      }
+    }
+  },
+  "test": {
+    "clean_test": {
+      "n": 8437,
+      "type": {
+        "k": 1,
+        "macro_f1": 0.8756,
+        "accuracy": 0.8764
+      },
+      "queue": {
+        "k": 1,
+        "macro_f1": 0.6436,
+        "accuracy": 0.6733
+      },
+      "priority": {
+        "k": 1,
+        "macro_f1": 0.8051,
+        "accuracy": 0.8059
+      }
+    },
+    "full_official_test": {
+      "n": 12351,
+      "type": {
+        "k": 1,
+        "macro_f1": 0.9162,
+        "accuracy": 0.9165,
+        "accuracy_by_eval_subset": {
+          "clean": 0.8764,
+          "exact_kb_twin": 0.9829,
+          "near_kb_twin": 0.9867,
+          "test_internal_dup": 0.9167
+        }
+      },
+      "queue": {
+        "k": 1,
+        "macro_f1": 0.7587,
+        "accuracy": 0.7793,
+        "accuracy_by_eval_subset": {
+          "clean": 0.6733,
+          "exact_kb_twin": 0.961,
+          "near_kb_twin": 0.9627,
+          "test_internal_dup": 0.7356
+        }
+      },
+      "priority": {
+        "k": 1,
+        "macro_f1": 0.8503,
+        "accuracy": 0.852,
+        "accuracy_by_eval_subset": {
+          "clean": 0.8059,
+          "exact_kb_twin": 0.9669,
+          "near_kb_twin": 0.9646,
+          "test_internal_dup": 0.7994
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "clean": {
+    "n": 8437,
+    "ft_e5b_s13": {
+      "type_macro_f1": 0.8438,
+      "queue_macro_f1": 0.4543,
+      "priority_macro_f1": 0.6705,
+      "mean_main_f1": 0.6562,
+      "hp_gate_recall": 0.9459,
+      "hp_flag_rate": 0.5242,
+      "hp_classifier_recall": 0.7008
+    },
+    "fused": {
+      "type_macro_f1": 0.9311,
+      "queue_macro_f1": 0.7818,
+      "priority_macro_f1": 0.8787,
+      "mean_main_f1": 0.8639,
+      "hp_gate_recall": 0.9344,
+      "hp_flag_rate": 0.3015,
+      "hp_classifier_recall": 0.8658
+    },
+    "policy": {
+      "type_macro_f1": 0.9316,
+      "queue_macro_f1": 0.7819,
+      "priority_macro_f1": 0.879,
+      "mean_main_f1": 0.8642,
+      "hp_gate_recall": 0.9363,
+      "hp_flag_rate": 0.3345,
+      "hp_classifier_recall": 0.8668
+    },
+    "tfidf": {
+      "type_macro_f1": 0.8416,
+      "queue_macro_f1": 0.4948,
+      "priority_macro_f1": 0.7084,
+      "mean_main_f1": 0.6816,
+      "hp_gate_recall": 0.9459,
+      "hp_flag_rate": 0.5374,
+      "hp_classifier_recall": 0.6216
+    }
+  },
+  "all_official": {
+    "n": 12353,
+    "ft_e5b_s13": {
+      "type_macro_f1": 0.8706,
+      "queue_macro_f1": 0.5356,
+      "priority_macro_f1": 0.6706,
+      "mean_main_f1": 0.6923,
+      "hp_gate_recall": 0.9628,
+      "hp_flag_rate": 0.4823,
+      "hp_classifier_recall": 0.7665
+    },
+    "fused": {
+      "type_macro_f1": 0.9561,
+      "queue_macro_f1": 0.8618,
+      "priority_macro_f1": 0.9119,
+      "mean_main_f1": 0.9099,
+      "hp_gate_recall": 0.9569,
+      "hp_flag_rate": 0.262,
+      "hp_classifier_recall": 0.9131
+    },
+    "policy": {
+      "type_macro_f1": 0.9565,
+      "queue_macro_f1": 0.8617,
+      "priority_macro_f1": 0.9123,
+      "mean_main_f1": 0.9102,
+      "hp_gate_recall": 0.9586,
+      "hp_flag_rate": 0.2851,
+      "hp_classifier_recall": 0.9137
+    },
+    "tfidf": {
+      "type_macro_f1": 0.8919,
+      "queue_macro_f1": 0.659,
+      "priority_macro_f1": 0.767,
+      "mean_main_f1": 0.7726,
+      "hp_gate_recall": 0.9645,
+      "hp_flag_rate": 0.5059,
+      "hp_classifier_recall": 0.7394
+    }
+  }
+}

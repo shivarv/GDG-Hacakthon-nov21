@@ -1,0 +1,19 @@
+[16s] features (44011, 235422)
+[83s] 10-NN graph done
+  thr 0.7: {'n_families': 36447, 'largest_share': 0.0003, 'singletons_share': 0.7096, 'rows_in_families_ge5': 0.0086}
+  thr 0.75: {'n_families': 38714, 'largest_share': 0.0002, 'singletons_share': 0.794, 'rows_in_families_ge5': 0.0059}
+  thr 0.8: {'n_families': 40575, 'largest_share': 0.0001, 'singletons_share': 0.8641, 'rows_in_families_ge5': 0.0029}
+  thr 0.85: {'n_families': 42196, 'largest_share': 0.0001, 'singletons_share': 0.9264, 'rows_in_families_ge5': 0.0005}
+label agreement: {'type': {'within_family': 0.9998, 'random_pairs': 0.2967}, 'queue': {'within_family': 0.996, 'random_pairs': 0.1064}, 'priority': {'within_family': 0.996, 'random_pairs': 0.3551}, 'language': {'within_family': 0.9783, 'random_pairs': 0.5035}, 'families_with_both_en_and_de': 0.0286}
+/home/nathan/dev/sentineldesk/.venv/lib/python3.12/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/home/nathan/dev/sentineldesk/.venv/lib/python3.12/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/home/nathan/dev/sentineldesk/.venv/lib/python3.12/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/home/nathan/dev/sentineldesk/.venv/lib/python3.12/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/home/nathan/dev/sentineldesk/.venv/lib/python3.12/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+[207s] held-out: {"random_split": {"type": {"lr": {"macro_f1": 0.8573, "accuracy": 0.8468}, "knn1": {"macro_f1": 0.8963, "accuracy": 0.8962}, "blend": {"macro_f1": 0.9142, "accuracy": 0.912}, "n_train": 28372, "n_holdout": 5047, "top1_sim_median": 0.5349}, "queue": {"lr": {"macro_f1": 0.5702, "accuracy": 0.5766}, "knn1": {"macro_f1": 0.6983, "accuracy": 0.7254}, "blend": {"macro_f1": 0.7305, "accuracy": 0.7396}, "n_train": 28372, "n_holdout": 5047, "top1_sim_median": 0.5349}, "priority": {"lr": {"macro_f1": 0.703, "accuracy": 0.705}, "knn1": {"macro_f1": 0.8191, "accuracy": 0.8194}, "blend": {"macro_f1": 0.8271, "accuracy": 0.8261}, "n_train": 37422, "n_holdout": 6589, "top1_sim_median": 0.5638}}, "family_held_out": {"type": {"lr": {"macro_f1": 0.8235, "accuracy": 0.8141}, "knn1": {"macro_f1": 0.8369, "accuracy": 0.8409}, "blend": {"macro_f1": 0.8672, "accuracy": 0.8684}, "n_train": 28396, "n_holdout": 5023, "top1_sim_median": 0.4399}, "queue": {"lr": {"macro_f1": 0.3937, "accuracy": 0.44}, "knn1": {"macro_f1": 0.4999, "accuracy": 0.5544}, "blend": {"macro_f1": 0.5465, "accuracy": 0.5911}, "n_train": 28396, "n_holdout": 5023, "top1_sim_median": 0.4399}, "priority": {"lr": {"macro_f1": 0.6182, "accuracy": 0.6225}, "knn1": {"macro_f1": 0.7138, "accuracy": 0.7174}, "blend": {"macro_f1": 0.7313, "accuracy": 0.7349}, "n_train": 37407, "n_holdout": 6604, "top1_sim_median": 0.4747}}}
+[218s] done
