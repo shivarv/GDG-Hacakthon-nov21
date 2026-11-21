@@ -48,6 +48,13 @@ class SentinelTriageModel:
         reasons = [f"Type {out['type']['label']} ({out['type']['conf']:.2f}), queue {out['queue']['label']} "
                    f"({out['queue']['conf']:.2f}), priority {pri['label']} ({pri['conf']:.2f})"]
         reasons += out.get("gate_hints", {}).get("reasons", [])
+        rag = out.get("rag") if isinstance(out.get("rag"), dict) else None
+        if rag:
+            try:
+                if (rag.get("reply") or {}).get("needs_human"):
+                    reasons.append("RAG: " + ((rag["reply"].get("reason")) or "no grounded reply: needs a human"))
+            except Exception:
+                logger.warning("Malformed rag block ignored")
         reasons.append("Escalate automatically" if should_escalate else "Not severe → normal queue")
         return TriageDecision(priority=priority, should_escalate=should_escalate,
-                              confidence=float(pri["conf"]), model=self.name, reasons=reasons)
+                              confidence=float(pri["conf"]), model=self.name, reasons=reasons, rag=rag)

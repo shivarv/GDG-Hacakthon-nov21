@@ -11,7 +11,7 @@ if [[ "${1:-all}" != "frontend" ]]; then
   "$GCLOUD" run deploy helpdesk-backend --source "$ROOT/backend" \
     --project "$PROJECT" --region "$REGION" --port 8000 --allow-unauthenticated \
     --min-instances 1 --max-instances 1 --no-cpu-throttling --memory 1Gi --cpu 1 \
-    --set-env-vars "DATABASE_URL=sqlite:///./.data/helpdesk.db,CORS_ORIGINS=*,EMAIL_LISTENER_ENABLED=false,SMTP_ENABLED=false,TEMP_INBOX_ENABLED=true,AUTO_ESCALATE=true,TRIAGE_MODEL=dummy,ETA_MODEL=dummy,SUPPORT_TIMEZONE=America/New_York" \
+    --set-env-vars "DATABASE_URL=sqlite:///./.data/helpdesk.db,CORS_ORIGINS=*,EMAIL_LISTENER_ENABLED=false,SMTP_ENABLED=false,TEMP_INBOX_ENABLED=true,AUTO_ESCALATE=true,TRIAGE_MODEL=sentinel,ETA_MODEL=dummy,SUPPORT_TIMEZONE=America/New_York" \
     --quiet
 fi
 
