@@ -125,7 +125,8 @@ class NotificationService:
         if when.tzinfo is None:  # SQLite returns naive UTC timestamps
             when = when.replace(tzinfo=timezone.utc)
         local = when.astimezone(ZoneInfo(self.settings.support_timezone))
-        return local.strftime("%a, %d %b %Y, %-I:%M %p %Z")
+        # "%-I" is not portable (fails on Windows), so format the 12-hour clock by hand.
+        return local.strftime("%a, %d %b %Y, ") + f"{local.hour % 12 or 12}:{local:%M %p %Z}"
 
     def send_customer_handoff(self, ticket: Ticket, contact: User, level: int, eta) -> OutboundEmail | None:
         subject, body = self.customer_handoff_message(ticket, contact, level, eta)
