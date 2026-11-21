@@ -15,8 +15,8 @@ export function EmailsPage() {
         subtitle="Every inbound email and the case it produced"
         actions={<Button variant="secondary" onClick={reload}>Refresh</Button>}
       />
-      <div className="grid gap-6 xl:grid-cols-3">
-        <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm xl:col-span-2">
+      <div className="grid gap-6 2xl:grid-cols-3">
+        <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm 2xl:col-span-2">
           {loading ? (
             <Spinner />
           ) : error ? (

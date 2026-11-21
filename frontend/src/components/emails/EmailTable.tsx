@@ -11,7 +11,7 @@ export function EmailTable({ emails }: { emails: EmailMessage[] }) {
           <tr>
             <th className="px-5 py-3">Received</th>
             <th className="px-5 py-3">From</th>
-            <th className="px-5 py-3">Subject</th>
+            <th className="w-full px-5 py-3">Subject</th>
             <th className="px-5 py-3">Result</th>
             <th className="px-5 py-3">Case</th>
           </tr>
@@ -24,12 +24,12 @@ export function EmailTable({ emails }: { emails: EmailMessage[] }) {
                 <div className="font-medium text-slate-900">{e.from_name ?? e.from_address}</div>
                 {e.from_name && <div className="text-xs text-slate-500">{e.from_address}</div>}
               </td>
-              <td className="max-w-sm truncate px-5 py-3 text-slate-700" title={e.error ?? e.subject}>{e.subject || '(no subject)'}</td>
+              <td className="max-w-[16rem] truncate px-5 py-3 text-slate-700" title={e.error ?? e.subject}>{e.subject || '(no subject)'}</td>
               <td className="px-5 py-3"><EmailStatusBadge status={e.processing_status} /></td>
               <td className="px-5 py-3">
                 {e.ticket_id ? (
-                  <Link to={`/tickets/${e.ticket_id}`} className="font-medium text-brand-600 hover:underline">
-                    View case →
+                  <Link to={`/tickets/${e.ticket_id}`} className="whitespace-nowrap font-medium text-brand-600 hover:underline">
+                    Open →
                   </Link>
                 ) : (
                   <span className="text-slate-400">—</span>
