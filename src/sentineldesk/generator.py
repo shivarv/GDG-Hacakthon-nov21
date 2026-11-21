@@ -111,6 +111,9 @@ def validate(reply: str, cited: list[str], hits: list[dict]) -> tuple[str, list[
     unsupported = [c for c in CLAIM_RE.findall(reply) if c.lower().strip() not in evidence]
     if unsupported:
         warnings.append(f"Unsupported numeric claims (not in evidence): {', '.join(sorted(set(unsupported)))}")
+    commitments = sorted({m.group(0).lower() for m in MONEY_RE.finditer(reply)})
+    if commitments:
+        warnings.append(f"Unsupported commitment language (money/credit): {', '.join(commitments)}")
     return reply.strip(), valid, warnings
 
 

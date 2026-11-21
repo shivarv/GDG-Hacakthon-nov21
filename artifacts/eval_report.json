@@ -1,0 +1,21 @@
+{
+  "n_holdout": 12353,
+  "type_macro_f1": 0.9118,
+  "type_accuracy": 0.9095,
+  "queue_macro_f1": 0.9212,
+  "queue_accuracy": 0.719,
+  "priority_macro_f1": 0.8138,
+  "priority_accuracy": 0.7492,
+  "high_priority_recall": 0.7878,
+  "high_priority_incident_recall_classifier": 0.7565,
+  "gate_sample": 1000,
+  "gate_high_incident_escalation_recall": 0.9385,
+  "auto_draft_rate": 0.273,
+  "latency_ms_p50": 81.7,
+  "latency_ms_p95": 282.3,
+  "top1_similarity_p10_p50_p90": [
+    0.952,
+    0.984,
+    1.0
+  ]
+}
