@@ -1,0 +1,46 @@
+{
+  "far=None hp_or=False": {
+    "dev_mean_main_f1": 0.843,
+    "dev_hp_recall": 0.9507,
+    "dev_hp_flag_rate": 0.3234,
+    "dev_far_share": 0.0,
+    "novel_type_acc": 0.75,
+    "novel_queue_in_set": 0.893,
+    "novel_priority_in_set": 0.857,
+    "novel_hp_recall": 0.917,
+    "novel_false_flag_rate": 0.062
+  },
+  "far=None hp_or=True": {
+    "dev_mean_main_f1": 0.843,
+    "dev_hp_recall": 0.9803,
+    "dev_hp_flag_rate": 0.5443,
+    "dev_far_share": 0.0,
+    "novel_type_acc": 0.75,
+    "novel_queue_in_set": 0.893,
+    "novel_priority_in_set": 0.857,
+    "novel_hp_recall": 1.0,
+    "novel_false_flag_rate": 0.125
+  },
+  "far=0.93 hp_or=False": {
+    "dev_mean_main_f1": 0.8436,
+    "dev_hp_recall": 0.9483,
+    "dev_hp_flag_rate": 0.3509,
+    "dev_far_share": 0.1578,
+    "novel_type_acc": 0.75,
+    "novel_queue_in_set": 0.821,
+    "novel_priority_in_set": 0.964,
+    "novel_hp_recall": 1.0,
+    "novel_false_flag_rate": 0.062
+  },
+  "far=0.93 hp_or=True": {
+    "dev_mean_main_f1": 0.8436,
+    "dev_hp_recall": 0.9778,
+    "dev_hp_flag_rate": 0.5426,
+    "dev_far_share": 0.1578,
+    "novel_type_acc": 0.75,
+    "novel_queue_in_set": 0.821,
+    "novel_priority_in_set": 0.964,
+    "novel_hp_recall": 1.0,
+    "novel_false_flag_rate": 0.062
+  }
+}
