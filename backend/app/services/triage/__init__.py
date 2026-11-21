@@ -7,8 +7,9 @@ implementing `TriageModel.assess()` and registering it in `_MODELS`.
 
 from app.services.triage.base import TriageDecision, TriageModel
 from app.services.triage.dummy import DummyTriageModel
+from app.services.triage.sentinel import SentinelTriageModel
 
-_MODELS: dict[str, type] = {"dummy": DummyTriageModel}
+_MODELS: dict[str, type] = {"dummy": DummyTriageModel, "sentinel": SentinelTriageModel}
 
 
 def get_triage_model(name: str = "dummy") -> TriageModel:

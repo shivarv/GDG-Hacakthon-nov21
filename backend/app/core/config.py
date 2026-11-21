@@ -45,7 +45,9 @@ class Settings(BaseSettings):
 
     # Triage of new email tickets: escalate severe ones automatically
     auto_escalate: bool = True
-    triage_model: str = "dummy"
+    triage_model: str = "dummy"  # "sentinel" = SentinelDesk classifier on Cloud Run
+    triage_url: str = "https://sentinel-triage-mx2zqqjdda-uc.a.run.app"
+    triage_timeout_s: float = 5.0
 
     # Resolution-time model used for escalation due dates ("dummy" until a trained one is merged)
     eta_model: str = "dummy"
