@@ -11,3 +11,6 @@ data/
 .qodo/
 *.log
 /sentineldesk/
+
+!artifacts/gate_thresholds.json
+!artifacts/eval_report.json

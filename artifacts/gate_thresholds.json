@@ -1,0 +1,8 @@
+{
+  "sim_threshold": 0.9403,
+  "risk_threshold": 0.22,
+  "val_recall": 0.9512,
+  "val_escalation_rate": 0.5399,
+  "target_recall": 0.95,
+  "val_size": 9882
+}

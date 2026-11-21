@@ -4,6 +4,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
+from .generator import safe_answer
+
 HIGH_PRIORITY = {"high", "critical"}  # dataset also contains a "critical" level
 AUTO = "AUTO_DRAFT_READY"
 ESCALATE = "ESCALATE_TO_ON_CALL"
@@ -87,7 +89,8 @@ def decide(text: str, preds: dict, hits: list[dict], conf_threshold: float, sim_
     if INJECTION.search(text):
         d.add("Possible prompt-injection / instruction override attempt")
 
-    evidence = " ".join(h.get("answer", "") for h in hits).lower()
+    # Evidence is what a draft may actually quote: safe_answer drops money promises, so refund asks always escalate.
+    evidence = " ".join(safe_answer(h.get("answer", "")) for h in hits).lower()
     for topic, (pattern, evidence_words) in POLICY_TOPICS.items():
         if re.search(pattern, text, re.I) and not any(w in evidence for w in evidence_words):
             d.add(f"Requests {topic}, which no retrieved resolution supports")

@@ -53,7 +53,7 @@ class SentinelDesk:
         timings["classify_ms"] = (time.perf_counter() - t) * 1000
 
         t = time.perf_counter()
-        hits, qvec = self.retriever.search(text, self.s.top_k)
+        hits, qvec = self.retriever.search(text, self.s.top_k, lang=lang, min_other_lang=self.s.min_other_lang)
         timings["retrieve_ms"] = (time.perf_counter() - t) * 1000
 
         gate = decide(text, preds, hits, self.s.conf_threshold, self.sim_threshold,
@@ -72,7 +72,7 @@ class SentinelDesk:
                                          min_similarity=self.sim_threshold - GROUNDING_MARGIN)
             timings["generate_ms"] = (time.perf_counter() - t) * 1000
             for w in draft.warnings:
-                if w.startswith(("Unsupported numeric", "Draft does not cite")):
+                if w.startswith(("Unsupported numeric", "Unsupported commitment", "Draft does not cite")):
                     gate.add(f"Draft guardrail: {w}")
 
         _, pii = mask_pii(text)
