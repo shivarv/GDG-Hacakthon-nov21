@@ -23,6 +23,11 @@ class Settings(BaseSettings):
     imap_mailbox: str = "INBOX"
     imap_poll_interval_seconds: int = 10
 
+    # Temporary public inbox via mail.tm (receive real email with no domain/server)
+    temp_inbox_enabled: bool = False
+    temp_inbox_poll_interval_seconds: int = 10
+    temp_inbox_state_file: str = ".data/temp_inbox.json"
+
     # SMTP (acknowledgement emails)
     smtp_enabled: bool = False
     smtp_host: str = "localhost"

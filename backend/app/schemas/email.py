@@ -39,3 +39,8 @@ class EmailIngestResult(BaseModel):
     ticket_id: int | None
     ticket_number: str | None
     action: EmailProcessingStatus
+
+
+class InboxInfo(BaseModel):
+    enabled: bool
+    address: str | None

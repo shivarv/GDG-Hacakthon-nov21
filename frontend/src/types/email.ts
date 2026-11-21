@@ -28,3 +28,8 @@ export interface EmailIngestResult {
   ticket_number: string | null;
   action: EmailProcessingStatus;
 }
+
+export interface InboxInfo {
+  enabled: boolean;
+  address: string | null;
+}

@@ -1,12 +1,21 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, EmptyState, ErrorMessage, Pagination, Spinner } from '@/components/common';
-import { EmailTable, InboundEmailSimulator } from '@/components/emails';
+import { EmailTable, InboundEmailSimulator, InboxAddressBanner } from '@/components/emails';
 import { PageHeader } from '@/components/layout';
+import { emailsApi } from '@/api/emails';
 import { useEmails } from '@/hooks/useEmails';
 
 export function EmailsPage() {
   const [page, setPage] = useState(1);
-  const { data, loading, error, reload } = useEmails(page);
+  const { data, loading, error, reload, setData } = useEmails(page);
+
+  // Poll quietly so emails arriving from the real inbox show up on their own.
+  useEffect(() => {
+    const t = setInterval(() => {
+      emailsApi.list(page).then(setData).catch(() => undefined);
+    }, 5000);
+    return () => clearInterval(t);
+  }, [page, setData]);
 
   return (
     <>
@@ -15,6 +24,7 @@ export function EmailsPage() {
         subtitle="Every inbound email and the case it produced"
         actions={<Button variant="secondary" onClick={reload}>Refresh</Button>}
       />
+      <InboxAddressBanner />
       <div className="grid gap-6 2xl:grid-cols-3">
         <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm 2xl:col-span-2">
           {loading ? (

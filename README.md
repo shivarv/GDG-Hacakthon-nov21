@@ -33,10 +33,28 @@ python backend/scripts/send_test_email.py --subject "Re: [TCK-1] cannot log in" 
 Within about 10 seconds the listener picks the email up, and the case appears under **Tickets** and **Email Inbox**.
 You can also use the **Simulate inbound email** panel on the Email Inbox page, which calls the webhook directly.
 
+### Email in from Gmail (no domain needed)
+
+With `TEMP_INBOX_ENABLED=true` (on by default in Docker Compose), the backend creates a free public address
+through [mail.tm](https://mail.tm), such as `helpdesk-1a2b3c4d@<mail.tm domain>`, and shows it in a banner on the
+**Email Inbox** page. Send an email to it from Gmail or any mail app and it becomes a case within about 10 seconds.
+Replying in the same Gmail thread adds a comment to that case.
+
+- Receive-only: nothing is ever sent through mail.tm.
+- The address is saved to `.data/temp_inbox.json` and reused on restart. Delete that file to get a new address.
+- mail.tm is a public third-party service. Use it for demos, not for sensitive data.
+
+```bash
+# Run locally without Docker (SQLite, temp inbox on)
+cd backend
+DATABASE_URL=sqlite:///./dev.db TEMP_INBOX_ENABLED=true uvicorn app.main:app
+```
+
 ## How email becomes a case
 
 ```
  Customer email ──► Mailbox (IMAP) ──► ImapEmailListener ─┐
+ Gmail ──► mail.tm temp address ──► TempInboxListener ─────┤
                                                           ├─► EmailIngestionService
  Provider webhook ──► POST /api/emails/inbound ───────────┘          │
                                                                      ▼
@@ -71,7 +89,7 @@ backend/app/
 │   ├── email_parser.py              # RFC 822 parsing, quote stripping, priority detection
 │   └── notification_service.py      # SMTP acknowledgements
 ├── controllers/             # FastAPI routers (HTTP only), with services injected through Depends
-└── email_listener/          # IMAP polling background thread
+└── email_listener/          # Background pollers: IMAP mailbox and mail.tm temp inbox
 ```
 
 ### API

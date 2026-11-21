@@ -10,19 +10,25 @@ from app.core.config import get_settings
 from app.core.database import init_db
 from app.core.exceptions import AppError
 from app.email_listener.imap_listener import ImapEmailListener
+from app.email_listener.temp_inbox_listener import TempInboxListener
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(name)s] %(message)s")
 settings = get_settings()
 
 
 @asynccontextmanager
-async def lifespan(_: FastAPI):
+async def lifespan(app: FastAPI):
     init_db()
-    listener = ImapEmailListener(settings) if settings.email_listener_enabled else None
-    if listener:
+    listeners = []
+    if settings.email_listener_enabled:
+        listeners.append(ImapEmailListener(settings))
+    if settings.temp_inbox_enabled:
+        app.state.temp_inbox = TempInboxListener(settings)
+        listeners.append(app.state.temp_inbox)
+    for listener in listeners:
         listener.start()
     yield
-    if listener:
+    for listener in listeners:
         listener.stop()
 
 

@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request
 
 from app.controllers.dependencies import get_email_service
 from app.schemas.common import Page
-from app.schemas.email import EmailIngestResult, EmailMessageRead, InboundEmail
+from app.schemas.email import EmailIngestResult, EmailMessageRead, InboundEmail, InboxInfo
 from app.services.email_ingestion_service import EmailIngestionService
 
 router = APIRouter(prefix="/api/emails", tags=["emails"])
@@ -15,6 +15,13 @@ def list_emails(
     service: EmailIngestionService = Depends(get_email_service),
 ):
     return service.list_emails(page, page_size)
+
+
+@router.get("/inbox", response_model=InboxInfo)
+def inbox_info(request: Request):
+    """The public address customers can email, when the temp inbox is enabled."""
+    listener = getattr(request.app.state, "temp_inbox", None)
+    return InboxInfo(enabled=listener is not None, address=listener.address if listener else None)
 
 
 @router.post("/inbound", response_model=EmailIngestResult)

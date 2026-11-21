@@ -45,6 +45,10 @@ services:
       SMTP_HOST: mail
       SMTP_PORT: 3025
       SUPPORT_FROM_ADDRESS: support@helpdesk.local
+      # Public temp address (mail.tm) so you can email cases in from Gmail
+      TEMP_INBOX_ENABLED: "true"
+    volumes:
+      - backend_data:/code/.data   # keeps the temp inbox address across restarts
     ports:
       - "8000:8000"
     depends_on:
@@ -62,3 +66,4 @@ services:
 
 volumes:
   pgdata:
+  backend_data:
