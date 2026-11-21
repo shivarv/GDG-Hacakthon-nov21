@@ -18,6 +18,7 @@ from pydantic import BaseModel
 from triage.model import TriageModel
 
 MODEL_PATH = os.environ.get("MODEL_PATH", "/app/triage/models/triage.joblib")
+MODEL_KIND = os.environ.get("MODEL_KIND", "lr")  # "lr" = TriageModel, "blend" = BlendModel (LR + kNN, ~0.6 s/ticket)
 MAX_CHARS = int(os.environ.get("MAX_CHARS", "20000"))  # truncate huge pastes instead of failing
 
 STATE: dict = {}
@@ -26,11 +27,15 @@ STATE: dict = {}
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     t0 = time.perf_counter()
-    tm = TriageModel.load(MODEL_PATH)
+    if MODEL_KIND == "blend":
+        from triage.blend import BlendModel  # needs triage.joblib next to blend.joblib
+        tm = BlendModel.load(MODEL_PATH)
+    else:
+        tm = TriageModel.load(MODEL_PATH)
     tm.predict("warm-up", "VPN is down for all users")  # first call pays numpy/scipy init cost
     STATE["model"] = tm
     STATE["load_s"] = round(time.perf_counter() - t0, 2)
-    print(f"model loaded from {MODEL_PATH} in {STATE['load_s']}s", flush=True)
+    print(f"{MODEL_KIND} model loaded from {MODEL_PATH} in {STATE['load_s']}s", flush=True)
     yield
     STATE.clear()
 
@@ -49,7 +54,7 @@ class Ticket(BaseModel):
 def health():
     if "model" not in STATE:
         raise HTTPException(503, "model not loaded")
-    return {"status": "ok", "model": os.path.basename(MODEL_PATH), "load_s": STATE["load_s"]}
+    return {"status": "ok", "kind": MODEL_KIND, "model": os.path.basename(MODEL_PATH), "load_s": STATE["load_s"]}
 
 
 @app.post("/triage")

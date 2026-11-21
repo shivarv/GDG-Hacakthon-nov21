@@ -117,20 +117,37 @@ class BlendModel:
             P = P_lr
         return temper(P, p["T"])
 
+    def _proba_one(self, X, head, s_all):
+        """Single-ticket fast path: reuse one similarity row (to every base ticket) across all heads."""
+        p = self.params[head]
+        P_lr = self.lr.proba(X, head)
+        if p["alpha"] <= 0:
+            return temper(P_lr, p["T"])[0]
+        rows, yidx = self.nb_labels[head]
+        sh = s_all[rows]
+        k = p["k"]
+        part = np.argpartition(-sh, k)[:k] if len(sh) > k else np.arange(len(sh))
+        part = part[np.argsort(-sh[part])]
+        P_knn = knn_proba(yidx[part][None, :], sh[part][None, :].astype(np.float32), P_lr.shape[1], len(part), p["beta"])
+        return temper((1 - p["alpha"]) * P_lr + p["alpha"] * P_knn, p["T"])[0]
+
     def predict(self, subject, body):
         from textprep import build_text
         from urgency import urgency
         t0 = time.perf_counter()
         text = build_text(subject, body)
         X = self.transform([text])
+        if not hasattr(self, "_XbT_all"):
+            self._XbT_all = self.Xb.T.tocsc()
+        s_all = (X @ self._XbT_all).toarray().ravel()  # one search, shared by the 4 heads
         out = {}
         for head in CONTRACT_HEADS:
-            P = self.proba(X, head)[0]
+            P = self._proba_one(X, head, s_all)
             cls = self.classes(head)
             i = int(np.argmax(P))
             out[head] = {"label": cls[i], "conf": float(P[i]),
                          "probs": {c: round(float(v), 4) for c, v in sorted(zip(cls, P), key=lambda z: -z[1])}}
-        p_hp = float(self.proba(X, "hp_incident")[0][list(self.classes("hp_incident")).index(1)])
+        p_hp = float(self._proba_one(X, "hp_incident", s_all)[list(self.classes("hp_incident")).index(1)])
         out["hp_incident"] = {"prob": p_hp, "flag": p_hp >= self.gate["hp_incident_threshold"]}
         reasons = []
         u = urgency(text)
