@@ -1,6 +1,0 @@
-{
-  "sim_threshold": 0.861,
-  "dev_p5": 0.9,
-  "oos_max": 0.823,
-  "n_dev": 500
-}
