@@ -1,3 +1,5 @@
+import type { Escalation } from './escalation';
+
 export type TicketStatus = 'open' | 'in_progress' | 'pending' | 'resolved' | 'closed';
 export type TicketPriority = 'low' | 'medium' | 'high' | 'urgent';
 export type TicketSource = 'web' | 'email';
@@ -17,6 +19,7 @@ export interface Ticket {
   requester_email: string;
   requester_name: string | null;
   assignee: string | null;
+  is_escalated: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -29,10 +32,13 @@ export interface Comment {
   is_internal: boolean;
   source: TicketSource;
   created_at: string;
+  email_status?: 'sent' | 'failed' | 'skipped' | null;
+  email_error?: string | null;
 }
 
 export interface TicketDetail extends Ticket {
   comments: Comment[];
+  escalations: Escalation[];
 }
 
 export interface TicketCreateInput {
@@ -52,6 +58,7 @@ export interface CommentCreateInput {
   author: string;
   body: string;
   is_internal: boolean;
+  notify_customer?: boolean;
 }
 
 export interface TicketFilters {
@@ -59,13 +66,17 @@ export interface TicketFilters {
   priority?: TicketPriority | '';
   source?: TicketSource | '';
   q?: string;
+  escalated?: boolean;
   page: number;
   page_size: number;
 }
 
 export interface TicketStats {
   total: number;
+  escalated: number;
   by_status: Partial<Record<TicketStatus, number>>;
   by_priority: Partial<Record<TicketPriority, number>>;
   by_source: Partial<Record<TicketSource, number>>;
 }
+
+export const ESCALATABLE_STATUSES: TicketStatus[] = ['open', 'in_progress', 'pending'];

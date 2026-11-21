@@ -22,7 +22,8 @@ export function Card({ title, description, actions, className, bodyClassName, ch
           {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
         </header>
       )}
-      <div className={cn('p-4 sm:p-6', bodyClassName)}>{children}</div>
+      {/* bodyClassName replaces the default padding rather than competing with it. */}
+      <div className={bodyClassName ?? 'p-4 sm:p-6'}>{children}</div>
     </section>
   );
 }

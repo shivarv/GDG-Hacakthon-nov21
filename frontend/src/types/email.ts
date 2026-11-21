@@ -1,4 +1,4 @@
-export type EmailProcessingStatus = 'created_ticket' | 'appended_comment' | 'failed';
+export type EmailProcessingStatus = 'created_ticket' | 'appended_comment' | 'ignored' | 'failed';
 
 export interface EmailMessage {
   id: number;
@@ -32,4 +32,29 @@ export interface EmailIngestResult {
 export interface InboxInfo {
   enabled: boolean;
   address: string | null;
+}
+
+export type OutboundEmailStatus = 'sent' | 'failed' | 'skipped';
+export type OutboundEmailKind = 'acknowledgement' | 'escalation_internal' | 'customer_handoff' | 'test';
+
+export interface OutboundEmail {
+  id: number;
+  ticket_id: number | null;
+  kind: OutboundEmailKind;
+  to_address: string;
+  from_address: string;
+  reply_to: string | null;
+  subject: string;
+  body: string;
+  status: OutboundEmailStatus;
+  error: string | null;
+  created_at: string;
+}
+
+export interface SmtpStatus {
+  enabled: boolean;
+  host: string | null;
+  from_address: string;
+  reply_to: string;
+  problem: string | null;
 }

@@ -4,6 +4,7 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from app.models.enums import TicketPriority, TicketSource, TicketStatus
 from app.schemas.comment import CommentRead
+from app.schemas.escalation import EscalationRead
 
 
 class TicketCreate(BaseModel):
@@ -36,16 +37,19 @@ class TicketRead(BaseModel):
     requester_email: str
     requester_name: str | None
     assignee: str | None
+    is_escalated: bool = False
     created_at: datetime
     updated_at: datetime
 
 
 class TicketDetail(TicketRead):
     comments: list[CommentRead] = []
+    escalations: list[EscalationRead] = []
 
 
 class TicketStats(BaseModel):
     total: int
+    escalated: int
     by_status: dict[str, int]
     by_priority: dict[str, int]
     by_source: dict[str, int]

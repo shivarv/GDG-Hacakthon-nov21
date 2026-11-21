@@ -62,3 +62,5 @@ class MailTmClient:
             if exc.code == 401 and self.token:
                 raise MailTmError("unauthorized") from exc
             raise MailTmError(f"{method} {path} -> {exc.code}: {exc.read()[:300]!r}") from exc
+        except (urllib.error.URLError, TimeoutError, OSError) as exc:  # network hiccup: retry next poll
+            raise MailTmError(f"{method} {path} -> network error: {exc}") from exc

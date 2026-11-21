@@ -4,7 +4,9 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.services.comment_service import CommentService
 from app.services.email_ingestion_service import EmailIngestionService
+from app.services.escalation_service import EscalationService
 from app.services.ticket_service import TicketService
+from app.services.user_service import UserService
 
 
 def get_ticket_service(db: Session = Depends(get_db)) -> TicketService:
@@ -17,3 +19,11 @@ def get_comment_service(db: Session = Depends(get_db)) -> CommentService:
 
 def get_email_service(db: Session = Depends(get_db)) -> EmailIngestionService:
     return EmailIngestionService(db)
+
+
+def get_escalation_service(db: Session = Depends(get_db)) -> EscalationService:
+    return EscalationService(db)
+
+
+def get_user_service(db: Session = Depends(get_db)) -> UserService:
+    return UserService(db)

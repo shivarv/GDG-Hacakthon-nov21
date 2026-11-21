@@ -34,7 +34,19 @@ def parse_raw_email(raw: bytes) -> InboundEmail:
         body_text=_extract_body(msg),
         message_id=_clean_id(msg.get("Message-ID")),
         in_reply_to=_clean_id(msg.get("In-Reply-To")),
+        sent_by_us=bool(msg.get(GENERATED_HEADER)),
+        auto_generated=_is_auto_generated(msg),
     )
+
+
+# Added to every email we send, so it can be recognised if it ever comes back in.
+GENERATED_HEADER = "X-HelpDesk-Generated"
+
+
+def _is_auto_generated(msg: StdEmailMessage) -> bool:
+    auto_submitted = str(msg.get("Auto-Submitted", "no")).strip().lower()
+    precedence = str(msg.get("Precedence", "")).strip().lower()
+    return auto_submitted != "no" or precedence in {"bulk", "junk", "list", "auto_reply"}
 
 
 def _extract_body(msg: StdEmailMessage) -> str:
@@ -72,6 +84,21 @@ def strip_quoted_reply(body: str) -> str:
         kept.append(line)
     text = "\n".join(kept).strip()
     return text or body.strip()
+
+
+_NO_REPLY = re.compile(r"(no-?reply|do-?not-?reply|mailer-daemon|postmaster|bounce)", re.IGNORECASE)
+
+
+_BOUNCE = re.compile(r"^(mailer-daemon|postmaster)$", re.IGNORECASE)
+
+
+def is_bounce_address(address: str) -> bool:
+    """Delivery-failure notices (bounces), which should never become tickets."""
+    return bool(_BOUNCE.match(address.split("@")[0]))
+
+
+def is_no_reply_address(address: str) -> bool:
+    return bool(_NO_REPLY.search(address.split("@")[0]))
 
 
 def clean_subject(subject: str, body: str = "") -> str:

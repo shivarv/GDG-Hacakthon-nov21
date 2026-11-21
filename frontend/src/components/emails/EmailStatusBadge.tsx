@@ -4,6 +4,7 @@ import type { EmailProcessingStatus } from '@/types/email';
 const config: Record<EmailProcessingStatus, { tone: BadgeTone; label: string }> = {
   created_ticket: { tone: 'green', label: 'New case' },
   appended_comment: { tone: 'blue', label: 'Threaded reply' },
+  ignored: { tone: 'gray', label: 'Ignored (our own)' },
   failed: { tone: 'red', label: 'Failed' },
 };
 

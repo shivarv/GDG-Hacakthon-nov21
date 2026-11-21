@@ -33,3 +33,11 @@ export function initials(nameOrEmail: string): string {
   const parts = base.split(/[\s._-]+/).filter(Boolean);
   return ((parts[0]?.[0] ?? '?') + (parts[1]?.[0] ?? '')).toUpperCase();
 }
+
+/** "in 3h 20m" or "overdue by 45m", relative to now. */
+export function dueIn(iso: string): { label: string; overdue: boolean } {
+  const diff = Math.round((new Date(iso).getTime() - Date.now()) / 60000);
+  const abs = Math.abs(diff);
+  const text = abs >= 1440 ? `${Math.floor(abs / 1440)}d ${Math.floor((abs % 1440) / 60)}h` : abs >= 60 ? `${Math.floor(abs / 60)}h ${abs % 60}m` : `${abs}m`;
+  return diff >= 0 ? { label: `in ${text}`, overdue: false } : { label: `overdue by ${text}`, overdue: true };
+}

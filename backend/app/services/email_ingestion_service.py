@@ -17,6 +17,7 @@ from app.schemas.common import Page
 from app.schemas.email import EmailIngestResult, EmailMessageRead, InboundEmail
 from app.services import email_parser
 from app.services.notification_service import NotificationService
+from app.services.triage import get_triage_model
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +36,7 @@ class EmailIngestionService:
         self.emails = EmailDAO(db)
         self.tickets = TicketDAO(db)
         self.comments = CommentDAO(db)
-        self.notifier = notifier or NotificationService()
+        self.notifier = notifier or NotificationService(db)
 
     def ingest(self, inbound: InboundEmail) -> EmailIngestResult:
         message_id = inbound.message_id or email_parser.generate_message_id()
@@ -44,6 +45,13 @@ class EmailIngestionService:
         if existing:
             logger.info("Skipping duplicate email %s", message_id)
             return self._result(existing)
+
+        if inbound.sent_by_us or email_parser.is_bounce_address(str(inbound.from_address)):
+            # Our own email came back (e.g. via Gmail forwarding) or a bounce notice: record it, do nothing.
+            logger.info("Ignoring looped-back email or bounce: %s", inbound.subject)
+            record = self.emails.add(self._record(inbound, message_id, EmailProcessingStatus.IGNORED))
+            self.db.commit()
+            return self._result(record)
 
         try:
             ticket = self._find_existing_ticket(inbound)
@@ -67,8 +75,11 @@ class EmailIngestionService:
             self.db.commit()
             return self._result(record)
 
-        if created:
-            self.notifier.send_ticket_created(ticket)
+        is_automatic = inbound.auto_generated or email_parser.is_no_reply_address(str(inbound.from_address))
+        if created and not is_automatic:
+            # Severe tickets are escalated straight away; the escalation email replaces the plain acknowledgement.
+            if not self._auto_escalate(ticket):
+                self.notifier.send_ticket_created(ticket)
         return self._result(record)
 
     def list_emails(self, page: int, page_size: int) -> Page[EmailMessageRead]:
@@ -84,6 +95,35 @@ class EmailIngestionService:
         return self.emails.list_for_ticket(ticket_id)
 
     # ---- internals -------------------------------------------------------
+
+    def _triage(self, subject: str, body: str):
+        if not hasattr(self, "_decision"):
+            self._decision = get_triage_model(self.notifier.settings.triage_model).assess(subject, body)
+        return self._decision
+
+    def _auto_escalate(self, ticket: Ticket) -> bool:
+        """Escalate a new ticket when the triage model says it's severe. Returns True if escalated."""
+        decision = self._triage(ticket.subject, ticket.description)
+        if not (self.notifier.settings.auto_escalate and decision.should_escalate):
+            return False
+        # Local import avoids a cycle (escalation service -> notification -> ...).
+        from app.models import EscalationSource
+        from app.schemas.escalation import EscalationCreate
+        from app.services.escalation_service import EscalationService
+
+        try:
+            EscalationService(self.db, notifier=self.notifier).escalate(
+                ticket.id,
+                EscalationCreate(reason="Auto-escalated by triage: " + "; ".join(decision.reasons),
+                                 escalated_by=f"Triage ({decision.model})"),
+                source=EscalationSource.AUTO,
+            )
+            logger.info("Auto-escalated %s (%s)", ticket.ticket_number, "; ".join(decision.reasons))
+            return True
+        except Exception:
+            self.db.rollback()
+            logger.exception("Auto-escalation failed for %s; sending a normal acknowledgement", ticket.ticket_number)
+            return False
 
     def _find_existing_ticket(self, inbound: InboundEmail) -> Ticket | None:
         ticket_id = email_parser.extract_ticket_id(inbound.subject)
@@ -103,7 +143,7 @@ class EmailIngestionService:
             Ticket(
                 subject=subject[:500],
                 description=inbound.body_text,
-                priority=email_parser.detect_priority(subject, inbound.body_text),
+                priority=self._triage(subject, inbound.body_text).priority,
                 source=TicketSource.EMAIL,
                 requester_email=str(inbound.from_address),
                 requester_name=inbound.from_name,

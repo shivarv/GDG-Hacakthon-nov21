@@ -6,6 +6,7 @@ from pathlib import Path
 
 from app.core.config import Settings
 from app.core.database import SessionLocal
+from app.email_listener.inbox_registry import set_inbox_address
 from app.email_listener.mailtm_client import MailTmClient, MailTmError
 from app.services.email_ingestion_service import EmailIngestionService
 from app.services.email_parser import parse_raw_email
@@ -48,6 +49,9 @@ class TempInboxListener:
             except MailTmError as exc:
                 if str(exc) == "unauthorized":
                     self._login()
+                elif "429" in str(exc):
+                    logger.info("mail.tm rate limit hit; pausing 30s")
+                    self._stop.wait(30)
                 else:
                     logger.warning("Temp inbox error: %s", exc)
             except Exception:
@@ -73,6 +77,7 @@ class TempInboxListener:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(json.dumps({"address": address, "password": password}))
             self._login()
+        set_inbox_address(self.address)
         logger.info("=" * 60)
         logger.info("Temp support inbox ready: send email to  %s", self.address)
         logger.info("=" * 60)

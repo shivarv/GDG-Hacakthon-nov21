@@ -5,7 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.controllers import email_controller, ticket_controller
+from app.controllers import email_controller, escalation_controller, ticket_controller, user_controller
 from app.core.config import get_settings
 from app.core.database import init_db
 from app.core.exceptions import AppError
@@ -50,6 +50,8 @@ async def app_error_handler(_: Request, exc: AppError):
 
 app.include_router(ticket_controller.router)
 app.include_router(email_controller.router)
+app.include_router(escalation_controller.router)
+app.include_router(user_controller.router)
 
 
 @app.get("/api/health", tags=["health"])

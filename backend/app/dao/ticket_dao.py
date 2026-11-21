@@ -9,7 +9,11 @@ class TicketDAO(BaseDAO[Ticket]):
     model = Ticket
 
     def get_with_comments(self, ticket_id: int) -> Ticket | None:
-        stmt = select(Ticket).options(selectinload(Ticket.comments)).where(Ticket.id == ticket_id)
+        stmt = (
+            select(Ticket)
+            .options(selectinload(Ticket.comments), selectinload(Ticket.escalations))
+            .where(Ticket.id == ticket_id)
+        )
         return self.db.scalars(stmt).first()
 
     def search(
@@ -19,6 +23,7 @@ class TicketDAO(BaseDAO[Ticket]):
         priority: TicketPriority | None = None,
         source: TicketSource | None = None,
         query: str | None = None,
+        escalated: bool | None = None,
         offset: int = 0,
         limit: int = 20,
     ) -> tuple[list[Ticket], int]:
@@ -29,6 +34,8 @@ class TicketDAO(BaseDAO[Ticket]):
             stmt = stmt.where(Ticket.priority == priority)
         if source:
             stmt = stmt.where(Ticket.source == source)
+        if escalated is not None:
+            stmt = stmt.where(Ticket.is_escalated == escalated)
         if query:
             like = f"%{query}%"
             stmt = stmt.where(
@@ -51,3 +58,6 @@ class TicketDAO(BaseDAO[Ticket]):
 
     def count_all(self) -> int:
         return self.db.scalar(select(func.count(Ticket.id))) or 0
+
+    def count_escalated(self) -> int:
+        return self.db.scalar(select(func.count(Ticket.id)).where(Ticket.is_escalated)) or 0
