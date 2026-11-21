@@ -39,7 +39,7 @@ export function DashboardPage() {
         }
       />
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-5 [&>*:last-child]:col-span-2 md:[&>*:last-child]:col-span-1">
         <StatCard label="Total cases" value={s.total} icon={Ticket} />
         <StatCard label="Active" value={active} icon={Inbox} iconClassName="bg-violet-50 text-violet-600" hint="Open · In progress · Pending" />
         <Link to="/escalations" className="block">

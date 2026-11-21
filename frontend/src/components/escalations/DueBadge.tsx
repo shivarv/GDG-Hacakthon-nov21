@@ -8,7 +8,7 @@ export function DueBadge({ iso, label }: { iso: string; label?: string }) {
     <span
       title={formatDateTime(iso)}
       className={cn(
-        'inline-flex items-center gap-1 whitespace-nowrap rounded-md px-1.5 py-0.5 text-[11px] font-medium',
+        'inline-flex items-center gap-1 whitespace-nowrap rounded-md px-1.5 py-0.5 text-xs font-medium',
         due.overdue ? 'bg-red-50 text-red-700' : 'bg-slate-100 text-slate-600',
       )}
     >

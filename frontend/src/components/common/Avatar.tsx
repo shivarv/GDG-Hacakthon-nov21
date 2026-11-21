@@ -10,7 +10,7 @@ const palette = [
   'bg-teal-100 text-teal-700',
 ];
 
-const sizes = { xs: 'h-6 w-6 text-[10px]', sm: 'h-8 w-8 text-xs', md: 'h-10 w-10 text-sm' };
+const sizes = { xs: 'h-6 w-6 text-[11px]', sm: 'h-8 w-8 text-xs', md: 'h-10 w-10 text-sm' };
 
 /** Initials avatar with a stable colour derived from the name. */
 export function Avatar({ name, size = 'sm', className }: { name: string; size?: keyof typeof sizes; className?: string }) {

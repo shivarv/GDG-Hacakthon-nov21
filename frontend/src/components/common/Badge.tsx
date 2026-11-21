@@ -22,7 +22,7 @@ interface BadgeProps {
 
 export function Badge({ tone = 'gray', dot, icon, children }: BadgeProps) {
   return (
-    <span className={cn('inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-2 py-0.5 text-xs font-medium', tones[tone].pill)}>
+    <span className={cn('inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-2 py-0.5 text-xs font-semibold', tones[tone].pill)}>
       {dot && <span className={cn('h-1.5 w-1.5 rounded-full', tones[tone].dot)} />}
       {icon}
       {children}

@@ -13,7 +13,7 @@ export function SuggestedContact({ suggestion: s }: { suggestion: EscalationSugg
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-sm font-semibold text-slate-900">{s.contact.name}</p>
-            <span className="rounded bg-white px-1.5 py-0.5 text-[11px] font-semibold text-slate-600 ring-1 ring-inset ring-slate-200">L{s.level}</span>
+            <span className="rounded bg-white px-1.5 py-0.5 text-xs font-semibold text-slate-600 ring-1 ring-inset ring-slate-200">L{s.level}</span>
           </div>
           <p className="text-xs text-slate-500">{ROLE_LABELS[s.contact.role]} · {s.contact.team}</p>
           <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
@@ -31,7 +31,7 @@ export function SuggestedContact({ suggestion: s }: { suggestion: EscalationSugg
           <p className="text-slate-500">Target resolution</p>
           <p className="font-medium text-slate-900">{formatDateTime(s.eta.resolution_due_at)}</p>
         </div>
-        <p className="col-span-2 flex items-center gap-1 text-[11px] text-slate-500">
+        <p className="col-span-2 flex items-center gap-1 text-xs text-slate-500">
           <Clock className="h-3 w-3" /> Estimated by <code>{s.eta.model}</code> · {s.eta.factors.join(' · ')}
         </p>
       </div>
