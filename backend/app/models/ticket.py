@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, Enum, String, Text, func
+from sqlalchemy import DateTime, Enum, Float, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.config import get_settings
@@ -27,6 +27,11 @@ class Ticket(Base):
     requester_email: Mapped[str] = mapped_column(String(320), index=True)
     requester_name: Mapped[str | None] = mapped_column(String(200))
     assignee: Mapped[str | None] = mapped_column(String(200))
+    # Set by the triage model for email tickets
+    predicted_type: Mapped[str | None] = mapped_column(String(64))
+    predicted_queue: Mapped[str | None] = mapped_column(String(200))
+    queue_confidence: Mapped[float | None] = mapped_column(Float)
+    triage_model: Mapped[str | None] = mapped_column(String(64))
     created_at: Mapped[datetime] = mapped_column(UTCDateTime(), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         UTCDateTime(), server_default=func.now(), onupdate=func.now()

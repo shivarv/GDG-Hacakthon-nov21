@@ -38,6 +38,10 @@ class TicketRead(BaseModel):
     requester_name: str | None
     assignee: str | None
     is_escalated: bool = False
+    predicted_type: str | None = None
+    predicted_queue: str | None = None
+    queue_confidence: float | None = None
+    triage_model: str | None = None
     created_at: datetime
     updated_at: datetime
 

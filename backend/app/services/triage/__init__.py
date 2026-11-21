@@ -7,16 +7,23 @@ implementing `TriageModel.assess()` and registering it in `_MODELS`.
 
 from app.services.triage.base import TriageDecision, TriageModel
 from app.services.triage.dummy import DummyTriageModel
-from app.services.triage.sentinel import SentinelTriageModel
+from app.services.triage.sentinel import SentinelLocalModel, SentinelTriageModel
 
-_MODELS: dict[str, type] = {"dummy": DummyTriageModel, "sentinel": SentinelTriageModel}
+_MODELS: dict[str, type] = {
+    "dummy": DummyTriageModel,
+    "sentinel": SentinelTriageModel,  # Cloud Run service (Nathan)
+    "sentinel_local": SentinelLocalModel,  # same model, in-process
+}
+_instances: dict[str, TriageModel] = {}
 
 
 def get_triage_model(name: str = "dummy") -> TriageModel:
-    try:
-        return _MODELS[name]()
-    except KeyError:
-        raise ValueError(f"Unknown triage model {name!r}; available: {', '.join(_MODELS)}") from None
+    """Models are created once per process (the local Sentinel model takes ~40 s to load)."""
+    if name not in _MODELS:
+        raise ValueError(f"Unknown triage model {name!r}; available: {', '.join(_MODELS)}")
+    if name not in _instances:
+        _instances[name] = _MODELS[name]()
+    return _instances[name]
 
 
 __all__ = ["TriageDecision", "TriageModel", "get_triage_model"]

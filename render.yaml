@@ -1,0 +1,82 @@
+# Render Blueprint: HelpDesk API (FastAPI), web app (React static site) and a Postgres database.
+# Deploy: Render dashboard → New → Blueprint → pick this repo.
+# Secrets marked `sync: false` are asked for once at creation and never stored in git.
+#
+# Free-plan notes:
+#   - The API sleeps after ~15 min without web traffic, and the inbox check pauses while it sleeps.
+#     Emails wait in the inbox and are turned into tickets when it wakes (open the web app to wake it).
+#     Use a paid plan (starter) for always-on email processing.
+#   - Render's free Postgres expires after 30 days; point DATABASE_URL at Neon for longer.
+services:
+  - type: web
+    name: helpdesk-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: DATABASE_URL
+        fromDatabase:
+          name: helpdesk-db
+          property: connectionString
+      - key: CORS_ORIGINS # the web app's URL, e.g. https://helpdesk-web.onrender.com
+        sync: false
+
+      # ---- Inbound email: keep the existing mail.tm address (values from backend/.data/temp_inbox.json)
+      - key: TEMP_INBOX_ENABLED
+        value: "true"
+      - key: TEMP_INBOX_ADDRESS # helpdesk-fb7dc0d1@euploading.com
+        sync: false
+      - key: TEMP_INBOX_PASSWORD
+        sync: false
+      - key: EMAIL_LISTENER_ENABLED
+        value: "false"
+
+      # ---- Outbound email: Gmail API (send-only)
+      - key: GMAIL_API_ENABLED
+        value: "true"
+      - key: GMAIL_TOKEN_JSON # full contents of backend/.data/gmail_token.json
+        sync: false
+      - key: SUPPORT_FROM_ADDRESS
+        value: shivar1993demo@gmail.com
+      - key: SUPPORT_FROM_NAME
+        value: HelpDesk Support
+
+      # ---- Triage: Nathan's SentinelDesk model on Cloud Run
+      - key: TRIAGE_MODEL
+        value: sentinel
+      - key: TRIAGE_URL
+        value: https://sentinel-triage-mx2zqqjdda-uc.a.run.app
+      - key: AUTO_ESCALATE
+        value: "true"
+      - key: ETA_MODEL
+        value: dummy
+      - key: SUPPORT_TIMEZONE
+        value: America/New_York
+
+  - type: web
+    name: helpdesk-web
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    # Single-page app: let React Router handle every path.
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: VITE_API_URL # the API's URL, e.g. https://helpdesk-api.onrender.com (no trailing slash)
+        sync: false
+
+databases:
+  - name: helpdesk-db
+    plan: free
+    databaseName: helpdesk
+    user: helpdesk

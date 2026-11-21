@@ -60,7 +60,11 @@ class TempInboxListener:
 
     def _setup_account(self) -> None:
         path = Path(self.settings.temp_inbox_state_file)
-        if path.exists():
+        if self.settings.temp_inbox_address and self.settings.temp_inbox_password:
+            # Hosted: credentials come from the environment, so the address survives redeploys.
+            self.address, self._password = self.settings.temp_inbox_address, self.settings.temp_inbox_password
+            self._login()
+        elif path.exists():
             saved = json.loads(path.read_text())
             self.address, self._password = saved["address"], saved["password"]
             try:
