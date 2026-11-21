@@ -9,6 +9,23 @@ This repo holds several parts of the project. Each is documented below or in its
 
 ---
 
+## What the data told us (figures)
+
+Full write-up: [`findings/FINDINGS.md`](findings/FINDINGS.md). Live demo script: [`demo/index.html`](demo/index.html).
+
+| Figure | Main point |
+|---|---|
+| ![Leakage staircase](findings/out/01_leakage_staircase.png) | **Leakage staircase.** About a fifth of the test answers were already in the training data, so the official scores look better than they really are. |
+| ![Clean test similarity](findings/out/07_clean_test_similarity.png) | **Clean test similarity.** We removed those copies, so our scores are honest. |
+| ![Family sizes](findings/out/04_family_sizes.png) | **Family sizes.** Many tickets are reworded copies of each other. |
+| ![kNN signature](findings/out/02_knn_signature.png) | **kNN signature.** Copying the single most similar old ticket works best. |
+| ![Family held out](findings/out/03_family_held_out.png) | **Family held out.** It still works on brand-new tickets, so it isn't just memorizing. |
+| ![Family map](findings/out/05_family_map.png) | **Cluster map.** Tickets about the same topic go to different departments, so topic alone can't tell you where a ticket goes. |
+| ![Labels vs urgency](findings/out/06_labels_vs_urgency.png) | **Labels vs urgency.** Most "high priority" tickets don't sound urgent, so we added our own rules to catch real emergencies. |
+| ![Calibration LR](triage/reports/reliability.png) ![Calibration blend](triage/reports/reliability_blend.png) | **Calibration.** When the model says it's 70% sure, it's right about 70% of the time. |
+
+---
+
 # SentinelDesk: incident triage & grounded resolution copilot
 
 Classifies helpdesk tickets (type, queue, priority + calibrated confidence), decides whether to
