@@ -80,8 +80,36 @@ Any ticket that is open, in progress or pending can be escalated from the ticket
 - You pick an **escalation contact** and give a reason. The ticket is reassigned to them, an internal note is added, and they are emailed.
 - **Levels:** team leads are L2. Managers, on-call and security are L3. Escalating again moves the ticket up a level and closes the previous escalation.
 - **Closing:** resolving or closing the ticket closes its escalation automatically. You can also de-escalate by hand.
-- **Dummy contacts:** 9 escalation contacts plus 2 frontline agents are loaded on first start (`backend/app/core/seed.py`). They all use the non-routable `@helpdesk.local` domain.
+- **Auto-assign (default):** the dialog suggests a contact and explains why.
+  - **Team:** from topic keywords in English and German, e.g. invoice/refund → Billing, outage/"is down" → on-call, phishing/breach → Security, login/password → Technical Support.
+  - **Level:** L2 by default. L3 for urgent tickets, re-escalations, and outage or security topics.
+  - **Workload:** the least-loaded contact wins.
+
+  `GET /api/tickets/{id}/escalation-suggestion` returns the pick, the reasons and a preview of the customer email.
+- **Customer handoff email:** the requester is told who is now handling their ticket, with that person's email and phone. The subject keeps the `[TCK-n]` tag and Reply-To points at the inbox the system reads, so replies thread back onto the ticket.
+- **Dummy contacts:** 9 escalation contacts plus 2 frontline agents are loaded on first start (`backend/app/core/seed.py`). They all use the non-routable `@helpdesk.local` domain and fictional `+1 555-01xx` phone numbers.
 - **Storage:** "Escalated" is calculated from the `escalations` table, so no migration of `tickets` is needed. The `source` field (`manual` or `auto`) is reserved for the SentinelDesk escalation gate.
+
+## Outgoing email (sending to Gmail and other real inboxes)
+
+Every outbound email is logged in `outbound_emails` and shown under **Email channel → Outbound** as `sent`, `skipped` (SMTP off) or `failed`. That covers acknowledgements, escalation notices and customer handoffs.
+
+To actually deliver, use a Gmail account as the support sender:
+
+1. Turn on 2-Step Verification for that Google account.
+2. Create an App Password at <https://myaccount.google.com/apppasswords>.
+3. Fill in `backend/.env`, which is gitignored:
+   ```
+   SMTP_ENABLED=true
+   SMTP_HOST=smtp.gmail.com
+   SMTP_PORT=587
+   SMTP_USE_TLS=true
+   SMTP_USERNAME=your.support@gmail.com
+   SMTP_PASSWORD=<16-character app password>
+   ```
+4. Restart the backend and use **Send test** on the Email channel page.
+
+Emails are sent *from* the Gmail account, since Gmail rejects other From addresses. Reply-To is the live support inbox when the temp inbox is enabled.
 
 ## Backend layout
 
@@ -96,9 +124,10 @@ backend/app/
 │   ├── ticket_service.py
 │   ├── comment_service.py
 │   ├── escalation_service.py        # escalate / re-escalate / de-escalate + notify
+│   ├── escalation_routing_service.py # auto-assign: topic → team, level, least-loaded contact
 │   ├── email_ingestion_service.py   # email -> case logic
 │   ├── email_parser.py              # RFC 822 parsing, quote stripping, priority detection
-│   └── notification_service.py      # SMTP acknowledgements
+│   └── notification_service.py      # all outbound email (SMTP) + outbound log
 ├── controllers/             # FastAPI routers (HTTP only), with services injected through Depends
 └── email_listener/          # Background pollers: IMAP mailbox and mail.tm temp inbox
 ```

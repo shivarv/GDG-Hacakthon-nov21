@@ -7,10 +7,12 @@ from app.schemas.user import UserRead
 
 
 class EscalationCreate(BaseModel):
-    escalated_to_id: int
+    # Omit to let the router auto-assign the best contact.
+    escalated_to_id: int | None = None
     reason: str = Field(min_length=3)
     escalated_by: str = "Support Agent"
     reassign: bool = True  # make the escalation contact the ticket assignee
+    notify_customer: bool = True  # email the requester who is now handling the ticket
 
 
 class EscalationResolve(BaseModel):
@@ -29,6 +31,8 @@ class EscalationRead(BaseModel):
     status: EscalationStatus
     source: EscalationSource
     notification_sent: bool
+    customer_notified: bool = False
+    auto_assigned: bool = False
     resolution_note: str | None
     created_at: datetime
     resolved_at: datetime | None
@@ -48,3 +52,17 @@ class EscalatedTicketSummary(BaseModel):
 
 class EscalationWithTicket(EscalationRead):
     ticket: EscalatedTicketSummary
+
+
+class EmailPreview(BaseModel):
+    to: str
+    subject: str
+    body: str
+
+
+class EscalationSuggestionRead(BaseModel):
+    contact: UserRead
+    level: int
+    team: str
+    reasons: list[str]
+    customer_email: EmailPreview

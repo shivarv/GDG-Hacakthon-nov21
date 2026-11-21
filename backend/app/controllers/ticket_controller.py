@@ -10,7 +10,7 @@ from app.models import TicketPriority, TicketSource, TicketStatus
 from app.schemas.comment import CommentCreate, CommentRead
 from app.schemas.common import Page
 from app.schemas.email import EmailMessageRead
-from app.schemas.escalation import EscalationCreate, EscalationRead, EscalationResolve
+from app.schemas.escalation import EscalationCreate, EscalationRead, EscalationResolve, EscalationSuggestionRead
 from app.schemas.ticket import TicketCreate, TicketDetail, TicketRead, TicketStats, TicketUpdate
 from app.services.comment_service import CommentService
 from app.services.email_ingestion_service import EmailIngestionService
@@ -105,3 +105,12 @@ def de_escalate_ticket(
     ticket_id: int, data: EscalationResolve, service: EscalationService = Depends(get_escalation_service)
 ):
     return service.resolve(ticket_id, data)
+
+
+@router.get("/{ticket_id}/escalation-suggestion", response_model=EscalationSuggestionRead)
+def escalation_suggestion(
+    ticket_id: int, contact_id: int | None = None, service: EscalationService = Depends(get_escalation_service)
+):
+    """Who auto-assignment would pick, why, and the email the customer would receive
+    (for `contact_id` if given, otherwise for the pick)."""
+    return service.suggest(ticket_id, contact_id)

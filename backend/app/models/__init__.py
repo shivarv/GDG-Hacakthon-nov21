@@ -4,6 +4,8 @@ from app.models.enums import (
     EmailProcessingStatus,
     EscalationSource,
     EscalationStatus,
+    OutboundEmailKind,
+    OutboundEmailStatus,
     TicketPriority,
     TicketSource,
     TicketStatus,
@@ -12,6 +14,7 @@ from app.models.enums import (
 from app.models.ticket import Ticket
 from app.models.user import User
 from app.models.escalation import Escalation  # noqa: E402  (must follow Ticket and User)
+from app.models.outbound_email import OutboundEmail  # noqa: E402
 
 __all__ = [
     "Comment",
@@ -20,6 +23,9 @@ __all__ = [
     "Escalation",
     "EscalationSource",
     "EscalationStatus",
+    "OutboundEmail",
+    "OutboundEmailKind",
+    "OutboundEmailStatus",
     "Ticket",
     "TicketPriority",
     "TicketSource",

@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, EmailStr
 
-from app.models.enums import EmailProcessingStatus
+from app.models.enums import EmailProcessingStatus, OutboundEmailKind, OutboundEmailStatus
 
 
 class InboundEmail(BaseModel):
@@ -44,3 +44,30 @@ class EmailIngestResult(BaseModel):
 class InboxInfo(BaseModel):
     enabled: bool
     address: str | None
+
+
+class OutboundEmailRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    ticket_id: int | None
+    kind: OutboundEmailKind
+    to_address: str
+    from_address: str
+    reply_to: str | None
+    subject: str
+    body: str
+    status: OutboundEmailStatus
+    error: str | None
+    created_at: datetime
+
+
+class SmtpStatus(BaseModel):
+    enabled: bool
+    host: str | None
+    from_address: str
+    reply_to: str
+
+
+class TestEmailRequest(BaseModel):
+    to: EmailStr

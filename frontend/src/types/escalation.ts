@@ -13,6 +13,8 @@ export interface Escalation {
   status: EscalationStatus;
   source: 'manual' | 'auto';
   notification_sent: boolean;
+  customer_notified: boolean;
+  auto_assigned: boolean;
   resolution_note: string | null;
   created_at: string;
   resolved_at: string | null;
@@ -31,7 +33,23 @@ export interface EscalationWithTicket extends Escalation {
 }
 
 export interface EscalationCreateInput {
-  escalated_to_id: number;
+  /** Omit to auto-assign the best contact. */
+  escalated_to_id?: number;
   reason: string;
   reassign: boolean;
+  notify_customer: boolean;
+}
+
+export interface EmailPreview {
+  to: string;
+  subject: string;
+  body: string;
+}
+
+export interface EscalationSuggestion {
+  contact: User;
+  level: number;
+  team: string;
+  reasons: string[];
+  customer_email: EmailPreview;
 }

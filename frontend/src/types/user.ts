@@ -12,6 +12,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
+  phone: string | null;
   role: UserRole;
   team: string;
   escalation_level: number;

@@ -43,3 +43,16 @@ class EscalationStatus(str, enum.Enum):
 class EscalationSource(str, enum.Enum):
     MANUAL = "manual"
     AUTO = "auto"  # reserved for the SentinelDesk escalation gate
+
+
+class OutboundEmailStatus(str, enum.Enum):
+    SENT = "sent"
+    FAILED = "failed"
+    SKIPPED = "skipped"  # SMTP not configured
+
+
+class OutboundEmailKind(str, enum.Enum):
+    ACKNOWLEDGEMENT = "acknowledgement"
+    ESCALATION_INTERNAL = "escalation_internal"  # to the escalation contact
+    CUSTOMER_HANDOFF = "customer_handoff"  # tells the customer who is handling the ticket
+    TEST = "test"

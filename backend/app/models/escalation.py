@@ -25,6 +25,8 @@ class Escalation(Base):
     )
     source: Mapped[EscalationSource] = mapped_column(_enum(EscalationSource), default=EscalationSource.MANUAL)
     notification_sent: Mapped[bool] = mapped_column(Boolean, default=False)
+    customer_notified: Mapped[bool] = mapped_column(Boolean, default=False)
+    auto_assigned: Mapped[bool] = mapped_column(Boolean, default=False)
     resolution_note: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

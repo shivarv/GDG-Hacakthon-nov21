@@ -35,7 +35,7 @@ class EmailIngestionService:
         self.emails = EmailDAO(db)
         self.tickets = TicketDAO(db)
         self.comments = CommentDAO(db)
-        self.notifier = notifier or NotificationService()
+        self.notifier = notifier or NotificationService(db)
 
     def ingest(self, inbound: InboundEmail) -> EmailIngestResult:
         message_id = inbound.message_id or email_parser.generate_message_id()

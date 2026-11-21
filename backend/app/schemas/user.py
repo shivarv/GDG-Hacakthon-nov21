@@ -9,6 +9,7 @@ class UserRead(BaseModel):
     id: int
     name: str
     email: str
+    phone: str | None = None
     role: UserRole
     team: str
     escalation_level: int

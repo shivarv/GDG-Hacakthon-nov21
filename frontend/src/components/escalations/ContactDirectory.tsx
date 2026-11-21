@@ -1,4 +1,4 @@
-import { Mail } from 'lucide-react';
+import { Mail, Phone } from 'lucide-react';
 import { Avatar, Badge, type BadgeTone } from '@/components/common';
 import { ROLE_LABELS, type User, type UserRole } from '@/types/user';
 
@@ -30,6 +30,11 @@ export function ContactDirectory({ contacts, activeCounts }: { contacts: User[];
             <a href={`mailto:${c.email}`} className="mt-2 flex items-center gap-1.5 truncate text-xs text-brand-600 hover:underline">
               <Mail className="h-3.5 w-3.5 shrink-0" /> {c.email}
             </a>
+            {c.phone && (
+              <a href={`tel:${c.phone}`} className="mt-1 flex items-center gap-1.5 text-xs text-slate-600 hover:text-brand-600">
+                <Phone className="h-3.5 w-3.5 shrink-0 text-slate-400" /> {c.phone}
+              </a>
+            )}
           </div>
         </li>
       ))}

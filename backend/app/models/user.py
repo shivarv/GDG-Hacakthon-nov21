@@ -16,6 +16,7 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(200))
     email: Mapped[str] = mapped_column(String(320), unique=True, index=True)
+    phone: Mapped[str | None] = mapped_column(String(40))
     role: Mapped[UserRole] = mapped_column(_enum(UserRole))
     team: Mapped[str] = mapped_column(String(200))
     # 1 = frontline agent, 2 = team lead, 3 = manager / on-call / security

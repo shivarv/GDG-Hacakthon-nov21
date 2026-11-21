@@ -36,6 +36,14 @@ class Settings(BaseSettings):
     smtp_username: str = ""
     smtp_password: str = ""
     support_from_address: str = "support@helpdesk.local"
+    support_from_name: str = "HelpDesk Support"
+
+    @property
+    def sender_address(self) -> str:
+        """Gmail and most providers reject a From that differs from the login account."""
+        if self.smtp_username and self.support_from_address.endswith("@helpdesk.local"):
+            return self.smtp_username
+        return self.support_from_address
 
     @property
     def cors_origin_list(self) -> list[str]:
