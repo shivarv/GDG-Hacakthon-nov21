@@ -1,0 +1,29 @@
+export function formatDateTime(iso: string): string {
+  return new Date(iso).toLocaleString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+export function timeAgo(iso: string): string {
+  const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  const units: [number, string][] = [
+    [86400, 'd'],
+    [3600, 'h'],
+    [60, 'm'],
+  ];
+  for (const [size, label] of units) {
+    if (seconds >= size) return `${Math.floor(seconds / size)}${label} ago`;
+  }
+  return 'just now';
+}
+
+export function humanize(value: string): string {
+  return value.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+export function cn(...classes: (string | false | null | undefined)[]): string {
+  return classes.filter(Boolean).join(' ');
+}
