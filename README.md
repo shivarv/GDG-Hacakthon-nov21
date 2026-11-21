@@ -39,20 +39,40 @@ base. `streamlit run app.py` falls back to the same demo knowledge base (with a 
 
 ## Results (20% holdout, 12,353 tickets never seen in training or indexing)
 
-| Metric | Value |
-|---|---|
-| Type Macro-F1 | 0.912 |
-| Queue Macro-F1 | 0.921 |
-| Priority Macro-F1 | 0.814 |
-| High-priority recall (classifier alone) | 0.788 |
-| High-priority Incident recall (classifier alone) | 0.757 |
-| **Gate escalation recall on true high-priority incidents** | **0.939** |
-| Auto-draft rate | 27% (the gate escalates when in doubt) |
-| Latency p50 / p95 (classify + retrieve + draft) | 82 ms / 282 ms |
+| Metric | All | English | German |
+|---|---|---|---|
+| Type Macro-F1 (9,768 tickets that have a type) | 0.889 | 0.896 | 0.879 |
+| Queue Macro-F1 | 0.921 | 0.688 | 0.911 |
+| Priority Macro-F1 | 0.814 | 0.706 | 0.828 |
+| High-priority recall (classifier alone) | 0.788 | | |
+| High-priority Incident recall (classifier alone) | 0.761 | | |
+| **Gate escalation recall on true high-priority incidents** | **0.939** | | |
+| Auto-draft rate | 35% (the gate escalates when in doubt) | | |
+| Latency p50 / p95 (classify + retrieve + draft) | 81 ms / 118 ms | | |
 
 Gate figures come from a random 1,000-ticket holdout sample. Full report: `artifacts/eval_report.json`.
+Per-language Macro-F1 can sit below the overall figure because some queue classes occur mostly in one language.
 The dataset has five priority levels (`critical`, `high`, `medium`, `low`, `very_low`); `critical` is
 treated as high for the gate and for high-priority recall.
+
+## German support
+
+German is about 54% of the dataset and is handled end to end:
+
+- **Language detection:** `langdetect` with a German/English stop-word fallback, so short tickets such as
+  "Drucker kaputt" are still detected as German.
+- **Missing labels:** 10,593 German KB tickets (and 2,585 German holdout tickets) have no `type`, and about 39%
+  of German KB tickets have no `answer`. A missing `type` is skipped when training and scoring that target
+  (it is never learned as a fake "nan" class); those tickets still train `queue` and `priority`.
+  Tickets without an answer are never returned as precedents, because they cannot ground a reply.
+- **Retrieval:** `multilingual-e5-small` matches German tickets against German and English resolutions.
+- **Gate:** German critical-impact words (Ausfall, Störung, nicht erreichbar, Datenleck, Notfall, ...),
+  German refund / pricing / SLA wording and German prompt-injection phrases trigger escalation.
+- **Reply:** German greeting, body and sign-off, citing the ticket IDs used.
+- **PII:** German account numbers (Kontonummer, Kunden-Nr.) are masked; "Konto" followed by a normal
+  word is not.
+- **HelpDesk backend:** German urgency words set the priority, and German customers get German
+  acknowledgement and escalation emails. Internal emails to staff stay in English.
 
 ## How it works
 
@@ -90,7 +110,7 @@ overrides the tuned similarity threshold.
 
 ## Known limits
 
-- The gate escalates about 73% of tickets. That is deliberate (a missed outage costs more than a false
+- The gate escalates about 65% of tickets. That is deliberate (a missed outage costs more than a false
   escalation). Lower `risk_threshold` in `gate_thresholds.json` to auto-draft more.
 - Dataset answers are noisy, so extractive drafts (no LLM) can read awkwardly. An LLM provider gives
   fluent replies while the same citation and money guardrails apply. The real LLM path is covered by

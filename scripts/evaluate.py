@@ -20,7 +20,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from sentineldesk.classifier import TriageClassifier  # noqa: E402
 from sentineldesk.config import SETTINGS  # noqa: E402
-from sentineldesk.data import TARGETS, build_text  # noqa: E402
+from sentineldesk.data import TARGETS, build_text, known, norm_label  # noqa: E402
 
 
 def main():
@@ -31,7 +31,9 @@ def main():
 
     art = Path(SETTINGS.artifacts_dir)
     test = pd.read_parquet(art / "test_holdout.parquet")
-    gold = test[TARGETS + ["ticket_id"]].copy()          # labels kept aside, never passed to the pipeline
+    gold = test[TARGETS + ["ticket_id", "language"]].copy()  # labels kept aside, never passed to the pipeline
+    for t in TARGETS:
+        gold[t] = norm_label(gold[t])
     inputs = test[["subject", "body"]].copy()            # the ONLY columns the system sees
     texts = [build_text(s, b) for s, b in zip(inputs["subject"], inputs["body"])]
 
@@ -40,11 +42,21 @@ def main():
     clf = TriageClassifier.load(art / "classifier.joblib")
     preds = clf.predict(texts)
     for t in TARGETS:
-        y, p = gold[t].tolist(), [x[t]["label"] for x in preds]
+        ok = known(gold[t])  # tickets without this label (e.g. 2.6k German holdout rows lack `type`) are not scored
+        y = [v for v, k in zip(gold[t], ok) if k]
+        p = [x[t]["label"] for x, k in zip(preds, ok) if k]
+        report[f"{t}_scored"] = len(y)
         report[f"{t}_macro_f1"] = round(f1_score(y, p, average="macro"), 4)
         report[f"{t}_accuracy"] = round(float(np.mean(np.array(y) == np.array(p))), 4)
         print(f"\n=== {t} === macro-F1 {report[f'{t}_macro_f1']:.4f}")
         print(classification_report(y, p, digits=3, zero_division=0))
+        for lang in ("en", "de"):
+            sel = [k and g == lang for k, g in zip(ok, gold["language"])]
+            yl = [v for v, s in zip(gold[t], sel) if s]
+            pl = [x[t]["label"] for x, s in zip(preds, sel) if s]
+            if yl:
+                report[f"{t}_macro_f1_{lang}"] = round(f1_score(yl, pl, average="macro"), 4)
+                print(f"    {lang}: macro-F1 {report[f'{t}_macro_f1_{lang}']:.4f} on {len(yl):,} tickets")
 
     yp = gold["priority"].tolist()
     pp = [x["priority"]["label"] for x in preds]

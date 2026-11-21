@@ -6,7 +6,7 @@ from sklearn.feature_extraction.text import HashingVectorizer
 from sentineldesk.burst import BurstDetector
 from sentineldesk.classifier import TriageClassifier
 from sentineldesk.config import Settings
-from sentineldesk.data import build_text, clean, split
+from sentineldesk.data import build_text, clean, known, norm_label, split
 from sentineldesk.gate import decide
 from sentineldesk.generator import Generator, safe_answer, validate
 from sentineldesk.lang import detect_language
@@ -220,3 +220,45 @@ def test_hits_with_null_subject_are_strings():
     r = Retriever(HashEncoder()).build(kb, show_progress=False)
     hits, _ = r.search("VPN outage", 3)
     assert all(isinstance(h["subject"], str) and h["subject"] == "" for h in hits)
+
+def test_missing_type_is_kept_as_empty_label_not_nan():
+    df = toy_df()
+    df.loc[df.index % 3 == 1, "type"] = np.nan  # German rows without a type, as in the real dataset
+    out = clean(df, Settings())
+    assert len(out) == len(df)                      # rows kept: queue/priority still trainable
+    assert "nan" not in set(out["type"])
+    assert (out["type"] == "").sum() == (df["type"].isna()).sum()
+    assert list(norm_label(pd.Series(["Incident", None, float("nan"), " nan ", "Change"]))) == \
+        ["Incident", "", "", "", "Change"]
+    assert known(["Incident", "", "nan", None]) == [True, False, False, False]
+
+
+def test_classifier_never_learns_a_nan_class():
+    df = toy_df()
+    df.loc[df.index % 3 == 1, "type"] = np.nan
+    kb = clean(df, Settings())
+    clf = TriageClassifier().fit(kb["text"].tolist(), {t: kb[t].tolist() for t in ["type", "queue", "priority"]},
+                                 verbose=False)
+    assert set(clf.models["type"].classes_) == {"Incident", "Problem"}
+    assert "Customer Service" in set(clf.models["queue"].classes_)   # German rows still train queue
+    pred = clf.predict_one("Ich habe mein Passwort vergessen")
+    assert pred["type"]["label"] in {"Incident", "Problem"}
+
+
+def test_retrieval_skips_tickets_without_an_answer():
+    kb = clean(toy_df(), Settings())
+    kb["ticket_id"] = [f"TKT-{i:05d}" for i in range(len(kb))]
+    kb.loc[kb["language"] == "de", "answer"] = ""   # German KB rows with no resolution
+    r = Retriever(HashEncoder()).build(kb, show_progress=False)
+    hits = r.search_vector(r.embed("Ich habe mein Passwort vergessen"), 5)
+    assert hits and all(h["answer"] for h in hits)
+    raw = r.search_vector(r.embed("Ich habe mein Passwort vergessen"), 5, answered_only=False)
+    assert any(not h["answer"] for h in raw)
+
+def test_pii_german_account_numbers_and_no_false_positives():
+    masked, counts = mask_pii("Meine Kontonummer: 12345678, Kunden-Nr. AB-99812, Konto DE-4471")
+    assert "12345678" not in masked and "AB-99812" not in masked and "4471" not in masked
+    assert counts["ACCOUNT"] == 3
+    for text in ("Ich kann mich nicht in mein Konto einloggen.", "Frage zum Konto Ignoriere das",
+                 "Please check my account settings"):
+        assert mask_pii(text) == (text, {})

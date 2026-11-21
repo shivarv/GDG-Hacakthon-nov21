@@ -10,7 +10,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.pipeline import FeatureUnion
 from sklearn.svm import LinearSVC
 
-from .data import TARGETS
+from .data import TARGETS, known
 
 
 class TriageClassifier:
@@ -27,12 +27,16 @@ class TriageClassifier:
     def fit(self, texts: list[str], labels: dict[str, list[str]], verbose: bool = True):
         X = self.features.fit_transform(texts)
         for t in self.targets:
+            keep = np.flatnonzero(known(labels[t]))
+            if len(keep) == 0:
+                raise ValueError(f"No labelled rows for target '{t}'")
             if verbose:
-                print(f"  training '{t}' on {X.shape[0]:,} docs x {X.shape[1]:,} features")
+                print(f"  training '{t}' on {len(keep):,} of {X.shape[0]:,} docs x {X.shape[1]:,} features"
+                      + ("" if len(keep) == X.shape[0] else f" ({X.shape[0] - len(keep):,} without a label skipped)"))
             model = CalibratedClassifierCV(
                 LinearSVC(C=0.5, class_weight="balanced"), method="sigmoid", cv=3
             )
-            model.fit(X, labels[t])
+            model.fit(X[keep], [labels[t][i] for i in keep])
             self.models[t] = model
         return self
 

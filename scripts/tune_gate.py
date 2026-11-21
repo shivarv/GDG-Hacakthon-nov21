@@ -48,6 +48,8 @@ def main():
     preds = clf.predict(val["text"].tolist())
 
     top_sim = np.empty(len(val), dtype="float32")
+    # Only answered fit tickets count as precedent, matching Retriever.search_vector(answered_only=True).
+    fit_i = fit_i[r.answered_mask()[fit_i]]
     fv = vecs[fit_i]
     for s in range(0, len(val), 2000):
         top_sim[s:s + 2000] = (vecs[val_i[s:s + 2000]] @ fv.T).max(axis=1)

@@ -19,8 +19,13 @@ _REPLY_MARKERS = [
     re.compile(r"^_{5,}"),
 ]
 _SUBJECT_PREFIX = re.compile(r"^\s*((re|fw|fwd|aw)\s*:\s*)+", re.IGNORECASE)
-_URGENT_WORDS = ("urgent", "asap", "emergency", "critical", "outage", "down")
-_HIGH_WORDS = ("important", "high priority", "blocked", "cannot", "can't", "unable")
+_URGENT_WORDS = ("urgent", "asap", "emergency", "critical", "outage", "down",
+                 # German
+                 "dringend", "notfall", "kritisch", "ausfall", "ausgefallen", "störung", "sofort")
+_HIGH_WORDS = ("important", "high priority", "blocked", "cannot", "can't", "unable",
+               # German
+               "wichtig", "hohe priorität", "blockiert", "kann nicht", "können nicht",
+               "funktioniert nicht", "nicht möglich", "nicht erreichbar")
 
 
 def parse_raw_email(raw: bytes) -> InboundEmail:
