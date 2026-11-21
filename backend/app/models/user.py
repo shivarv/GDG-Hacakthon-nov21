@@ -4,6 +4,7 @@ from sqlalchemy import Boolean, DateTime, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
+from app.core.types import UTCDateTime
 from app.models.enums import UserRole
 from app.models.ticket import _enum
 
@@ -23,4 +24,4 @@ class User(Base):
     escalation_level: Mapped[int] = mapped_column(Integer, default=1)
     is_escalation_contact: Mapped[bool] = mapped_column(Boolean, default=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime(), server_default=func.now())

@@ -1,5 +1,6 @@
 export * from './ContactDirectory';
 export * from './ContactPicker';
+export * from './DueBadge';
 export * from './EmailPreviewBox';
 export * from './EscalateDialog';
 export * from './EscalationBadge';

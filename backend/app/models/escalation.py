@@ -4,6 +4,7 @@ from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text, and
 from sqlalchemy.orm import Mapped, backref, column_property, mapped_column, relationship
 
 from app.core.database import Base
+from app.core.types import UTCDateTime
 from app.models.enums import EscalationSource, EscalationStatus
 from app.models.ticket import Ticket, _enum
 from app.models.user import User
@@ -28,8 +29,11 @@ class Escalation(Base):
     customer_notified: Mapped[bool] = mapped_column(Boolean, default=False)
     auto_assigned: Mapped[bool] = mapped_column(Boolean, default=False)
     resolution_note: Mapped[str | None] = mapped_column(Text)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    first_response_due_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
+    resolution_due_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
+    eta_model: Mapped[str | None] = mapped_column(String(64))
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime(), server_default=func.now())
+    resolved_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
 
     escalated_to: Mapped[User] = relationship(lazy="joined")
     ticket: Mapped[Ticket] = relationship(

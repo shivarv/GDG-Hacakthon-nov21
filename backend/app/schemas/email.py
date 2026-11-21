@@ -15,6 +15,9 @@ class InboundEmail(BaseModel):
     body_text: str = ""
     message_id: str | None = None
     in_reply_to: str | None = None
+    # Set by the parser from headers; webhook callers can leave them false.
+    sent_by_us: bool = False  # carries our X-HelpDesk-Generated header
+    auto_generated: bool = False  # out-of-office, bulk, or other automatic mail (RFC 3834)
 
 
 class EmailMessageRead(BaseModel):
@@ -67,6 +70,7 @@ class SmtpStatus(BaseModel):
     host: str | None
     from_address: str
     reply_to: str
+    problem: str | None = None
 
 
 class TestEmailRequest(BaseModel):

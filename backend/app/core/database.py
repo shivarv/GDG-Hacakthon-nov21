@@ -41,6 +41,9 @@ _ADDITIVE_COLUMNS: list[tuple[str, str, str]] = [
     ("users", "phone", "VARCHAR(40)"),
     ("escalations", "customer_notified", "BOOLEAN DEFAULT FALSE"),
     ("escalations", "auto_assigned", "BOOLEAN DEFAULT FALSE"),
+    ("escalations", "first_response_due_at", "TIMESTAMP"),
+    ("escalations", "resolution_due_at", "TIMESTAMP"),
+    ("escalations", "eta_model", "VARCHAR(64)"),
 ]
 
 

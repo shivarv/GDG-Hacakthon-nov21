@@ -94,22 +94,30 @@ Any ticket that is open, in progress or pending can be escalated from the ticket
 
 Every outbound email is logged in `outbound_emails` and shown under **Email channel → Outbound** as `sent`, `skipped` (SMTP off) or `failed`. That covers acknowledgements, escalation notices and customer handoffs.
 
-To actually deliver, use a Gmail account as the support sender:
+To actually deliver, use **Brevo**. It's free for 300 emails a day and needs no domain.
 
-1. Turn on 2-Step Verification for that Google account.
-2. Create an App Password at <https://myaccount.google.com/apppasswords>.
-3. Fill in `backend/.env`, which is gitignored:
+**Quickest: Brevo API key.** If you already have a Brevo account with a verified sender, paste an API key (`xkeysib-…`, from **SMTP & API → API Keys**) into `backend/.env`. It takes priority over SMTP:
+```
+BREVO_API_KEY=xkeysib-...
+SUPPORT_FROM_ADDRESS=<sender verified in that Brevo account>
+```
+
+**Or SMTP:**
+
+1. Sign up at <https://www.brevo.com> on the Free plan.
+2. **Settings → Senders, Domains & Dedicated IPs → Senders**: add a sender email you can read, then click the verification link Brevo sends.
+3. **Settings → SMTP & API → SMTP**: copy the **Login** and click **Generate a new SMTP key**.
+4. In `backend/.env`, set:
    ```
    SMTP_ENABLED=true
-   SMTP_HOST=smtp.gmail.com
-   SMTP_PORT=587
-   SMTP_USE_TLS=true
-   SMTP_USERNAME=your.support@gmail.com
-   SMTP_PASSWORD=<16-character app password>
+   SMTP_USERNAME=<Brevo SMTP login>
+   SMTP_PASSWORD=<Brevo SMTP key>
+   SUPPORT_FROM_ADDRESS=<the sender you verified>
    ```
-4. Restart the backend and use **Send test** on the Email channel page.
+   The host (`smtp-relay.brevo.com`), port (587) and TLS are already set.
+5. Restart the backend and use **Send test** on the Email channel page. Check the spam folder too.
 
-Emails are sent *from* the Gmail account, since Gmail rejects other From addresses. Reply-To is the live support inbox when the temp inbox is enabled.
+Reply-To is the live mail.tm inbox, so customer replies come back into the helpdesk. Gmail SMTP with an App Password also works; see the comments in `.env.example`.
 
 ## Backend layout
 
@@ -171,22 +179,24 @@ frontend/src/
 
 ## Local development without Docker
 
-```bash
-# Database and mail server only
-docker compose up db mail
+All backend settings live in `backend/.env`. It's gitignored; start from `backend/.env.example`. By default the backend uses a SQLite file at `backend/.data/helpdesk.db` and a free public mail.tm inbox, so nothing else needs to be installed.
 
+```bash
 # Backend
 cd backend
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env
-uvicorn app.main:app --reload
+cp .env.example .env          # then fill in the Brevo values to send real email
+uvicorn app.main:app --reload --reload-include .env   # restarts when code or .env changes
 
 # Frontend (proxies /api to :8000)
 cd frontend
 npm install
 npm run dev     # http://localhost:5173
 ```
+
+To use Postgres instead, run `docker compose up db` and set
+`DATABASE_URL=postgresql+psycopg://helpdesk:helpdesk@localhost:5432/helpdesk`.
 
 ## Using a real mailbox
 

@@ -34,6 +34,7 @@ export function TicketDetailPage() {
   const handleComment = async (data: CommentCreateInput) => {
     const comment = await ticketsApi.addComment(id, data);
     setData({ ...ticket, comments: [...ticket.comments, comment] });
+    return comment;
   };
 
   const handleDelete = async () => {
@@ -101,7 +102,7 @@ export function TicketDetailPage() {
         <Card className="lg:col-span-2" title="Conversation" description={`${ticket.comments.length + 1} messages`}>
           <CommentList ticket={ticket} comments={ticket.comments} />
           <div className="mt-6 sm:pl-12">
-            <CommentForm onSubmit={handleComment} />
+            <CommentForm onSubmit={handleComment} requesterEmail={ticket.requester_email} />
           </div>
         </Card>
         <div className="space-y-6">

@@ -1,4 +1,4 @@
-export type EmailProcessingStatus = 'created_ticket' | 'appended_comment' | 'failed';
+export type EmailProcessingStatus = 'created_ticket' | 'appended_comment' | 'ignored' | 'failed';
 
 export interface EmailMessage {
   id: number;
@@ -56,4 +56,5 @@ export interface SmtpStatus {
   host: string | null;
   from_address: string;
   reply_to: string;
+  problem: string | null;
 }

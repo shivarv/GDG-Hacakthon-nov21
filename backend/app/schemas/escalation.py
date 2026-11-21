@@ -34,6 +34,9 @@ class EscalationRead(BaseModel):
     customer_notified: bool = False
     auto_assigned: bool = False
     resolution_note: str | None
+    first_response_due_at: datetime | None = None
+    resolution_due_at: datetime | None = None
+    eta_model: str | None = None
     created_at: datetime
     resolved_at: datetime | None
 
@@ -60,9 +63,18 @@ class EmailPreview(BaseModel):
     body: str
 
 
+class EtaRead(BaseModel):
+    first_response_due_at: datetime
+    resolution_due_at: datetime
+    model: str
+    confidence: float
+    factors: list[str]
+
+
 class EscalationSuggestionRead(BaseModel):
     contact: UserRead
     level: int
     team: str
     reasons: list[str]
+    eta: EtaRead
     customer_email: EmailPreview

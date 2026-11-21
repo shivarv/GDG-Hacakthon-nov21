@@ -1,7 +1,8 @@
-import { Mail, Phone, Sparkles } from 'lucide-react';
+import { Clock, Mail, Phone, Sparkles } from 'lucide-react';
 import { Avatar } from '@/components/common';
 import type { EscalationSuggestion } from '@/types/escalation';
 import { ROLE_LABELS } from '@/types/user';
+import { formatDateTime } from '@/utils/format';
 
 /** The auto-assignment pick, with the reasons it was chosen. */
 export function SuggestedContact({ suggestion: s }: { suggestion: EscalationSuggestion }) {
@@ -20,6 +21,19 @@ export function SuggestedContact({ suggestion: s }: { suggestion: EscalationSugg
             {s.contact.phone && <span className="flex items-center gap-1"><Phone className="h-3.5 w-3.5 text-slate-400" />{s.contact.phone}</span>}
           </div>
         </div>
+      </div>
+      <div className="mt-3 grid grid-cols-2 gap-2 border-t border-brand-100 pt-3 text-xs">
+        <div className="rounded bg-white px-2.5 py-1.5 ring-1 ring-inset ring-brand-100">
+          <p className="text-slate-500">First response by</p>
+          <p className="font-medium text-slate-900">{formatDateTime(s.eta.first_response_due_at)}</p>
+        </div>
+        <div className="rounded bg-white px-2.5 py-1.5 ring-1 ring-inset ring-brand-100">
+          <p className="text-slate-500">Target resolution</p>
+          <p className="font-medium text-slate-900">{formatDateTime(s.eta.resolution_due_at)}</p>
+        </div>
+        <p className="col-span-2 flex items-center gap-1 text-[11px] text-slate-500">
+          <Clock className="h-3 w-3" /> Estimated by <code>{s.eta.model}</code> · {s.eta.factors.join(' · ')}
+        </p>
       </div>
       <div className="mt-3 border-t border-brand-100 pt-3">
         <p className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-brand-700"><Sparkles className="h-3.5 w-3.5" /> Why this contact</p>

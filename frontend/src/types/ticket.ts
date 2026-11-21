@@ -32,6 +32,8 @@ export interface Comment {
   is_internal: boolean;
   source: TicketSource;
   created_at: string;
+  email_status?: 'sent' | 'failed' | 'skipped' | null;
+  email_error?: string | null;
 }
 
 export interface TicketDetail extends Ticket {
@@ -56,6 +58,7 @@ export interface CommentCreateInput {
   author: string;
   body: string;
   is_internal: boolean;
+  notify_customer?: boolean;
 }
 
 export interface TicketFilters {

@@ -16,6 +16,9 @@ export interface Escalation {
   customer_notified: boolean;
   auto_assigned: boolean;
   resolution_note: string | null;
+  first_response_due_at: string | null;
+  resolution_due_at: string | null;
+  eta_model: string | null;
   created_at: string;
   resolved_at: string | null;
 }
@@ -46,10 +49,19 @@ export interface EmailPreview {
   body: string;
 }
 
+export interface Eta {
+  first_response_due_at: string;
+  resolution_due_at: string;
+  model: string;
+  confidence: number;
+  factors: string[];
+}
+
 export interface EscalationSuggestion {
   contact: User;
   level: number;
   team: string;
   reasons: string[];
+  eta: Eta;
   customer_email: EmailPreview;
 }

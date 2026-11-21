@@ -24,6 +24,7 @@ class TicketSource(str, enum.Enum):
 class EmailProcessingStatus(str, enum.Enum):
     CREATED_TICKET = "created_ticket"
     APPENDED_COMMENT = "appended_comment"
+    IGNORED = "ignored"  # our own outgoing email looping back (e.g. via Gmail forwarding)
     FAILED = "failed"
 
 
@@ -55,4 +56,5 @@ class OutboundEmailKind(str, enum.Enum):
     ACKNOWLEDGEMENT = "acknowledgement"
     ESCALATION_INTERNAL = "escalation_internal"  # to the escalation contact
     CUSTOMER_HANDOFF = "customer_handoff"  # tells the customer who is handling the ticket
+    AGENT_REPLY = "agent_reply"  # a public reply written by an agent in the app
     TEST = "test"

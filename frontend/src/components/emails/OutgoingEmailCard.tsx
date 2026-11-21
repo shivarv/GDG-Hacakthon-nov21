@@ -42,18 +42,12 @@ export function OutgoingEmailCard({ onSent }: { onSent: () => void }) {
 
       {status && !status.enabled && (
         <div className="mb-4 rounded-md bg-amber-50 p-3 text-xs leading-relaxed text-amber-900">
-          <p className="font-semibold">To deliver to Gmail and other real inboxes:</p>
-          <ol className="mt-1 list-decimal space-y-0.5 pl-4">
-            <li>Use a Gmail account as the support sender and turn on 2-Step Verification.</li>
-            <li>Create an App Password at myaccount.google.com/apppasswords.</li>
-            <li>Put these in <code className="rounded bg-amber-100 px-1">backend/.env</code> and restart the backend:</li>
-          </ol>
-          <pre className="mt-1.5 overflow-x-auto rounded bg-amber-100/70 p-2 font-mono text-[11px]">{`SMTP_ENABLED=true
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USE_TLS=true
-SMTP_USERNAME=your.support@gmail.com
-SMTP_PASSWORD=<16-character app password>`}</pre>
+          {status.problem && <p className="mb-2 font-semibold">{status.problem}</p>}
+          <p className="font-semibold">To deliver to Gmail and other real inboxes (free with Brevo):</p>
+          <p className="mt-1">Paste a Brevo <strong>API key</strong> into <code className="rounded bg-amber-100 px-1">backend/.env</code>. The backend reloads by itself:</p>
+          <pre className="mt-1.5 overflow-x-auto rounded bg-amber-100/70 p-2 font-mono text-[11px]">{`BREVO_API_KEY=xkeysib-...
+SUPPORT_FROM_ADDRESS=<sender verified in that Brevo account>`}</pre>
+          <p className="mt-1.5 text-amber-800">Find keys in Brevo under SMTP &amp; API → API Keys. SMTP credentials also work; see the comments in <code className="rounded bg-amber-100 px-1">.env</code>.</p>
         </div>
       )}
 

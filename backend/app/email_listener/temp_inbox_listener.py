@@ -49,6 +49,9 @@ class TempInboxListener:
             except MailTmError as exc:
                 if str(exc) == "unauthorized":
                     self._login()
+                elif "429" in str(exc):
+                    logger.info("mail.tm rate limit hit; pausing 30s")
+                    self._stop.wait(30)
                 else:
                     logger.warning("Temp inbox error: %s", exc)
             except Exception:

@@ -3,7 +3,7 @@ import { Avatar } from '@/components/common';
 import { PriorityBadge, StatusBadge } from '@/components/tickets';
 import type { EscalationWithTicket } from '@/types/escalation';
 import { ROLE_LABELS } from '@/types/user';
-import { cn, timeAgo } from '@/utils/format';
+import { cn, dueIn, timeAgo } from '@/utils/format';
 
 const levelStyle: Record<number, string> = {
   2: 'bg-orange-50 text-orange-700 ring-orange-200',
@@ -28,6 +28,11 @@ export function EscalationTable({ escalations }: { escalations: EscalationWithTi
               </div>
               <p className="mt-1 truncate text-sm font-medium text-slate-900">{e.ticket.subject}</p>
               <p className="mt-0.5 line-clamp-2 text-xs text-slate-500">{e.reason}</p>
+              {e.resolution_due_at && e.status === 'active' && (
+                <p className={cn('mt-1 text-xs font-medium', dueIn(e.resolution_due_at).overdue ? 'text-red-600' : 'text-slate-600')}>
+                  Resolve {dueIn(e.resolution_due_at).label}
+                </p>
+              )}
               <div className="mt-2 flex items-center gap-2 text-xs text-slate-600">
                 <Avatar name={e.escalated_to.name} size="xs" /> {e.escalated_to.name}
               </div>
@@ -45,7 +50,7 @@ export function EscalationTable({ escalations }: { escalations: EscalationWithTi
               <th className="th">Escalated to</th>
               <th className="th hidden lg:table-cell">Reason</th>
               <th className="th hidden xl:table-cell">Ticket status</th>
-              <th className="th text-right">Age</th>
+              <th className="th text-right">Due</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 bg-white text-sm">
@@ -71,7 +76,15 @@ export function EscalationTable({ escalations }: { escalations: EscalationWithTi
                 </td>
                 <td className="td hidden max-w-xs lg:table-cell"><p className="line-clamp-2 text-slate-600">{e.reason}</p></td>
                 <td className="td hidden xl:table-cell"><StatusBadge status={e.ticket.status} /></td>
-                <td className="td whitespace-nowrap text-right text-slate-500">{timeAgo(e.created_at)}</td>
+                <td className="td whitespace-nowrap text-right">
+                  {e.resolution_due_at && e.status === 'active' ? (
+                    <span className={cn('text-xs font-medium', dueIn(e.resolution_due_at).overdue ? 'text-red-600' : 'text-slate-600')}>
+                      {dueIn(e.resolution_due_at).label}
+                    </span>
+                  ) : (
+                    <span className="text-slate-500">{timeAgo(e.created_at)}</span>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>

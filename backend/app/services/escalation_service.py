@@ -20,8 +20,16 @@ from app.models import (
     TicketSource,
     TicketStatus,
 )
-from app.schemas.escalation import EmailPreview, EscalationCreate, EscalationResolve, EscalationSuggestionRead, UserRead
+from app.schemas.escalation import (
+    EmailPreview,
+    EscalationCreate,
+    EscalationResolve,
+    EscalationSuggestionRead,
+    EtaRead,
+    UserRead,
+)
 from app.services.escalation_routing_service import EscalationRoutingService
+from app.services.eta import get_eta_model
 from app.services.notification_service import NotificationService
 
 logger = logging.getLogger(__name__)
@@ -42,6 +50,7 @@ class EscalationService:
         self.comments = CommentDAO(db)
         self.notifier = notifier or NotificationService(db)
         self.router = EscalationRoutingService(db)
+        self.eta_model = get_eta_model(self.notifier.settings.eta_model)
 
     def escalate(
         self, ticket_id: int, data: EscalationCreate, source: EscalationSource = EscalationSource.MANUAL
@@ -70,6 +79,7 @@ class EscalationService:
             level = min(max(level, previous.level + 1), MAX_LEVEL)
             self._close(previous, f"Superseded by escalation to {contact.name}")
 
+        eta = self.eta_model.estimate(ticket, level, datetime.now(timezone.utc))
         escalation = self.escalations.add(
             Escalation(
                 ticket_id=ticket.id,
@@ -79,6 +89,9 @@ class EscalationService:
                 reason=data.reason.strip(),
                 source=source,
                 auto_assigned=auto,
+                first_response_due_at=eta.first_response_due_at,
+                resolution_due_at=eta.resolution_due_at,
+                eta_model=eta.model,
             )
         )
         if data.reassign:
@@ -87,13 +100,14 @@ class EscalationService:
             ticket,
             data.escalated_by,
             f"{'Auto-assigned' if auto else 'Escalated'} to {contact.name} ({contact.team}, L{level}).\n"
-            f"Reason: {escalation.reason}",
+            f"Reason: {escalation.reason}\n"
+            f"Target resolution: {self.notifier._fmt_time(eta.resolution_due_at)} (estimated by {eta.model})",
         )
         self.db.commit()
 
         escalation.notification_sent = self.notifier.send_escalation(ticket, contact, escalation)
         if data.notify_customer:
-            sent = self.notifier.send_customer_handoff(ticket, contact)
+            sent = self.notifier.send_customer_handoff(ticket, contact, level, eta)
             escalation.customer_notified = sent is not None and sent.status == OutboundEmailStatus.SENT
             if escalation.customer_notified:
                 # Show what the customer received in the public conversation.
@@ -127,15 +141,24 @@ class EscalationService:
         suggestion = self.router.suggest(ticket)
         if not suggestion:
             raise ValidationError("No escalation contact is available")
-        preview_contact = suggestion.contact
+        preview_contact, level = suggestion.contact, suggestion.level
         if preview_contact_id is not None:
-            preview_contact = self.users.get(preview_contact_id) or suggestion.contact
-        subject, body = self.notifier.customer_handoff_message(ticket, preview_contact)
+            chosen = self.users.get(preview_contact_id)
+            if chosen:
+                preview_contact = chosen
+                level = max(chosen.escalation_level, 2)
+                previous = self.escalations.get_active_for_ticket(ticket_id)
+                if previous:
+                    level = min(max(level, previous.level + 1), MAX_LEVEL)
+        eta = self.eta_model.estimate(ticket, level, datetime.now(timezone.utc))
+        subject, body = self.notifier.customer_handoff_message(ticket, preview_contact, level, eta)
         return EscalationSuggestionRead(
             contact=UserRead.model_validate(suggestion.contact),
             level=suggestion.level,
             team=suggestion.team,
             reasons=suggestion.reasons,
+            eta=EtaRead(first_response_due_at=eta.first_response_due_at, resolution_due_at=eta.resolution_due_at,
+                        model=eta.model, confidence=eta.confidence, factors=eta.factors),
             customer_email=EmailPreview(to=ticket.requester_email, subject=subject, body=body),
         )
 

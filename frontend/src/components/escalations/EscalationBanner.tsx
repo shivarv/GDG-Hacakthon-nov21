@@ -3,6 +3,7 @@ import { Avatar, Button } from '@/components/common';
 import type { Escalation } from '@/types/escalation';
 import { ROLE_LABELS } from '@/types/user';
 import { timeAgo } from '@/utils/format';
+import { DueBadge } from './DueBadge';
 
 interface Props {
   escalation: Escalation;
@@ -19,9 +20,9 @@ export function EscalationBanner({ escalation: e, onReEscalate, onDeEscalate, bu
         <Siren className="h-4 w-4" />
         Escalated to level {e.level}
         <span className="font-normal text-red-700">· {timeAgo(e.created_at)} by {e.escalated_by}</span>
-        {e.auto_assigned && (
+        {(e.source === 'auto' || e.auto_assigned) && (
           <span className="ml-auto inline-flex items-center gap-1 rounded bg-white/70 px-1.5 py-0.5 text-[11px] font-medium text-red-700">
-            <Sparkles className="h-3 w-3" /> Auto-assigned
+            <Sparkles className="h-3 w-3" /> {e.source === 'auto' ? 'Auto-escalated by triage' : 'Auto-assigned'}
           </span>
         )}
       </div>
@@ -44,6 +45,12 @@ export function EscalationBanner({ escalation: e, onReEscalate, onDeEscalate, bu
               <Status ok={e.customer_notified} icon={e.customer_notified ? UserCheck : UserX} label={e.customer_notified ? 'Customer emailed' : 'Customer not emailed'} />
             </div>
             <p className="mt-2 text-sm text-slate-700">“{e.reason}”</p>
+            {e.resolution_due_at && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {e.first_response_due_at && <DueBadge iso={e.first_response_due_at} label="First response:" />}
+                <DueBadge iso={e.resolution_due_at} label="Resolve by:" />
+              </div>
+            )}
           </div>
         </div>
         <div className="flex shrink-0 gap-2">
