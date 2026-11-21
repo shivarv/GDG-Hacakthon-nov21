@@ -11,19 +11,18 @@ data/
 .qodo/
 *.log
 /sentineldesk/
-
 # --- from main (HelpDesk app) ---
 # Python
 venv/
-
 # Node
 node_modules/
 dist/
 *.tsbuildinfo
-
 # OS / editor
 .DS_Store
 .vscode/
 .idea/
 .data/
 .vite/
+!artifacts/gate_thresholds.json
+!artifacts/eval_report.json

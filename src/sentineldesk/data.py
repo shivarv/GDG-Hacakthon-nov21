@@ -6,6 +6,7 @@ import pandas as pd
 from .config import SETTINGS, Settings
 
 TARGETS = ["type", "queue", "priority"]
+REQUIRED_TARGETS = ["queue", "priority"]  # a missing `type` is allowed (10k+ German tickets have none)
 META_COLS = ["ticket_id", "subject", "body", "answer", "type", "queue", "priority", "language"]
 
 
@@ -25,6 +26,18 @@ def build_text(subject, body) -> str:
     return f"{s}\n{b}" if s and b else (s or b)
 
 
+def norm_label(s: pd.Series) -> pd.Series:
+    """Strip labels; missing values (NaN/None/"nan") become "". pandas 3 keeps NaN through astype(str)."""
+    s = s.astype("object").where(s.notna(), "")
+    s = s.astype(str).str.strip()
+    return s.where(~s.str.lower().isin({"nan", "none", "null"}), "")
+
+
+def known(labels) -> list[bool]:
+    """True where a label is present. Missing labels must never be trained or scored on."""
+    return [bool(str(l).strip()) and str(l).strip().lower() not in ("nan", "none", "null") for l in labels]
+
+
 def load_raw(settings: Settings = SETTINGS) -> pd.DataFrame:
     if settings.dataset_csv:
         return pd.read_csv(settings.dataset_csv)
@@ -41,7 +54,7 @@ def clean(df: pd.DataFrame, settings: Settings = SETTINGS) -> pd.DataFrame:
             df[col] = ""
         df[col] = df[col].fillna("").astype(str)
     for col in TARGETS:
-        df[col] = df[col].astype(str).str.strip()
+        df[col] = norm_label(df[col])
     df["priority"] = df["priority"].str.lower()
     if "language" in df.columns:
         df["language"] = df["language"].astype(str).str.lower().str.strip()
@@ -50,7 +63,7 @@ def clean(df: pd.DataFrame, settings: Settings = SETTINGS) -> pd.DataFrame:
     else:
         df["language"] = ""
     df["text"] = [build_text(s, b) for s, b in zip(df["subject"], df["body"])]
-    bad = df["text"].str.len().eq(0) | df[TARGETS].isin(["", "nan", "None"]).any(axis=1)
+    bad = df["text"].str.len().eq(0) | df[REQUIRED_TARGETS].eq("").any(axis=1)
     return df[~bad].reset_index(drop=True)
 
 

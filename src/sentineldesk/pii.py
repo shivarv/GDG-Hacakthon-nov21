@@ -10,7 +10,10 @@ _PATTERNS = [
     ("CARD", re.compile(r"\b(?:\d[ -]?){13,19}\b")),
     ("IP", re.compile(r"\b(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)\b")),
     ("PHONE", re.compile(r"(?<!\w)\+?\d[\d\s().-]{7,}\d(?!\w)")),
-    ("ACCOUNT", re.compile(r"\b(?:acct|account|konto|kundennummer|customer\s*id)[\s#:.-]*[A-Z0-9-]{5,}\b", re.I)),
+    # The number must contain a digit: otherwise "Konto einloggen" or "account settings" would be masked.
+    ("ACCOUNT", re.compile(
+        r"\b(?:account\s*(?:no\.?|number|#)?|acct|customer\s*id|kontonummer|konto(?:-?nr\.?)?|"
+        r"kundennummer|kunden-?nr\.?|vertragsnummer)[\s#:.-]*(?=[A-Z0-9-]*\d)[A-Z0-9-]{5,}\b", re.I)),
 ]
 
 

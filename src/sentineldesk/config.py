@@ -39,6 +39,7 @@ class Settings:
     llm_provider: str = field(default_factory=lambda: _env("LLM_PROVIDER", "none").lower())
     llm_model: str = field(default_factory=lambda: _env("LLM_MODEL", "claude-sonnet-5-5"))
     openai_base_url: str = field(default_factory=lambda: _env("OPENAI_BASE_URL", ""))
+    min_other_lang: int = field(default_factory=lambda: int(_env("MIN_OTHER_LANG", "1")))
     demo_mode: bool = field(default_factory=lambda: _env("DEMO_MODE", "0") == "1")
     llm_timeout_s: float = field(default_factory=lambda: float(_env("LLM_TIMEOUT_S", "30")))
 

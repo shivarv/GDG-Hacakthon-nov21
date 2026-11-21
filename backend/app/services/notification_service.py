@@ -23,12 +23,29 @@ from app.models import (
     User,
 )
 from app.models.enums import UserRole
+from app.services.language import detect_language
 
 logger = logging.getLogger(__name__)
 # Brevo sits behind Cloudflare, which rejects Python's default "Python-urllib" User-Agent with 403.
 USER_AGENT = "HelpDesk/1.0"
 # Marks our emails so they're ignored if they loop back in, and tells other systems not to auto-reply.
 LOOP_HEADERS = {"X-HelpDesk-Generated": "true", "Auto-Submitted": "auto-generated"}
+
+# German customer-facing texts. Internal escalation emails to staff stay in English.
+ROLE_LABELS_DE = {
+    UserRole.AGENT: "Support-Mitarbeiter",
+    UserRole.TEAM_LEAD: "Teamleitung",
+    UserRole.MANAGER: "Manager",
+    UserRole.ON_CALL: "Bereitschaftstechniker",
+    UserRole.SECURITY: "Sicherheitsbeauftragter",
+}
+PRIORITY_DE = {"low": "Niedrig", "medium": "Mittel", "high": "Hoch", "urgent": "Dringend"}
+
+
+def ticket_language(ticket: Ticket) -> str:
+    """Language of the customer, detected from what they wrote."""
+    return detect_language(ticket.subject, ticket.description)
+
 
 ROLE_LABELS = {
     UserRole.AGENT: "Support Agent",
@@ -55,6 +72,17 @@ class NotificationService:
     # ---- public API ------------------------------------------------------
 
     def send_ticket_created(self, ticket: Ticket) -> OutboundEmail | None:
+        if ticket_language(ticket) == "de":
+            customer = self._first_name(ticket.requester_name)
+            body = (
+                (f"Hallo {customer},\n\n" if customer else "Hallo,\n\n")
+                + f"vielen Dank für Ihre Nachricht. Wir haben den Fall {ticket.ticket_number} "
+                f"zu Ihrer Anfrage angelegt und melden uns in Kürze bei Ihnen.\n\n"
+                f"Antworten Sie einfach auf diese E-Mail, um weitere Informationen zu Ihrem Fall hinzuzufügen.\n\n"
+                f"— {self.settings.support_from_name}"
+            )
+            return self._send(ticket.requester_email, f"[{ticket.ticket_number}] {ticket.subject}", body,
+                              OutboundEmailKind.ACKNOWLEDGEMENT, ticket)
         body = (
             f"Hi {self._first_name(ticket.requester_name) or 'there'},\n\n"
             f"Thanks for contacting support. We've opened case {ticket.ticket_number} "
@@ -82,6 +110,8 @@ class NotificationService:
 
     def customer_handoff_message(self, ticket: Ticket, contact: User, level: int, eta) -> tuple[str, str]:
         """The escalation notice sent to the customer: who owns the ticket now and when to expect progress."""
+        if ticket_language(ticket) == "de":
+            return self._customer_handoff_message_de(ticket, contact, level, eta)
         first = self._first_name(contact.name)
         role = f"{ROLE_LABELS.get(contact.role, 'Support')}, {contact.team}"
         lines = [
@@ -118,14 +148,55 @@ class NotificationService:
         subject = f"[{ticket.ticket_number}] Your ticket has been escalated – {contact.name} is on it"
         return subject, "\n".join(lines)
 
-    def _fmt_time(self, when) -> str:
+    def _customer_handoff_message_de(self, ticket: Ticket, contact: User, level: int, eta) -> tuple[str, str]:
+        first = self._first_name(contact.name)
+        role = f"{ROLE_LABELS_DE.get(contact.role, 'Support')}, {contact.team}"
+        customer = self._first_name(ticket.requester_name)
+        lines = [
+            f"Hallo {customer}," if customer else "Hallo,",
+            "",
+            "vielen Dank für Ihre Geduld. Wir haben Ihre Anfrage an unser erfahrenes Support-Team "
+            "weitergeleitet, damit sie die nötige Priorität erhält.",
+            "",
+            f"  Ticket:     {ticket.ticket_number} – {ticket.subject}",
+            f"  Priorität:  {PRIORITY_DE.get(ticket.priority.value, ticket.priority.value)}",
+            f"  Status:     Eskaliert (Stufe {level})",
+            "",
+            "Ihr zuständiger Ansprechpartner",
+            f"  {contact.name} — {role}",
+            f"  E-Mail: {contact.email}",
+        ]
+        if contact.phone:
+            lines.append(f"  Telefon: {contact.phone}")
+        lines += [
+            "",
+            "Wie es weitergeht",
+            f"  • Erste Rückmeldung bis:  {self._fmt_time(eta.first_response_due_at, 'de')}",
+            f"  • Geplante Lösung bis:    {self._fmt_time(eta.resolution_due_at, 'de')}",
+            "",
+            f"{first} prüft Ihr Ticket jetzt und hält Sie über den Fortschritt auf dem Laufenden. "
+            f"Wenn Sie weitere Details haben, antworten Sie einfach auf diese E-Mail (bitte "
+            f'"[{ticket.ticket_number}]" im Betreff lassen) oder wenden Sie sich direkt an {first}.',
+            "",
+            "Mit freundlichen Grüßen",
+            self.settings.support_from_name,
+            "",
+            "Die Zeiten sind Schätzungen und können sich ändern, wenn wir mehr über das Problem erfahren.",
+        ]
+        subject = f"[{ticket.ticket_number}] Ihr Ticket wurde eskaliert – {contact.name} kümmert sich darum"
+        return subject, "\n".join(lines)
+
+    def _fmt_time(self, when, lang: str = "en") -> str:
         from datetime import timezone
         from zoneinfo import ZoneInfo
 
         if when.tzinfo is None:  # SQLite returns naive UTC timestamps
             when = when.replace(tzinfo=timezone.utc)
         local = when.astimezone(ZoneInfo(self.settings.support_timezone))
-        return local.strftime("%a, %d %b %Y, %-I:%M %p %Z")
+        if lang == "de":  # German style, independent of the OS locale: 21.11.2026, 15:30 EST
+            return local.strftime("%d.%m.%Y, %H:%M ") + local.strftime("%Z")
+        # "%-I" is not portable (fails on Windows), so format the 12-hour clock by hand.
+        return local.strftime("%a, %d %b %Y, ") + f"{local.hour % 12 or 12}:{local:%M %p %Z}"
 
     def send_customer_handoff(self, ticket: Ticket, contact: User, level: int, eta) -> OutboundEmail | None:
         subject, body = self.customer_handoff_message(ticket, contact, level, eta)
@@ -134,7 +205,9 @@ class NotificationService:
     def send_agent_reply(self, ticket: Ticket, author: str, body: str) -> OutboundEmail | None:
         """Email an agent's public reply to the requester, threaded on the ticket."""
         signature = f"\n\n— {author}\n{self.settings.support_from_name}" if author else f"\n\n— {self.settings.support_from_name}"
-        footer = f'\n\nTo respond, just reply to this email (keep "[{ticket.ticket_number}]" in the subject).'
+        footer = (f'\n\nUm zu antworten, antworten Sie einfach auf diese E-Mail (bitte "[{ticket.ticket_number}]" im Betreff lassen).'
+                  if ticket_language(ticket) == "de" else
+                  f'\n\nTo respond, just reply to this email (keep "[{ticket.ticket_number}]" in the subject).')
         subject = f"Re: [{ticket.ticket_number}] {ticket.subject}"
         return self._send(ticket.requester_email, subject, body.strip() + signature + footer,
                           OutboundEmailKind.AGENT_REPLY, ticket)
