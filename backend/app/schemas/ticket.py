@@ -10,7 +10,7 @@ from app.schemas.escalation import EscalationRead
 class TicketCreate(BaseModel):
     subject: str = Field(min_length=1, max_length=500)
     description: str = ""
-    priority: TicketPriority = TicketPriority.MEDIUM
+    priority: TicketPriority | None = None  # None = let the triage model decide
     requester_email: EmailStr
     requester_name: str | None = None
     assignee: str | None = None
