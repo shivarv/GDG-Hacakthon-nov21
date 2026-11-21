@@ -1,0 +1,177 @@
+<title>SentinelDesk Demo Kit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* Layout: one reading column; timed script steps on a left time rail; figures inline at the moment they are shown. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --fg: #1b2230; --muted: #5d6676; --line: #dde1e8;
+  --accent: #2f5bd3; --urgent: #c2352b; --ok: #2b7a3d; --warn: #a8640a; --chip: #eef2fb;
+  --display: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12161d; --surface: #1a2029; --fg: #e5e9f0; --muted: #9aa3b2; --line: #2c3441;
+  --accent: #7d9cf0; --urgent: #f0796e; --ok: #6cc183; --warn: #e3a74f; --chip: #222b3a; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #12161d; --surface: #1a2029; --fg: #e5e9f0; --muted: #9aa3b2; --line: #2c3441;
+  --accent: #7d9cf0; --urgent: #f0796e; --ok: #6cc183; --warn: #e3a74f; --chip: #222b3a; color-scheme: dark }
+body { background: var(--bg); color: var(--fg); font: 16px/1.6 var(--body); }
+.wrap { max-width: 980px; margin: 0 auto; padding-block: 32px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: 2.1rem; }
+h2 { font-size: 1.45rem; margin-top: 8px; }
+h3 { font-size: 1.05rem; }
+p { margin: 0; max-width: 68ch; }
+.lede { color: var(--muted); margin-top: 8px; }
+.eyebrow { font: 500 .75rem/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+section { display: grid; gap: 14px; margin-top: 40px; }
+.links { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.link { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: grid; gap: 4px; min-width: 0; }
+.link a { color: var(--accent); font: 500 .9rem var(--mono); word-break: break-all; }
+.link .what { font-weight: 600; }
+.link .note { color: var(--muted); font-size: .88rem; }
+code, .mono { font-family: var(--mono); font-size: .9em; background: var(--chip); padding: 1px 5px; border-radius: 4px; }
+.step { display: grid; grid-template-columns: 72px 1fr; gap: 18px; border-top: 1px solid var(--line); padding-top: 18px; }
+.time { font: 500 .95rem var(--mono); color: var(--accent); font-variant-numeric: tabular-nums; }
+.body { display: grid; gap: 10px; min-width: 0; }
+.say { border-left: 3px solid var(--accent); padding: 2px 0 2px 14px; font-size: 1.02rem; }
+.say::before { content: "SAY  "; font: 500 .72rem var(--mono); letter-spacing: .08em; color: var(--muted); }
+.do { font-size: .95rem; }
+.do::before { content: "DO  "; font: 500 .72rem var(--mono); letter-spacing: .08em; color: var(--muted); }
+ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+figure { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px; display: grid; gap: 8px; min-width: 0; }
+figure img { width: 100%; height: auto; border-radius: 4px; background: #fff; }
+figcaption { font-size: .88rem; color: var(--muted); }
+figcaption b { color: var(--fg); }
+.tag { display: inline-block; font: 500 .72rem var(--mono); padding: 2px 7px; border-radius: 10px; background: var(--chip); color: var(--fg); }
+.tag.u { color: var(--urgent); } .tag.ok { color: var(--ok); } .tag.w { color: var(--warn); }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; font-size: .92rem; font-variant-numeric: tabular-nums; min-width: 520px; }
+th, td { text-align: left; padding: 7px 12px; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; }
+.copy { font: 500 .8rem var(--mono); border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 6px; padding: 3px 9px; cursor: pointer; }
+.copy:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+.backup { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+@media (max-width: 560px) { .step { grid-template-columns: 1fr; gap: 6px; } h1 { font-size: 1.7rem; } }
+</style>
+
+<div class="wrap">
+  <div class="eyebrow">GDG Cloud Boston hackathon · 2026-11-21 · about 5 minutes</div>
+  <h1>SentinelDesk demo kit</h1>
+  <p class="lede">The talk track, the live links and every figure in one place. Read the SAY lines aloud, do the DO lines on screen. Figures appear at the moment you show them; all of them are also in the gallery at the bottom.</p>
+
+  <section>
+    <div class="eyebrow">Open these before you start</div>
+    <div class="links">
+      <div class="link"><span class="what">1. Triage + RAG demo page</span><a href="https://sentinel-triage-mx2zqqjdda-uc.a.run.app/" target="_blank" rel="noopener">sentinel-triage-mx2zqqjdda-uc.a.run.app</a><span class="note">Classifier, urgency rules, retrieved precedents and a cited reply draft.</span></div>
+      <div class="link"><span class="what">2. HelpDesk console</span><a href="https://helpdesk-frontend-mx2zqqjdda-uc.a.run.app" target="_blank" rel="noopener">helpdesk-frontend-mx2zqqjdda-uc.a.run.app</a><span class="note">Tickets created from email, auto-escalation, RAG note on each ticket.</span></div>
+      <div class="link"><span class="what">3. Public support inbox</span><span class="mono" id="inbox">helpdesk-15c261c6@euploading.com</span><button class="copy" id="copy-inbox" type="button">Copy address</button><span class="note">Changes if the backend restarts. Check <span class="mono">/api/emails/inbox</span> on the backend.</span></div>
+      <div class="link"><span class="what">4. Code and findings</span><a href="https://github.com/shivarv/GDG-Hacakthon-nov21" target="_blank" rel="noopener">github.com/shivarv/GDG-Hacakthon-nov21</a><span class="note"><span class="mono">findings/FINDINGS.md</span>, <span class="mono">dataset/METHODOLOGY.md</span></span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Script</div>
+
+    <div class="step"><div class="time">0:00</div><div class="body">
+      <h3>The problem</h3>
+      <p class="say">Support teams get tickets in English and German. An urgent outage that lands in the wrong queue, or sits at "medium", costs hours. SentinelDesk classifies every ticket, decides whether a human must see it now, and drafts a reply that only says what past resolved tickets support.</p>
+    </div></div>
+
+    <div class="step"><div class="time">0:30</div><div class="body">
+      <h3>We audited the data first, and the official split leaks</h3>
+      <p class="say">Before training anything we checked the split. 22% of the official test tickets are exact copies of training tickets, because two of the source CSVs overlap. About 900 more are reworded copies. Copies share labels 99.6% of the time, so any score on the raw test set is inflated.</p>
+      <p class="say">So we built a clean test set: nothing within cosine 0.90 of a training ticket. Every number we report is on that set, next to the full and the harder family-held-out numbers.</p>
+      <figure><img src="fig/01_leakage_staircase.png" alt="Bar charts: accuracy of three models drops from exact copies to reworded copies to clean test to unseen families"><figcaption><b>The leakage staircase.</b> Point at the queue panel: 0.94 to 0.97 on exact copies, about 0.5 to 0.7 on clean tickets, lower again on unseen families.</figcaption></figure>
+    </div></div>
+
+    <div class="step"><div class="time">1:30</div><div class="body">
+      <h3>Tickets come in families, and nearest neighbours win</h3>
+      <p class="say">About 29% of training tickets have a reworded sibling. Inside a family, labels agree almost perfectly. That is why copying the single most similar ticket beats logistic regression, and why one neighbour beats fifty.</p>
+      <figure><img src="fig/02_knn_signature.png" alt="Left: kNN Macro-F1 falls as k grows. Right: 1-NN error falls with more training data"><figcaption><b>The kNN signature.</b> k = 1 is best, and error keeps falling with more data.</figcaption></figure>
+      <p class="say">We asked whether kNN only wins by memorising siblings. We held out whole families and retrained everything. Every model loses 10 to 20 points, but kNN keeps its lead. So local similarity genuinely fits this data, and the family-held-out number is our honest estimate for brand-new tickets.</p>
+      <figure><img src="fig/03_family_held_out.png" alt="Macro-F1 for LR, 1-NN and blend on random vs family held-out splits"><figcaption><b>Family held out.</b> Blend Macro-F1: type 0.91 to 0.87, queue 0.73 to 0.55, priority 0.83 to 0.73.</figcaption></figure>
+    </div></div>
+
+    <div class="step"><div class="time">2:30</div><div class="body">
+      <h3>Labels don't encode urgency, so safety can't rest on the classifier</h3>
+      <p class="say">The department label does not follow topic: every topic island in this map mixes every department. And priority barely follows urgent wording: 81% of "high" tickets contain no urgent words at all. A classifier trained on these labels will miss real emergencies.</p>
+      <figure><img src="fig/05_family_map.png" alt="t-SNE map coloured by queue, and the largest families as tight clumps"><figcaption><b>Family map.</b> Colours are departments; each island mixes all of them.</figcaption></figure>
+      <figure><img src="fig/06_labels_vs_urgency.png" alt="Share of tickets with urgent wording by priority, and label agreement within families vs random pairs"><figcaption><b>Labels vs urgency.</b> Left panel is the safety argument; right panel shows siblings share labels.</figcaption></figure>
+      <p class="say">So we ship two systems side by side: a statistical classifier for routing, and an explicit safety layer for escalation: English and German urgency rules, plus a rule that sends anything without a close precedent to a human.</p>
+    </div></div>
+
+    <div class="step"><div class="time">3:00</div><div class="body">
+      <h3>Live: triage and RAG</h3>
+      <p class="do">Open link 1. Click the hospital VPN example, then Triage.</p>
+      <p class="say">The classifier alone calls this priority low. The urgency rule catches "no clinician can connect, all wards" and escalates it. That is the dual system working on the brief's own example.</p>
+      <p class="say">Below, retrieval pulls the most similar resolved tickets from the knowledge base, with near-copies removed so we don't show five rewrites of one ticket. The reply draft uses only sentences from those agents' answers, and every sentence cites its ticket ID. A guard removes any sentence with a number, a price or a promise, so the draft never invents a refund or a deadline.</p>
+      <p class="do">Click a citation chip to jump to its precedent. Then run the German billing example.</p>
+      <p class="say">German in, German out. The precedents are German billing tickets.</p>
+      <p class="do">Type nonsense into the body and run it.</p>
+      <p class="say">No close precedent, so it refuses to draft and routes to a human instead of guessing.</p>
+    </div></div>
+
+    <div class="step"><div class="time">4:00</div><div class="body">
+      <h3>Live: end to end from a real email</h3>
+      <p class="do">Send an email to the inbox address (link 3) with an outage subject. Switch to the HelpDesk (link 2) and open the new ticket after about 10 seconds.</p>
+      <p class="say">The email became a ticket, triage set its priority, the gate escalated it, and the grounded reply draft with its cited precedents is attached as an internal note for the agent. Everything runs on Google Cloud Run.</p>
+    </div></div>
+
+    <div class="step"><div class="time">4:30</div><div class="body">
+      <h3>Close</h3>
+      <p class="say">We found and removed the leakage, we tested why kNN wins instead of assuming it, and we built safety rules for what the labels miss. The confidence scores are calibrated, so a 70% means about 70%.</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Macro-F1 (LR + kNN blend)</th><th>type</th><th>queue</th><th>priority</th></tr></thead>
+        <tbody>
+          <tr><td>Clean test set</td><td>0.90</td><td>0.68</td><td>0.83</td></tr>
+          <tr><td>Unseen families (honest estimate for new tickets)</td><td>0.87</td><td>0.55</td><td>0.73</td></tr>
+        </tbody>
+      </table></div>
+      <figure><img src="fig/reliability_blend.png" alt="Reliability diagrams for the blend model"><figcaption><b>Calibration.</b> Predicted confidence against observed accuracy.</figcaption></figure>
+    </div></div>
+  </section>
+
+  <section>
+    <div class="eyebrow">If someone asks</div>
+    <ul>
+      <li><b>Why not an LLM classifier?</b> 1-NN on TF-IDF already beats our linear model, and labels follow templates; an LLM would add latency and cost without a better signal. We use retrieval for replies instead.</li>
+      <li><b>Which model is live?</b> The live service runs TF-IDF + logistic regression with the urgency rules and RAG. The blend is our benchmark model; its Cloud Run service hit the project's CPU quota.</li>
+      <li><b>Why extractive replies?</b> Every sentence is traceable to a resolved ticket, and the guard blocks numbers and promises. Gemini is wired as an optional rewriter but was too slow on the event key today.</li>
+      <li><b>Test-set hygiene?</b> Test labels are read only by the evaluation scripts. Retrieval and the families analysis use the 80% training split only.</li>
+      <li><b>What's a "family"?</b> Tickets linked at combined TF-IDF cosine ≥ 0.70 in a 10-nearest-neighbour graph; connected components are families.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="backup">
+      <h3>If the live demo breaks</h3>
+      <p>Show the figures below and describe the flow. If the HelpDesk lost its tickets (they reset on every restart), send the two demo emails again. If the triage page is slow on first load, wait 20 seconds: the instance builds its retrieval index at startup.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">All figures</div>
+    <div class="gallery">
+      <figure><img src="fig/01_leakage_staircase.png" alt="Leakage staircase"><figcaption><b>01</b> Leakage staircase</figcaption></figure>
+      <figure><img src="fig/02_knn_signature.png" alt="kNN signature"><figcaption><b>02</b> kNN signature</figcaption></figure>
+      <figure><img src="fig/03_family_held_out.png" alt="Family held out"><figcaption><b>03</b> Random vs family held out</figcaption></figure>
+      <figure><img src="fig/04_family_sizes.png" alt="Family sizes"><figcaption><b>04</b> Family sizes</figcaption></figure>
+      <figure><img src="fig/05_family_map.png" alt="Family map"><figcaption><b>05</b> t-SNE family map</figcaption></figure>
+      <figure><img src="fig/06_labels_vs_urgency.png" alt="Labels vs urgency"><figcaption><b>06</b> Labels vs urgency, label agreement</figcaption></figure>
+      <figure><img src="fig/07_clean_test_similarity.png" alt="Clean test similarity"><figcaption><b>07</b> Clean test: similarity to closest training ticket</figcaption></figure>
+      <figure><img src="fig/reliability.png" alt="Reliability LR"><figcaption><b>08</b> Calibration, logistic regression</figcaption></figure>
+      <figure><img src="fig/reliability_blend.png" alt="Reliability blend"><figcaption><b>09</b> Calibration, LR + kNN blend</figcaption></figure>
+    </div>
+  </section>
+</div>
+<script>
+document.getElementById("copy-inbox").addEventListener("click", function () {
+  var t = document.getElementById("inbox").textContent, b = this;
+  function sel() { var r = document.createRange(); r.selectNodeContents(document.getElementById("inbox")); var s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+  try { navigator.clipboard.writeText(t).then(function () { b.textContent = "Copied"; }, sel); } catch (e) { sel(); }
+});
+</script>
