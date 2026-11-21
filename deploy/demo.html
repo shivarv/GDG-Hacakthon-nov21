@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SentinelDesk triage + RAG</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--fg:#1b1f27;--mut:#5f6877;--bd:#dde1e8;--acc:#2f5bea;--bar:#2f5bea;--barbg:#e6e9f0;--red:#c62828;--redbg:#fdecea;--grn:#1b7f3b;--grnbg:#e7f6ec;--amb:#8a5a00;--ambbg:#fff4d6;--hl:#fff7c2}
+@media (prefers-color-scheme:dark){:root{--bg:#12141a;--card:#1b1e27;--fg:#e8eaf0;--mut:#9aa3b5;--bd:#2c3140;--acc:#7b9bff;--bar:#7b9bff;--barbg:#2a2f3d;--red:#ff8a80;--redbg:#3a1a1a;--grn:#6fdc8c;--grnbg:#163222;--amb:#ffd37a;--ambbg:#3a2e12;--hl:#4a4310}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:960px;margin:0 auto;padding:16px}
+h1{font-size:1.4rem;margin:8px 0 14px}h2{font-size:1.05rem;margin:0 0 10px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:14px}
+label{display:block;font-weight:600;font-size:.85rem;margin:8px 0 4px}
+input,textarea{width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--fg);font:inherit}
+textarea{min-height:110px;resize:vertical}
+button{font:inherit;border:1px solid var(--bd);background:var(--card);color:var(--fg);padding:8px 14px;border-radius:8px;cursor:pointer}
+button.primary{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:600}
+@media (prefers-color-scheme:dark){button.primary{color:#0b1020}}
+button:disabled{opacity:.6;cursor:wait}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.banner{border-radius:10px;padding:16px;margin-bottom:14px;border:2px solid}
+.banner.esc{background:var(--redbg);color:var(--red);border-color:var(--red)}
+.banner.ok{background:var(--grnbg);color:var(--grn);border-color:var(--grn)}
+.banner .big{font-size:1.8rem;font-weight:800;letter-spacing:.04em}
+.banner ul{margin:6px 0 0;padding-left:20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-bottom:14px}
+.grid .card{margin:0}
+.lbl{font-size:1.25rem;font-weight:700}.conf{color:var(--mut);font-size:.9rem}
+.cap{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--mut)}
+.pr{display:flex;align-items:center;gap:8px;font-size:.82rem;margin-top:5px}
+.pr .n{flex:0 0 38%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pr .v{flex:0 0 40px;text-align:right;color:var(--mut)}
+.bar{flex:1;height:7px;background:var(--barbg);border-radius:4px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--bar)}
+.note{background:var(--ambbg);color:var(--amb);border-radius:8px;padding:8px 10px;margin:8px 0}
+.chip{display:inline-block;font:600 .75rem/1 ui-monospace,Menlo,monospace;color:var(--acc);border:1px solid var(--acc);background:transparent;border-radius:999px;padding:3px 7px;margin:0 4px 0 2px;cursor:pointer}
+.sent{margin:0 0 6px}
+.prec{border:1px solid var(--bd);border-radius:8px;padding:10px;margin-bottom:10px;transition:background .3s}
+.prec.hl{background:var(--hl);outline:2px solid var(--acc)}
+.ph{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tid{font:700 .85rem ui-monospace,Menlo,monospace}
+.tag{font-size:.72rem;border:1px solid var(--bd);border-radius:6px;padding:1px 6px;color:var(--mut)}
+.snip{color:var(--mut);margin:6px 0;white-space:pre-wrap;word-break:break-word}
+details summary{cursor:pointer;color:var(--acc);font-size:.85rem}
+details div{white-space:pre-wrap;word-break:break-word;margin-top:4px}
+.err{color:var(--red)}
+footer{color:var(--mut);font-size:.8rem;margin:10px 0 30px}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>SentinelDesk triage + RAG</h1>
+<form id="f" class="card">
+  <div class="cap">Examples</div>
+  <div class="row" style="margin-top:4px">
+    <button type="button" data-ex="0">EN: VPN down</button>
+    <button type="button" data-ex="1">DE: Rechnung</button>
+    <button type="button" data-ex="2">EN: Excel export</button>
+  </div>
+  <label for="s">Subject</label><input id="s" required>
+  <label for="b">Body</label><textarea id="b" required></textarea>
+  <div class="row"><button class="primary" id="go" type="submit">Triage</button><span id="st" class="conf"></span></div>
+</form>
+<div id="out" class="hidden">
+  <div id="banner"></div>
+  <div class="grid" id="cards"></div>
+  <div class="card" id="reply"></div>
+  <div class="card"><h2>Retrieved precedents</h2><div id="precs"></div></div>
+  <footer id="foot"></footer>
+</div>
+</div>
+<script>
+const EX=[
+["VPN down at St. Mary hospital","Since 8am no clinician can connect to the VPN, all wards are affected, patient records unreachable. Urgent!"],
+["Frage zur Rechnung","Guten Tag, auf meiner letzten Rechnung wurde der Betrag doppelt abgebucht. Können Sie das prüfen? Vielen Dank"],
+["How to export reports to Excel","Hi, is there a way to export the monthly analytics report from your dashboard to Excel?"]];
+const $=id=>document.getElementById(id);
+function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+const pct=x=>(Number(x)*100).toFixed(1)+"%";
+document.querySelectorAll("[data-ex]").forEach(b=>b.onclick=()=>{const e=EX[b.dataset.ex];$("s").value=e[0];$("b").value=e[1]});
+
+function bars(probs){
+  const w=el("div");
+  Object.entries(probs||{}).sort((a,c)=>c[1]-a[1]).slice(0,3).forEach(([k,p])=>{
+    const r=el("div","pr");r.appendChild(el("span","n",k));
+    const bar=el("div","bar"),i=el("i");i.style.width=Math.max(0,Math.min(100,p*100))+"%";bar.appendChild(i);r.appendChild(bar);
+    r.appendChild(el("span","v",pct(p)));w.appendChild(r)});
+  return w;
+}
+function mk(title,o){
+  const c=el("div","card");c.appendChild(el("div","cap",title));
+  c.appendChild(el("div","lbl",o&&o.label!=null?String(o.label):"?"));
+  c.appendChild(el("div","conf","confidence "+(o&&o.conf!=null?pct(o.conf):"n/a")));
+  c.appendChild(bars(o&&o.probs));return c;
+}
+function hl(id){
+  const t=document.getElementById("prec-"+id);if(!t)return;
+  document.querySelectorAll(".prec.hl").forEach(x=>x.classList.remove("hl"));
+  t.scrollIntoView({behavior:"smooth",block:"center"});t.classList.add("hl");
+  const d=t.querySelector("details");if(d)d.open=true;
+  setTimeout(()=>t.classList.remove("hl"),3000);
+}
+function render(d){
+  $("out").classList.remove("hidden");
+  const g=d.gate_hints||{},bn=$("banner");bn.textContent="";
+  const b=el("div","banner "+(g.escalate?"esc":"ok"));
+  if(g.escalate){b.appendChild(el("div","big","ESCALATE"));
+    const u=el("ul");(g.reasons||[]).forEach(r=>u.appendChild(el("li",null,String(r))));b.appendChild(u);}
+  else b.appendChild(el("div","big","Normal queue"));
+  bn.appendChild(b);
+  const cs=$("cards");cs.textContent="";
+  cs.appendChild(mk("Type",d.type));cs.appendChild(mk("Queue",d.queue));cs.appendChild(mk("Priority",d.priority));
+
+  const rp=$("reply");rp.textContent="";rp.appendChild(el("h2",null,"Grounded reply draft"));
+  const rag=d.rag,precs=(rag&&rag.precedents)||[],rep=rag&&rag.reply;
+  if(!rep){rp.appendChild(el("div","note","No RAG reply available for this ticket."));}
+  else{
+    if(rep.needs_human)rp.appendChild(el("div","note","Needs human review"+(rep.reason?": "+rep.reason:"")));
+    const sw=el("div");
+    (rep.sentences||[]).forEach(s=>{
+      const p=el("p","sent",s.text+" ");
+      if(s.ticket_id){const c=el("button","chip","["+s.ticket_id+"]");c.type="button";c.onclick=()=>hl(s.ticket_id);p.appendChild(c)}
+      sw.appendChild(p)});
+    rp.appendChild(sw);
+    if(rep.guard_dropped_sentences>0)rp.appendChild(el("div","conf",rep.guard_dropped_sentences+" risky sentence"+(rep.guard_dropped_sentences>1?"s":"")+" removed by the number/promise guard"));
+    if(rep.grounded===false)rp.appendChild(el("div","conf","Not grounded in precedents."));
+    rp.appendChild(el("label",null,"Copyable reply text"));
+    const ta=el("textarea");ta.readOnly=true;ta.value=rep.text||"";rp.appendChild(ta);
+    const r=el("div","row"),cb=el("button",null,"Copy");cb.type="button";
+    cb.onclick=()=>{ta.select();try{navigator.clipboard.writeText(ta.value)}catch(e){document.execCommand("copy")}cb.textContent="Copied";setTimeout(()=>cb.textContent="Copy",1200)};
+    r.appendChild(cb);rp.appendChild(r);
+  }
+  const pc=$("precs");pc.textContent="";
+  if(!precs.length)pc.appendChild(el("div","conf","No precedents retrieved."));
+  precs.forEach(p=>{
+    const w=el("div","prec");w.id="prec-"+p.ticket_id;
+    const h=el("div","ph");h.appendChild(el("span","tid",p.ticket_id));
+    const sb=el("div","bar");sb.style.maxWidth="120px";sb.style.flex="0 0 100px";
+    const i=el("i");i.style.width=Math.max(0,Math.min(100,p.similarity*100))+"%";sb.appendChild(i);h.appendChild(sb);
+    h.appendChild(el("span","conf",pct(p.similarity)));
+    [p.type,p.queue,p.priority,p.language].forEach(t=>{if(t)h.appendChild(el("span","tag",String(t)))});
+    w.appendChild(h);
+    w.appendChild(el("div",null,p.subject||"")).style.fontWeight="600";
+    const bd=p.body||"";w.appendChild(el("div","snip",bd.length>240?bd.slice(0,240)+"…":bd));
+    if(p.answer){const de=el("details"),sm=el("summary",null,"Agent answer");de.appendChild(sm);de.appendChild(el("div",null,p.answer));w.appendChild(de)}
+    pc.appendChild(w)});
+  const parts=["Classifier: TF-IDF + calibrated LR · Retrieval: TF-IDF cosine over 80% knowledge-base split, near-copies removed · Replies cite one ticket per sentence"];
+  const lat=[];if(d.latency_ms!=null)lat.push("triage "+Number(d.latency_ms).toFixed(0)+" ms");
+  if(rag&&rag.latency_ms!=null)lat.push("RAG "+Number(rag.latency_ms).toFixed(0)+" ms");
+  $("foot").textContent=parts[0]+(lat.length?" · Latency: "+lat.join(", "):"");
+}
+$("f").onsubmit=async e=>{
+  e.preventDefault();$("go").disabled=true;$("st").textContent="Working…";$("st").className="conf";
+  try{
+    const r=await fetch("/triage",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({subject:$("s").value,body:$("b").value})});
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    render(await r.json());$("st").textContent="";
+  }catch(x){$("st").textContent="Error: "+x.message;$("st").className="err"}
+  finally{$("go").disabled=false}
+};
+</script>
+</body>
+</html>

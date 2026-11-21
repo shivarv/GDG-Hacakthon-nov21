@@ -5,6 +5,6 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY triage/ triage/
-COPY app.py .
+COPY app.py rag.py demo.html kb_train.parquet ./
 EXPOSE 8080
 CMD exec uvicorn app:app --host 0.0.0.0 --port ${PORT:-8080} --workers 1 --timeout-keep-alive 75

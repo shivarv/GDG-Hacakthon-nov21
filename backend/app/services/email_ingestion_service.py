@@ -77,6 +77,8 @@ class EmailIngestionService:
 
         if created:
             self._triage_note(ticket)
+            self._add_rag_note(ticket)
+            self.db.commit()
         is_automatic = inbound.auto_generated or email_parser.is_no_reply_address(str(inbound.from_address))
         if created and not is_automatic:
             # Severe tickets are escalated straight away; the escalation email replaces the plain acknowledgement.
@@ -118,6 +120,36 @@ class EmailIngestionService:
         lines += [f"• {r}" for r in d.reasons]
         self.comments.add(Comment(ticket_id=ticket.id, author="Triage", body="\n".join(lines), is_internal=True))
         self.db.commit()
+
+    def _add_rag_note(self, ticket: Ticket) -> None:
+        """Attach the grounded suggested reply + cited precedents as an internal note (best effort)."""
+        try:
+            rag = getattr(self._triage(ticket.subject, ticket.description), "rag", None)
+            if not rag:
+                return
+            reply = rag.get("reply") or {}
+            cited = [str(c) for c in (reply.get("cited_ticket_ids") or [])]
+            lines = []
+            text = (reply.get("text") or "").strip()
+            if text and not reply.get("needs_human"):
+                lines.append(f"Suggested reply (grounded in {', '.join(cited) or 'precedents'}):\n{text}")
+            elif reply.get("needs_human"):
+                lines.append("Needs a human: " + (reply.get("reason") or "no grounded reply available"))
+            precs = []
+            for p in (rag.get("precedents") or [])[:5]:
+                bits = [f"sim {float(p.get('similarity', 0)):.2f}"]
+                if p.get("queue"):
+                    bits.append(f"queue {p['queue']}")
+                if p.get("priority"):
+                    bits.append(f"priority {p['priority']}")
+                precs.append(f"{p.get('ticket_id')} ({', '.join(bits)})")
+            if precs:
+                lines.append("Precedents: " + ", ".join(precs))
+            if lines:
+                self.comments.add(Comment(ticket_id=ticket.id, author="Triage (RAG)",
+                                          body="\n\n".join(lines), is_internal=True))
+        except Exception:
+            logger.exception("Could not attach RAG note")
 
     def _auto_escalate(self, ticket: Ticket) -> bool:
         """Escalate a new ticket when the triage model says it's severe. Returns True if escalated."""

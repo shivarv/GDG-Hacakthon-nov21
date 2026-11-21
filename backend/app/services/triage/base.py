@@ -16,6 +16,7 @@ class TriageDecision:
     ticket_type: str | None = None  # e.g. "Incident" (models that predict it)
     queue: str | None = None  # department, e.g. "Technical Support"
     queue_confidence: float | None = None
+    rag: dict | None = None  # optional retrieval-grounded reply + precedents from the triage service
 
 
 class TriageModel(Protocol):

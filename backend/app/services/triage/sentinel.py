@@ -9,6 +9,7 @@ hp_incident, explicit EN/DE urgency rules and gate_hints. Both variants map it t
                      OR (likely high-priority Incident AND predicted priority is high)
   priority         = urgent when escalating, else the predicted high/medium/low
   queue / type     = saved on the ticket; auto-assign uses the queue to pick the escalation team
+  rag              = grounded suggested reply + cited precedents, attached as an internal note
 Any HTTP error falls back to the keyword dummy so email intake never breaks.
 """
 
@@ -41,6 +42,14 @@ def decision_from_contract(out: dict, model_name: str) -> TriageDecision:
     reasons = [f"Type {out['type']['label']} ({out['type']['conf']:.2f}), queue {out['queue']['label']} "
                f"({out['queue']['conf']:.2f}), priority {pri['label']} ({pri['conf']:.2f})"]
     reasons += out.get("gate_hints", {}).get("reasons", [])
+    # Optional retrieval-grounded reply + cited precedents (the Cloud Run service returns these).
+    rag = out.get("rag") if isinstance(out.get("rag"), dict) else None
+    if rag:
+        try:
+            if (rag.get("reply") or {}).get("needs_human"):
+                reasons.append("RAG: " + ((rag["reply"].get("reason")) or "no grounded reply: needs a human"))
+        except Exception:
+            logger.warning("Malformed rag block ignored")
     reasons.append("Escalate automatically" if should_escalate else "Not severe → normal queue")
     return TriageDecision(
         priority=priority,
@@ -51,6 +60,7 @@ def decision_from_contract(out: dict, model_name: str) -> TriageDecision:
         ticket_type=out["type"]["label"],
         queue=out["queue"]["label"],
         queue_confidence=float(out["queue"]["conf"]),
+        rag=rag,
     )
 
 
