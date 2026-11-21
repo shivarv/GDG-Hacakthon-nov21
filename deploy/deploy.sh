@@ -15,7 +15,8 @@ CPU="${CPU:-2}"; MEMORY="${MEMORY:-2Gi}"
 
 BUILD="$HERE/.build"
 rm -rf "$BUILD" && mkdir -p "$BUILD/triage/models"
-cp "$HERE/app.py" "$HERE/requirements.txt" "$HERE/Dockerfile" "$BUILD/"
+cp "$HERE/app.py" "$HERE/rag.py" "$HERE/demo.html" "$HERE/requirements.txt" "$HERE/Dockerfile" "$BUILD/"
+cp "$REPO/dataset/data/kb_train.parquet" "$BUILD/"  # 80% KB only, for retrieval
 cp "$REPO/triage/model.py" "$REPO/triage/textprep.py" "$REPO/triage/urgency.py" "$REPO/triage/blend.py" "$BUILD/triage/"
 cp "$MODEL_DIR/$MODEL" "$BUILD/triage/models/"
 if [ "$MODEL_KIND" = blend ]; then cp "$MODEL_DIR/triage.joblib" "$BUILD/triage/models/"; fi  # BlendModel loads the LR beside it
