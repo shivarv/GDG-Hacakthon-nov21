@@ -74,11 +74,17 @@ def strip_quoted_reply(body: str) -> str:
     return text or body.strip()
 
 
-def clean_subject(subject: str) -> str:
-    """Remove Re:/Fwd: prefixes and any [TCK-123] tag."""
+def clean_subject(subject: str, body: str = "") -> str:
+    """Remove Re:/Fwd: prefixes and any [TCK-123] tag. If nothing is left,
+    fall back to the first line of the body so the case still has a title."""
     subject = _SUBJECT_PREFIX.sub("", subject)
-    subject = _ticket_tag_pattern().sub("", subject)
-    return subject.strip() or "(no subject)"
+    subject = _ticket_tag_pattern().sub("", subject).strip()
+    if subject:
+        return subject
+    first_line = next((ln.strip() for ln in body.splitlines() if ln.strip()), "")
+    if not first_line:
+        return "(no subject)"
+    return first_line if len(first_line) <= 80 else first_line[:77].rstrip() + "…"
 
 
 def extract_ticket_id(subject: str) -> int | None:

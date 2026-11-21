@@ -98,7 +98,7 @@ class EmailIngestionService:
         return None
 
     def _create_ticket(self, inbound: InboundEmail) -> Ticket:
-        subject = email_parser.clean_subject(inbound.subject)
+        subject = email_parser.clean_subject(inbound.subject, inbound.body_text)
         return self.tickets.add(
             Ticket(
                 subject=subject[:500],

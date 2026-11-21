@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Button, EmptyState, ErrorMessage, Pagination, Spinner } from '@/components/common';
+import { MailX, RefreshCw } from 'lucide-react';
+import { emailsApi } from '@/api/emails';
+import { Button, Card, EmptyState, ErrorMessage, Pagination, Spinner } from '@/components/common';
 import { EmailTable, InboundEmailSimulator, InboxAddressBanner } from '@/components/emails';
 import { PageHeader } from '@/components/layout';
-import { emailsApi } from '@/api/emails';
 import { useEmails } from '@/hooks/useEmails';
 
 export function EmailsPage() {
@@ -20,26 +21,26 @@ export function EmailsPage() {
   return (
     <>
       <PageHeader
-        title="Email Inbox"
-        subtitle="Every inbound email and the case it produced"
-        actions={<Button variant="secondary" onClick={reload}>Refresh</Button>}
+        title="Email channel"
+        description="Every inbound email and the case it produced."
+        actions={<Button variant="secondary" onClick={reload} icon={<RefreshCw className="h-4 w-4" />}>Refresh</Button>}
       />
       <InboxAddressBanner />
       <div className="grid gap-6 2xl:grid-cols-3">
-        <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm 2xl:col-span-2">
+        <Card className="2xl:col-span-2" title="Inbound log" description="Updates automatically" bodyClassName="p-0 sm:p-0">
           {loading ? (
             <Spinner />
           ) : error ? (
-            <div className="p-4"><ErrorMessage message={error} onRetry={reload} /></div>
+            <div className="p-4 sm:p-6"><ErrorMessage message={error} onRetry={reload} /></div>
           ) : data && data.items.length > 0 ? (
             <>
               <EmailTable emails={data.items} />
               <Pagination page={data.page} pageSize={data.page_size} total={data.total} onChange={setPage} />
             </>
           ) : (
-            <EmptyState title="No emails received yet" description="Send an email to support@helpdesk.local or use the simulator." />
+            <EmptyState icon={MailX} title="No emails yet" description="Send an email to the support address above, or use the test form." />
           )}
-        </section>
+        </Card>
         <InboundEmailSimulator onIngested={reload} />
       </div>
     </>

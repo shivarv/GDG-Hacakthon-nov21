@@ -2,7 +2,7 @@ import { Badge, type BadgeTone } from '@/components/common';
 import type { TicketStatus } from '@/types/ticket';
 import { humanize } from '@/utils/format';
 
-const tone: Record<TicketStatus, BadgeTone> = {
+export const statusTone: Record<TicketStatus, BadgeTone> = {
   open: 'blue',
   in_progress: 'purple',
   pending: 'amber',
@@ -11,5 +11,9 @@ const tone: Record<TicketStatus, BadgeTone> = {
 };
 
 export function StatusBadge({ status }: { status: TicketStatus }) {
-  return <Badge tone={tone[status]}>{humanize(status)}</Badge>;
+  return (
+    <Badge tone={statusTone[status]} dot>
+      {humanize(status)}
+    </Badge>
+  );
 }

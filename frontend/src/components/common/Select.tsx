@@ -12,7 +12,7 @@ export function Select<T extends string>({ label, options, placeholder, onValueC
   return (
     <label className="block">
       {label && <span className="label">{label}</span>}
-      <select className={cn('input', className)} onChange={(e) => onValueChange(e.target.value as T | '')} {...rest}>
+      <select className={cn('input pr-8', className)} onChange={(e) => onValueChange(e.target.value as T | '')} {...rest}>
         {placeholder !== undefined && <option value="">{placeholder}</option>}
         {options.map((o) => (
           <option key={o} value={o}>

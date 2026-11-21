@@ -1,16 +1,13 @@
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { CheckCircle2, Trash2 } from 'lucide-react';
 import { ticketsApi } from '@/api/tickets';
 import { Button, Card, ErrorMessage, Spinner } from '@/components/common';
 import { PageHeader } from '@/components/layout';
-import {
-  CommentForm,
-  CommentList,
-  PriorityBadge,
-  StatusBadge,
-  TicketPropertiesPanel,
-} from '@/components/tickets';
+import { CommentForm, CommentList, PriorityBadge, SourceBadge, StatusBadge, TicketPropertiesPanel } from '@/components/tickets';
 import { useTicket } from '@/hooks/useTickets';
 import type { CommentCreateInput, TicketUpdateInput } from '@/types/ticket';
+import { timeAgo } from '@/utils/format';
+import { Breadcrumbs } from './Breadcrumbs';
 
 export function TicketDetailPage() {
   const id = Number(useParams().id);
@@ -36,36 +33,41 @@ export function TicketDetailPage() {
     navigate('/tickets');
   };
 
+  const isDone = ticket.status === 'resolved' || ticket.status === 'closed';
+
   return (
     <>
-      <Link to="/tickets" className="mb-4 inline-block text-sm text-slate-500 hover:text-slate-700">← Back to tickets</Link>
       <PageHeader
-        title={
-          <span className="flex flex-wrap items-center gap-3">
-            <span className="font-mono text-base text-slate-400">{ticket.ticket_number}</span>
-            {ticket.subject}
-          </span>
-        }
-        subtitle={
-          <span className="flex gap-2">
+        eyebrow={<Breadcrumbs items={[{ label: 'Tickets', to: '/tickets' }, { label: ticket.ticket_number }]} />}
+        title={ticket.subject}
+        description={
+          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
             <StatusBadge status={ticket.status} />
             <PriorityBadge priority={ticket.priority} />
-          </span>
+            <SourceBadge source={ticket.source} />
+            <span className="text-xs text-slate-500">Opened {timeAgo(ticket.created_at)}</span>
+          </div>
         }
-        actions={<Button variant="danger" onClick={handleDelete}>Delete</Button>}
+        actions={
+          <>
+            <Button variant="danger" onClick={handleDelete} icon={<Trash2 className="h-4 w-4" />}>
+              <span className="hidden sm:inline">Delete</span>
+            </Button>
+            {!isDone && (
+              <Button onClick={() => handleUpdate({ status: 'resolved' })} icon={<CheckCircle2 className="h-4 w-4" />}>
+                Mark resolved
+              </Button>
+            )}
+          </>
+        }
       />
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
-          <Card title="Description">
-            <p className="whitespace-pre-wrap text-sm text-slate-700">{ticket.description || 'No description provided.'}</p>
-          </Card>
-          <Card title={`Conversation (${ticket.comments.length})`}>
-            <CommentList comments={ticket.comments} />
-            <div className="mt-6 border-t border-slate-100 pt-6">
-              <CommentForm onSubmit={handleComment} />
-            </div>
-          </Card>
-        </div>
+        <Card className="lg:col-span-2" title="Conversation" description={`${ticket.comments.length + 1} messages`}>
+          <CommentList ticket={ticket} comments={ticket.comments} />
+          <div className="mt-6 sm:pl-12">
+            <CommentForm onSubmit={handleComment} />
+          </div>
+        </Card>
         <TicketPropertiesPanel key={ticket.updated_at} ticket={ticket} onUpdate={handleUpdate} />
       </div>
     </>

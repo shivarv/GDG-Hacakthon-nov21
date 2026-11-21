@@ -1,41 +1,98 @@
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { ChevronRight } from 'lucide-react';
+import { Avatar } from '@/components/common';
 import type { Ticket } from '@/types/ticket';
 import { timeAgo } from '@/utils/format';
 import { PriorityBadge } from './PriorityBadge';
 import { SourceBadge } from './SourceBadge';
 import { StatusBadge } from './StatusBadge';
 
-export function TicketTable({ tickets }: { tickets: Ticket[] }) {
+interface Props {
+  tickets: Ticket[];
+  compact?: boolean;
+}
+
+/** Table on md+ screens, stacked cards on mobile. */
+export function TicketTable({ tickets, compact }: Props) {
   const navigate = useNavigate();
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-slate-100 text-sm">
-        <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-          <tr>
-            <th className="px-5 py-3">Case</th>
-            <th className="px-5 py-3">Subject</th>
-            <th className="px-5 py-3">Requester</th>
-            <th className="px-5 py-3">Status</th>
-            <th className="px-5 py-3">Priority</th>
-            <th className="px-5 py-3">Source</th>
-            <th className="px-5 py-3">Updated</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100">
-          {tickets.map((t) => (
-            <tr key={t.id} onClick={() => navigate(`/tickets/${t.id}`)} className="cursor-pointer hover:bg-slate-50">
-              <td className="whitespace-nowrap px-5 py-3 font-mono text-xs text-slate-500">{t.ticket_number}</td>
-              <td className="max-w-xs truncate px-5 py-3 font-medium text-slate-900">{t.subject}</td>
-              <td className="px-5 py-3 text-slate-600">{t.requester_name ?? t.requester_email}</td>
-              <td className="px-5 py-3"><StatusBadge status={t.status} /></td>
-              <td className="px-5 py-3"><PriorityBadge priority={t.priority} /></td>
-              <td className="px-5 py-3"><SourceBadge source={t.source} /></td>
-              <td className="whitespace-nowrap px-5 py-3 text-slate-500">{timeAgo(t.updated_at)}</td>
+    <>
+      {/* Mobile: card list */}
+      <ul className="divide-y divide-slate-200 md:hidden">
+        {tickets.map((t) => (
+          <li key={t.id}>
+            <Link to={`/tickets/${t.id}`} className="flex gap-3 px-4 py-4 active:bg-slate-50">
+              <Avatar name={t.requester_name ?? t.requester_email} />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-mono text-xs text-slate-500">{t.ticket_number}</span>
+                  <span className="text-xs text-slate-400">{timeAgo(t.updated_at)}</span>
+                </div>
+                <p className="mt-0.5 truncate text-sm font-medium text-slate-900">{t.subject}</p>
+                <p className="truncate text-xs text-slate-500">{t.requester_name ?? t.requester_email}</p>
+                <div className="mt-2 flex flex-wrap items-center gap-3">
+                  <StatusBadge status={t.status} />
+                  <PriorityBadge priority={t.priority} />
+                </div>
+              </div>
+              <ChevronRight className="mt-6 h-4 w-4 shrink-0 text-slate-300" />
+            </Link>
+          </li>
+        ))}
+      </ul>
+
+      {/* Desktop: table */}
+      <div className="hidden overflow-x-auto md:block">
+        <table className="min-w-full divide-y divide-slate-200">
+          <thead className="bg-slate-50">
+            <tr>
+              <th className="th">Ticket</th>
+              <th className="th">Requester</th>
+              <th className="th">Status</th>
+              <th className="th">Priority</th>
+              {!compact && <th className="th hidden lg:table-cell">Channel</th>}
+              {!compact && <th className="th hidden xl:table-cell">Assignee</th>}
+              <th className="th text-right">Updated</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody className="divide-y divide-slate-100 bg-white text-sm">
+            {tickets.map((t) => (
+              <tr key={t.id} onClick={() => navigate(`/tickets/${t.id}`)} className="cursor-pointer transition-colors hover:bg-slate-50">
+                <td className="td max-w-xs lg:max-w-md">
+                  <p className="truncate font-medium text-slate-900">{t.subject}</p>
+                  <p className="font-mono text-xs text-slate-500">{t.ticket_number}</p>
+                </td>
+                <td className="td">
+                  <div className="flex items-center gap-3">
+                    <Avatar name={t.requester_name ?? t.requester_email} size="xs" />
+                    <div className="min-w-0">
+                      <p className="truncate text-slate-900">{t.requester_name ?? t.requester_email.split('@')[0]}</p>
+                      <p className="hidden truncate text-xs text-slate-500 lg:block">{t.requester_email}</p>
+                    </div>
+                  </div>
+                </td>
+                <td className="td"><StatusBadge status={t.status} /></td>
+                <td className="td"><PriorityBadge priority={t.priority} /></td>
+                {!compact && <td className="td hidden lg:table-cell"><SourceBadge source={t.source} /></td>}
+                {!compact && (
+                  <td className="td hidden xl:table-cell">
+                    {t.assignee ? (
+                      <span className="flex items-center gap-2 text-slate-700">
+                        <Avatar name={t.assignee} size="xs" />
+                        {t.assignee}
+                      </span>
+                    ) : (
+                      <span className="text-slate-400">Unassigned</span>
+                    )}
+                  </td>
+                )}
+                <td className="td whitespace-nowrap text-right text-slate-500">{timeAgo(t.updated_at)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 }

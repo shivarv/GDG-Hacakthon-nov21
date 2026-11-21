@@ -1,29 +1,75 @@
-import type { Comment } from '@/types/ticket';
+import { Lock, Mail } from 'lucide-react';
+import { Avatar } from '@/components/common';
+import type { Comment, Ticket } from '@/types/ticket';
 import { cn, formatDateTime } from '@/utils/format';
 
-export function CommentList({ comments }: { comments: Comment[] }) {
-  if (comments.length === 0) {
-    return <p className="py-6 text-center text-sm text-slate-500">No replies yet.</p>;
-  }
+interface Props {
+  ticket: Ticket;
+  comments: Comment[];
+}
+
+/** Conversation timeline: the original request followed by every reply and note. */
+export function CommentList({ ticket, comments }: Props) {
+  const requester = ticket.requester_name ?? ticket.requester_email;
+
   return (
-    <ol className="space-y-4">
+    <ol className="space-y-6">
+      <Entry
+        author={requester}
+        meta={ticket.source === 'email' ? 'opened via email' : 'opened this case'}
+        time={ticket.created_at}
+        body={ticket.description || 'No description provided.'}
+        viaEmail={ticket.source === 'email'}
+        highlight
+      />
       {comments.map((c) => (
-        <li
+        <Entry
           key={c.id}
-          className={cn(
-            'rounded-lg border p-4',
-            c.is_internal ? 'border-amber-200 bg-amber-50' : c.source === 'email' ? 'border-violet-200 bg-violet-50/50' : 'border-slate-200 bg-white',
-          )}
-        >
-          <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
-            <span className="font-semibold text-slate-800">{c.author}</span>
-            {c.source === 'email' && <span>✉ via email</span>}
-            {c.is_internal && <span className="font-medium text-amber-700">🔒 Internal note</span>}
-            <span className="ml-auto">{formatDateTime(c.created_at)}</span>
-          </div>
-          <p className="whitespace-pre-wrap text-sm text-slate-700">{c.body}</p>
-        </li>
+          author={c.author}
+          meta={c.is_internal ? 'added an internal note' : c.source === 'email' ? 'replied via email' : 'replied'}
+          time={c.created_at}
+          body={c.body}
+          internal={c.is_internal}
+          viaEmail={c.source === 'email'}
+        />
       ))}
     </ol>
+  );
+}
+
+interface EntryProps {
+  author: string;
+  meta: string;
+  time: string;
+  body: string;
+  internal?: boolean;
+  viaEmail?: boolean;
+  highlight?: boolean;
+}
+
+function Entry({ author, meta, time, body, internal, viaEmail, highlight }: EntryProps) {
+  return (
+    <li className="flex gap-3 sm:gap-4">
+      <Avatar name={author} className="mt-0.5 hidden sm:inline-flex" />
+      <div
+        className={cn(
+          'min-w-0 flex-1 rounded-lg border',
+          internal ? 'border-amber-200 bg-amber-50/70' : highlight ? 'border-slate-200 bg-slate-50' : 'border-slate-200 bg-white',
+        )}
+      >
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-inherit px-4 py-2.5 text-sm">
+          <span className="font-medium text-slate-900">{author}</span>
+          <span className="text-slate-500">{meta}</span>
+          {viaEmail && <Mail className="h-3.5 w-3.5 text-slate-400" aria-label="via email" />}
+          {internal && (
+            <span className="inline-flex items-center gap-1 rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-medium text-amber-800">
+              <Lock className="h-3 w-3" /> Internal
+            </span>
+          )}
+          <time className="ml-auto text-xs text-slate-400">{formatDateTime(time)}</time>
+        </div>
+        <p className="whitespace-pre-wrap break-words px-4 py-3 text-sm leading-relaxed text-slate-700">{body}</p>
+      </div>
+    </li>
   );
 }

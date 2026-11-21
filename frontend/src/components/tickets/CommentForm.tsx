@@ -1,9 +1,10 @@
 import { useState, type FormEvent } from 'react';
+import { Lock, Send } from 'lucide-react';
 import { Button } from '@/components/common';
 import type { CommentCreateInput } from '@/types/ticket';
+import { cn } from '@/utils/format';
 
 export function CommentForm({ onSubmit }: { onSubmit: (data: CommentCreateInput) => Promise<void> }) {
-  const [author, setAuthor] = useState('Support Agent');
   const [body, setBody] = useState('');
   const [isInternal, setIsInternal] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -13,7 +14,7 @@ export function CommentForm({ onSubmit }: { onSubmit: (data: CommentCreateInput)
     if (!body.trim()) return;
     setSaving(true);
     try {
-      await onSubmit({ author, body, is_internal: isInternal });
+      await onSubmit({ author: 'Support Agent', body, is_internal: isInternal });
       setBody('');
     } finally {
       setSaving(false);
@@ -21,21 +22,44 @@ export function CommentForm({ onSubmit }: { onSubmit: (data: CommentCreateInput)
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
+    <form
+      onSubmit={handleSubmit}
+      className={cn(
+        'overflow-hidden rounded-lg border shadow-sm focus-within:ring-2',
+        isInternal ? 'border-amber-300 bg-amber-50/50 focus-within:ring-amber-500/20' : 'border-slate-300 bg-white focus-within:ring-brand-500/20',
+      )}
+    >
+      <div className="flex border-b border-inherit text-sm">
+        {[
+          { internal: false, label: 'Public reply' },
+          { internal: true, label: 'Internal note' },
+        ].map((tab) => (
+          <button
+            key={tab.label}
+            type="button"
+            onClick={() => setIsInternal(tab.internal)}
+            className={cn(
+              'flex items-center gap-1.5 px-4 py-2.5 font-medium',
+              isInternal === tab.internal ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600',
+            )}
+          >
+            {tab.internal && <Lock className="h-3.5 w-3.5" />}
+            {tab.label}
+          </button>
+        ))}
+      </div>
       <textarea
         rows={4}
-        className="input"
-        placeholder={isInternal ? 'Add an internal note…' : 'Write a reply…'}
+        className="block w-full resize-y border-0 bg-transparent px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0"
+        placeholder={isInternal ? 'Only visible to your team…' : 'Write your reply to the customer…'}
         value={body}
         onChange={(e) => setBody(e.target.value)}
       />
-      <div className="flex flex-wrap items-center gap-3">
-        <input className="input w-48" value={author} onChange={(e) => setAuthor(e.target.value)} aria-label="Author" />
-        <label className="flex items-center gap-2 text-sm text-slate-600">
-          <input type="checkbox" checked={isInternal} onChange={(e) => setIsInternal(e.target.checked)} className="rounded border-slate-300" />
-          Internal note
-        </label>
-        <Button type="submit" loading={saving} className="ml-auto" disabled={!body.trim()}>
+      <div className="flex items-center justify-between gap-3 px-4 py-2.5">
+        <p className="hidden text-xs text-slate-500 sm:block">
+          {isInternal ? 'Notes are never shared with the requester.' : 'Replying as Support Agent'}
+        </p>
+        <Button type="submit" size="sm" loading={saving} disabled={!body.trim()} className="ml-auto" icon={<Send className="h-3.5 w-3.5" />}>
           {isInternal ? 'Add note' : 'Send reply'}
         </Button>
       </div>

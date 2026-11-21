@@ -1,38 +1,101 @@
+import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import { Headset, Inbox, LayoutDashboard, Plus, Ticket, X, type LucideIcon } from 'lucide-react';
+import { emailsApi } from '@/api/emails';
+import type { InboxInfo } from '@/types/email';
 import { cn } from '@/utils/format';
 
-const links = [
-  { to: '/', label: 'Dashboard', icon: '📊', end: true },
-  { to: '/tickets', label: 'Tickets', icon: '🎫', end: false },
-  { to: '/emails', label: 'Email Inbox', icon: '📨', end: false },
+const nav: { to: string; label: string; icon: LucideIcon; end?: boolean }[] = [
+  { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
+  { to: '/tickets', label: 'Tickets', icon: Ticket },
+  { to: '/emails', label: 'Email channel', icon: Inbox },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+export function Sidebar({ open, onClose }: SidebarProps) {
   return (
-    <aside className="hidden w-60 shrink-0 flex-col border-r border-slate-200 bg-white md:flex">
-      <div className="flex h-16 items-center gap-2 border-b border-slate-200 px-5">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white">H</span>
-        <span className="text-lg font-semibold text-slate-900">HelpDesk</span>
-      </div>
-      <nav className="flex-1 space-y-1 p-3">
-        {links.map((l) => (
+    <>
+      {/* Mobile overlay */}
+      <div
+        className={cn('fixed inset-0 z-40 bg-slate-900/50 transition-opacity lg:hidden', open ? 'opacity-100' : 'pointer-events-none opacity-0')}
+        onClick={onClose}
+        aria-hidden
+      />
+      <aside
+        className={cn(
+          'fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-slate-900 transition-transform duration-200 lg:translate-x-0',
+          open ? 'translate-x-0' : '-translate-x-full',
+        )}
+      >
+        <div className="flex h-16 shrink-0 items-center justify-between px-5">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-brand-600">
+              <Headset className="h-4 w-4 text-white" />
+            </span>
+            <div className="leading-tight">
+              <p className="text-sm font-semibold text-white">HelpDesk</p>
+              <p className="text-[11px] text-slate-400">Support Console</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="rounded-md p-1 text-slate-400 hover:text-white lg:hidden" aria-label="Close menu">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="px-3 pb-2">
           <NavLink
-            key={l.to}
-            to={l.to}
-            end={l.end}
-            className={({ isActive }) =>
-              cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition',
-                isActive ? 'bg-brand-50 text-brand-700' : 'text-slate-600 hover:bg-slate-100',
-              )
-            }
+            to="/tickets/new"
+            className="flex w-full items-center justify-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm font-medium text-white ring-1 ring-inset ring-white/10 hover:bg-white/15"
           >
-            <span>{l.icon}</span>
-            {l.label}
+            <Plus className="h-4 w-4" />
+            New ticket
           </NavLink>
-        ))}
-      </nav>
-      <p className="border-t border-slate-200 p-4 text-xs text-slate-400">Emails to support@ become cases automatically.</p>
-    </aside>
+        </div>
+
+        <nav className="flex-1 space-y-0.5 px-3 py-4">
+          <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">Workspace</p>
+          {nav.map(({ to, label, icon: Icon, end }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={end}
+              className={({ isActive }) =>
+                cn(
+                  'group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                  isActive ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white',
+                )
+              }
+            >
+              <Icon className="h-4 w-4 shrink-0" />
+              {label}
+            </NavLink>
+          ))}
+        </nav>
+
+        <InboxStatus />
+      </aside>
+    </>
+  );
+}
+
+function InboxStatus() {
+  const [info, setInfo] = useState<InboxInfo | null>(null);
+  useEffect(() => {
+    emailsApi.inbox().then(setInfo).catch(() => undefined);
+  }, []);
+
+  const live = info?.enabled && info.address;
+  return (
+    <div className="m-3 rounded-md bg-slate-800/60 p-3">
+      <div className="flex items-center gap-2 text-xs font-medium text-slate-300">
+        <span className={cn('h-2 w-2 rounded-full', live ? 'bg-emerald-400' : 'bg-slate-500')} />
+        {live ? 'Email channel live' : 'Email channel offline'}
+      </div>
+      {live && <p className="mt-1 truncate font-mono text-[11px] text-slate-400" title={info.address!}>{info.address}</p>}
+    </div>
   );
 }

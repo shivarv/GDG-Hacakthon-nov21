@@ -1,14 +1,20 @@
-import { Badge, type BadgeTone } from '@/components/common';
+import { AlertTriangle, ArrowDown, ArrowUp, Minus, type LucideIcon } from 'lucide-react';
 import type { TicketPriority } from '@/types/ticket';
-import { humanize } from '@/utils/format';
+import { cn, humanize } from '@/utils/format';
 
-const tone: Record<TicketPriority, BadgeTone> = {
-  low: 'gray',
-  medium: 'blue',
-  high: 'orange',
-  urgent: 'red',
+const config: Record<TicketPriority, { icon: LucideIcon; className: string }> = {
+  low: { icon: ArrowDown, className: 'text-slate-500' },
+  medium: { icon: Minus, className: 'text-blue-600' },
+  high: { icon: ArrowUp, className: 'text-orange-600' },
+  urgent: { icon: AlertTriangle, className: 'text-red-600' },
 };
 
 export function PriorityBadge({ priority }: { priority: TicketPriority }) {
-  return <Badge tone={tone[priority]}>{humanize(priority)}</Badge>;
+  const { icon: Icon, className } = config[priority];
+  return (
+    <span className={cn('inline-flex items-center gap-1 whitespace-nowrap text-xs font-medium', className)}>
+      <Icon className="h-3.5 w-3.5" />
+      {humanize(priority)}
+    </span>
+  );
 }
