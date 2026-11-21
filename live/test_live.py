@@ -52,14 +52,14 @@ def test_replay() -> bool:
         print(f"  WARN: outage tickets not in the burst cluster: {sorted(missed)}")
     print(f"  outage recall {len(outage & in_burst_now)}/{len(outage)}; routine false alarms {len(in_burst_now & routine)}/{len(routine)}")
 
-    sims = vecs @ vecs.T
-    ids = [t["ticket_id"] for t in rp]
     oi = [k for k, t in enumerate(rp) if t["expect_outage"]]
     ri = [k for k, t in enumerate(rp) if not t["expect_outage"]]
-    oo = [sims[a, b] for a in oi for b in oi if a < b]
-    orr = [sims[a, b] for a in oi for b in ri]
-    print(f"  pairwise cos: outage-outage min {min(oo):.3f} mean {np.mean(oo):.3f}; "
-          f"outage-routine max {max(orr):.3f} mean {np.mean(orr):.3f}")
+    for name, V in (("raw", vecs), ("debiased", det.debias(vecs))):
+        sims = V @ V.T
+        oo = [sims[a, b] for a in oi for b in oi if a < b]
+        orr = [sims[a, b] for a in oi for b in ri]
+        print(f"  pairwise cos [{name}]: outage-outage min {min(oo):.3f} mean {np.mean(oo):.3f}; "
+              f"outage-routine max {max(orr):.3f} mean {np.mean(orr):.3f}")
 
     # Same tickets but labelled Request: cluster may form, banner must not fire (type gate).
     det2 = BurstDetector()
