@@ -1,80 +1,75 @@
-"""SentinelDesk triage model (Nathan's `triage/` package), used two ways:
+"""SentinelDesk triage model (the `triage/` package), used two ways:
 
-- SentinelRemoteModel: POST {subject, body} to the deployed Cloud Run service (`/triage`).
-- SentinelLocalModel:  load the same `triage.joblib` in-process (for local testing).
+- SentinelTriageModel ("sentinel"): POST {TRIAGE_URL}/triage on Cloud Run.
+- SentinelLocalModel ("sentinel_local"): load the same triage.joblib in-process.
 
-Both turn the model's JSON contract into a TriageDecision:
-  priority  = "urgent" when the urgency rule fires, else the model's priority (high/medium/low)
-  escalate  = the model's own tuned gate (`gate_hints.escalate`), with its reasons
-  queue     = predicted department, used by auto-assign to pick the escalation team
+The service returns TriageModel.predict() JSON: type/queue/priority with calibrated confidence,
+hp_incident, explicit EN/DE urgency rules and gate_hints. Both variants map it the same way:
+  should_escalate  = urgency rule fired (outage + scope/impact, security, ...)
+                     OR (likely high-priority Incident AND predicted priority is high)
+  priority         = urgent when escalating, else the predicted high/medium/low
+  queue / type     = saved on the ticket; auto-assign uses the queue to pick the escalation team
+Any HTTP error falls back to the keyword dummy so email intake never breaks.
 """
 
 from __future__ import annotations
 
-import json
 import logging
 import sys
 import threading
-import urllib.error
-import urllib.request
 from pathlib import Path
+
+import requests
 
 from app.core.config import get_settings
 from app.models import TicketPriority
 from app.services.triage.base import TriageDecision
+from app.services.triage.dummy import DummyTriageModel
 
 logger = logging.getLogger(__name__)
 
 _PRIORITY = {"high": TicketPriority.HIGH, "medium": TicketPriority.MEDIUM, "low": TicketPriority.LOW}
 
 
-def decision_from_contract(result: dict, model_name: str) -> TriageDecision:
-    """Map the SentinelDesk JSON contract onto our TriageDecision."""
-    urgent = bool(result.get("urgency", {}).get("urgent"))
-    priority = TicketPriority.URGENT if urgent else _PRIORITY.get(result["priority"]["label"], TicketPriority.MEDIUM)
-    gate = result.get("gate_hints", {})
-    reasons = [
-        f"Model: {result['type']['label']} · {result['queue']['label']} ({result['queue']['conf']:.2f}) · "
-        f"{result['priority']['label']} priority ({result['priority']['conf']:.2f})"
-    ] + list(gate.get("reasons", []))
-    if not gate.get("escalate"):
-        reasons.append("Model gate: no escalation needed")
+def decision_from_contract(out: dict, model_name: str) -> TriageDecision:
+    """Map the SentinelDesk JSON contract onto a TriageDecision."""
+    pri = out["priority"]
+    urgent = bool(out.get("urgency", {}).get("urgent"))
+    hp = bool(out.get("hp_incident", {}).get("flag")) and pri["label"] == "high"
+    should_escalate = urgent or hp
+    priority = TicketPriority.URGENT if should_escalate else _PRIORITY.get(pri["label"], TicketPriority.MEDIUM)
+    reasons = [f"Type {out['type']['label']} ({out['type']['conf']:.2f}), queue {out['queue']['label']} "
+               f"({out['queue']['conf']:.2f}), priority {pri['label']} ({pri['conf']:.2f})"]
+    reasons += out.get("gate_hints", {}).get("reasons", [])
+    reasons.append("Escalate automatically" if should_escalate else "Not severe → normal queue")
     return TriageDecision(
         priority=priority,
-        should_escalate=bool(gate.get("escalate")),
-        confidence=float(result["priority"]["conf"]),
+        should_escalate=should_escalate,
+        confidence=float(pri["conf"]),
         model=model_name,
         reasons=reasons,
-        ticket_type=result["type"]["label"],
-        queue=result["queue"]["label"],
-        queue_confidence=float(result["queue"]["conf"]),
+        ticket_type=out["type"]["label"],
+        queue=out["queue"]["label"],
+        queue_confidence=float(out["queue"]["conf"]),
     )
 
 
-class SentinelRemoteModel:
-    name = "sentinel-remote"
-
-    def __init__(self):
-        self.url = get_settings().sentinel_triage_url.rstrip("/")
-        if not self.url:
-            raise ValueError("TRIAGE_MODEL=sentinel_remote needs SENTINEL_TRIAGE_URL in backend/.env")
+class SentinelTriageModel:
+    name = "sentinel-tfidf-lr"
 
     def assess(self, subject: str, body: str) -> TriageDecision:
-        req = urllib.request.Request(
-            f"{self.url}/triage",
-            data=json.dumps({"subject": subject, "body": body}).encode(),
-            headers={"Content-Type": "application/json", "Accept": "application/json", "User-Agent": "HelpDesk/1.0"},
-            method="POST",
-        )
+        s = get_settings()
         try:
-            with urllib.request.urlopen(req, timeout=15) as resp:
-                return decision_from_contract(json.load(resp), self.name)
-        except urllib.error.HTTPError as exc:
-            raise RuntimeError(f"Sentinel triage service {exc.code}: {exc.read()[:200]!r}") from exc
-
-    def health(self) -> dict:
-        with urllib.request.urlopen(f"{self.url}/health", timeout=10) as resp:
-            return json.load(resp)
+            r = requests.post(f"{s.triage_url.rstrip('/')}/triage",
+                              json={"subject": subject or "", "body": body or ""}, timeout=s.triage_timeout_s)
+            r.raise_for_status()
+            out = r.json()
+        except Exception as exc:  # network / 5xx: keep intake working
+            logger.warning("Sentinel triage unavailable (%s); using dummy rules", exc)
+            d = DummyTriageModel().assess(subject, body)
+            d.reasons.insert(0, "Sentinel triage unavailable, used keyword fallback")
+            return d
+        return decision_from_contract(out, self.name)
 
 
 class SentinelLocalModel:
@@ -91,7 +86,7 @@ class SentinelLocalModel:
                 repo_root = self.path.resolve().parents[2]  # .../triage/models/triage.joblib -> repo root
                 if str(repo_root) not in sys.path:
                     sys.path.insert(0, str(repo_root))
-                from triage.model import TriageModel  # Nathan's package, unchanged
+                from triage.model import TriageModel  # the triage/ package, unchanged
 
                 logger.info("Loading SentinelDesk triage model from %s (takes ~40 s)...", self.path)
                 SentinelLocalModel._model = TriageModel.load(str(self.path))

@@ -48,9 +48,11 @@ class Settings(BaseSettings):
 
     # Triage of new email tickets: escalate severe ones automatically
     auto_escalate: bool = True
-    # "dummy" (keywords), "sentinel_remote" (Nathan's Cloud Run service), "sentinel_local" (same model in-process)
+    # "dummy" (keywords), "sentinel" (Nathan's SentinelDesk classifier on Cloud Run),
+    # "sentinel_local" (the same model loaded in-process from triage/models/triage.joblib)
     triage_model: str = "dummy"
-    sentinel_triage_url: str = ""  # e.g. https://sentinel-triage-xxxx-uc.a.run.app
+    triage_url: str = "https://sentinel-triage-mx2zqqjdda-uc.a.run.app"
+    triage_timeout_s: float = 5.0
     sentinel_model_path: str = "../triage/models/triage.joblib"
 
     # Resolution-time model used for escalation due dates ("dummy" until a trained one is merged)

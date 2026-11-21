@@ -1,0 +1,20 @@
+# Used with: gcloud builds submit --ignore-file=cloudrun/console/.gcloudignore (from repo root)
+.git
+.gitignore
+.env
+.venv/
+**/__pycache__/
+*.ipynb
+artifacts/
+backend/
+data/
+dataset/
+deploy/
+exp/
+findings/
+frontend/
+live/
+tests/
+triage/
+.kiro/
+node_modules/

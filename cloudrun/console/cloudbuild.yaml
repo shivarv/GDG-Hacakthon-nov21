@@ -1,0 +1,15 @@
+# gcloud builds submit --project nov21-gdp-hack --config cloudrun/console/cloudbuild.yaml \
+#   --ignore-file=cloudrun/console/.gcloudignore --substitutions=_MAX_KB=0,_TAG=full .
+steps:
+- name: gcr.io/cloud-builders/docker
+  args: ["build", "-f", "cloudrun/console/Dockerfile", "--build-arg", "MAX_KB=${_MAX_KB}",
+         "-t", "${_IMAGE}:${_TAG}", "."]
+images: ["${_IMAGE}:${_TAG}"]
+substitutions:
+  _MAX_KB: "0"
+  _TAG: "full"
+  _IMAGE: "us-central1-docker.pkg.dev/nov21-gdp-hack/sentineldesk/console"
+options:
+  machineType: E2_HIGHCPU_32
+  diskSizeGb: "100"
+timeout: 3000s

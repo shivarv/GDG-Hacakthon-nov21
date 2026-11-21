@@ -48,9 +48,9 @@ services:
 
       # ---- Triage: Nathan's SentinelDesk model on Cloud Run
       - key: TRIAGE_MODEL
-        value: sentinel_remote
-      - key: SENTINEL_TRIAGE_URL # e.g. https://sentinel-triage-xxxx-uc.a.run.app
-        sync: false
+        value: sentinel
+      - key: TRIAGE_URL
+        value: https://sentinel-triage-mx2zqqjdda-uc.a.run.app
       - key: AUTO_ESCALATE
         value: "true"
       - key: ETA_MODEL

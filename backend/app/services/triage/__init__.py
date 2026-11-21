@@ -7,12 +7,12 @@ implementing `TriageModel.assess()` and registering it in `_MODELS`.
 
 from app.services.triage.base import TriageDecision, TriageModel
 from app.services.triage.dummy import DummyTriageModel
-from app.services.triage.sentinel import SentinelLocalModel, SentinelRemoteModel
+from app.services.triage.sentinel import SentinelLocalModel, SentinelTriageModel
 
 _MODELS: dict[str, type] = {
     "dummy": DummyTriageModel,
-    "sentinel_remote": SentinelRemoteModel,
-    "sentinel_local": SentinelLocalModel,
+    "sentinel": SentinelTriageModel,  # Cloud Run service (Nathan)
+    "sentinel_local": SentinelLocalModel,  # same model, in-process
 }
 _instances: dict[str, TriageModel] = {}
 
