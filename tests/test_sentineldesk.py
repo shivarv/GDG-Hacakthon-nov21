@@ -8,7 +8,7 @@ from sentineldesk.classifier import TriageClassifier
 from sentineldesk.config import Settings
 from sentineldesk.data import build_text, clean, split
 from sentineldesk.gate import decide
-from sentineldesk.generator import Generator, validate
+from sentineldesk.generator import Generator, safe_answer, validate
 from sentineldesk.lang import detect_language
 from sentineldesk.pii import mask_pii
 from sentineldesk.pipeline import SentinelDesk
@@ -119,3 +119,24 @@ def test_end_to_end_pipeline(tmp_path):
     assert out["draft"]["cited_ticket_ids"] and "Hallo" in out["draft"]["reply"]
     out = desk.triage("VPN down", "VPN outage, nobody can connect at all")
     assert out["gate"]["escalate"]
+
+
+def test_safe_answer_strips_placeholders_and_money_promises():
+    raw = ("Dear <name>, thank you for reporting this. Please confirm account <acc_num>. "
+           "We will process a refund for the items. Restart the router and wait two minutes.")
+    out = safe_answer(raw)
+    assert "<" not in out and "refund" not in out.lower()
+    assert "Restart the router" in out
+    assert "Gutschrift" not in safe_answer("Wir erteilen eine Gutschrift. Bitte Gerät neu starten.")
+
+
+def test_generator_ignores_weak_precedents():
+    hits = [
+        {"ticket_id": "TKT-00001", "similarity": 0.9, "answer": "Restart the VPN gateway.", "body": "", "language": "en"},
+        {"ticket_id": "TKT-00002", "similarity": 0.1, "answer": "Reinstall the printer driver.", "body": "", "language": "en"},
+    ]
+    d = Generator("none").generate("VPN", "VPN is down", "en", hits, min_similarity=0.5)
+    assert d.cited_ticket_ids == ["TKT-00001"]
+    assert "printer" not in d.reply.lower()
+    none = Generator("none").generate("x", "y", "en", hits, min_similarity=0.95)
+    assert none.cited_ticket_ids == [] and "specialist" in none.reply

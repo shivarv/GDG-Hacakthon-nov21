@@ -17,6 +17,10 @@ from .pii import mask_pii
 from .retriever import E5Encoder, Retriever
 
 
+# Hits may sit slightly below the "precedent exists" bar and still be quoted in a draft.
+GROUNDING_MARGIN = 0.05
+
+
 class SentinelDesk:
     def __init__(self, settings: Settings = SETTINGS, classifier=None, retriever=None, generator=None):
         self.s = settings
@@ -64,7 +68,8 @@ class SentinelDesk:
         draft = None
         if generate:
             t = time.perf_counter()
-            draft = self.generator.generate(subject or "", body or "", lang, hits, escalated=gate.escalate)
+            draft = self.generator.generate(subject or "", body or "", lang, hits, escalated=gate.escalate,
+                                         min_similarity=self.sim_threshold - GROUNDING_MARGIN)
             timings["generate_ms"] = (time.perf_counter() - t) * 1000
             for w in draft.warnings:
                 if w.startswith(("Unsupported numeric", "Draft does not cite")):

@@ -15,6 +15,16 @@ CLAIM_RE = re.compile(
     re.I,
 )
 
+PLACEHOLDER_RE = re.compile(r"<[A-Za-z_ ]{2,20}>")  # anonymisation tokens in the dataset: <name>, <acc_num> ...
+SALUTATION_RE = re.compile(
+    r"^\s*(dear|hello|hi|sehr geehrte[rs]?|hallo|guten tag)\b[^.!?\n]*?<[^>]+>[^.!?\n]*[,.!]?\s*", re.I)
+# Sentences that promise or discuss money are never copied from old answers into a draft.
+MONEY_RE = re.compile(
+    r"\b(refund\w*|reimburs\w*|credit(?:s|ed)?|compensat\w*|discount\w*|waive\w*|"
+    r"rückerstattung\w*|erstatt\w*|gutschrift\w*|gutschreib\w*|entschädig\w*|rabatt\w*|kulanz\w*)\b",
+    re.I,
+)
+
 SYSTEM_PROMPT = """You are SentinelDesk, a careful IT support agent drafting a reply to a customer ticket.
 
 Rules (all mandatory):
@@ -58,11 +68,19 @@ class Draft:
         return self.__dict__.copy()
 
 
+def safe_answer(text: str) -> str:
+    """Remove salutations with placeholders, sentences with placeholders, and money promises."""
+    text = SALUTATION_RE.sub("", text or "")
+    sents = re.split(r"(?<=[.!?])\s+|\n+", text.strip())
+    keep = [s for s in sents if s.strip() and not PLACEHOLDER_RE.search(s) and not MONEY_RE.search(s)]
+    return " ".join(keep).strip()
+
+
 def _evidence_block(hits: list[dict], max_chars: int = 900) -> str:
     parts = []
     for h in hits:
         q, _ = mask_pii(h.get("body", "")[:500])
-        a, _ = mask_pii(h.get("answer", "")[:max_chars])
+        a, _ = mask_pii(safe_answer(h.get("answer", ""))[:max_chars])
         parts.append(f"[{h['ticket_id']}] (lang={h.get('language','?')}, similarity={h['similarity']:.2f})\n"
                      f"Customer issue: {q}\nResolution: {a}")
     return "\n\n".join(parts)
@@ -106,7 +124,8 @@ def extractive_draft(lang: str, hits: list[dict]) -> tuple[str, list[str]]:
     t = TEMPLATES.get(lang, TEMPLATES["en"])
     use, seen = [], set()
     for h in hits:
-        key = _first_sentences(h.get("answer", "")).lower()
+        h = {**h, "answer": safe_answer(h.get("answer", ""))}
+        key = _first_sentences(h["answer"]).lower()
         if key and key not in seen:
             use.append(h)
             seen.add(key)
@@ -148,7 +167,10 @@ class Generator:
                                                         {"role": "user", "content": user}])
         return resp.choices[0].message.content or ""
 
-    def generate(self, subject: str, body: str, lang: str, hits: list[dict], escalated: bool = False) -> Draft:
+    def generate(self, subject: str, body: str, lang: str, hits: list[dict], escalated: bool = False,
+                 min_similarity: float = 0.0) -> Draft:
+        # Weak precedents are not evidence: never quote or cite them.
+        hits = [h for h in hits if h["similarity"] >= min_similarity]
         ticket, pii_counts = mask_pii(f"Subject: {subject or '(none)'}\n\n{body}")
         warnings: list[str] = []
 
