@@ -44,6 +44,10 @@ _ADDITIVE_COLUMNS: list[tuple[str, str, str]] = [
     ("escalations", "first_response_due_at", "TIMESTAMP"),
     ("escalations", "resolution_due_at", "TIMESTAMP"),
     ("escalations", "eta_model", "VARCHAR(64)"),
+    ("tickets", "predicted_type", "VARCHAR(64)"),
+    ("tickets", "predicted_queue", "VARCHAR(200)"),
+    ("tickets", "queue_confidence", "FLOAT"),
+    ("tickets", "triage_model", "VARCHAR(64)"),
 ]
 
 

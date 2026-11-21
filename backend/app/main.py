@@ -19,6 +19,13 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
+    if settings.gmail_token_json:
+        # Hosted: the token arrives as an env var; the Gmail client reads (and refreshes) it from this file.
+        from pathlib import Path
+
+        token = Path(settings.gmail_token_file)
+        token.parent.mkdir(parents=True, exist_ok=True)
+        token.write_text(settings.gmail_token_json)
     listeners = []
     if settings.email_listener_enabled:
         listeners.append(ImapEmailListener(settings))
@@ -27,6 +34,12 @@ async def lifespan(app: FastAPI):
         listeners.append(app.state.temp_inbox)
     for listener in listeners:
         listener.start()
+    if settings.triage_model == "sentinel_local":
+        import threading
+
+        from app.services.triage import get_triage_model
+
+        threading.Thread(target=get_triage_model("sentinel_local").warm_up, name="triage-warmup", daemon=True).start()
     yield
     for listener in listeners:
         listener.stop()

@@ -63,7 +63,6 @@ class EmailIngestionService:
                 ticket = self._create_ticket(inbound)
                 status = EmailProcessingStatus.CREATED_TICKET
                 created = True
-                self._add_rag_note(ticket)
 
             record = self.emails.add(self._record(inbound, message_id, status, ticket_id=ticket.id))
             self.db.commit()
@@ -76,6 +75,10 @@ class EmailIngestionService:
             self.db.commit()
             return self._result(record)
 
+        if created:
+            self._triage_note(ticket)
+            self._add_rag_note(ticket)
+            self.db.commit()
         is_automatic = inbound.auto_generated or email_parser.is_no_reply_address(str(inbound.from_address))
         if created and not is_automatic:
             # Severe tickets are escalated straight away; the escalation email replaces the plain acknowledgement.
@@ -98,9 +101,25 @@ class EmailIngestionService:
     # ---- internals -------------------------------------------------------
 
     def _triage(self, subject: str, body: str):
+        """Run the configured triage model once per email. If it fails, fall back to keyword rules
+        for this one ticket so the email is never lost."""
         if not hasattr(self, "_decision"):
-            self._decision = get_triage_model(self.notifier.settings.triage_model).assess(subject, body)
+            name = self.notifier.settings.triage_model
+            try:
+                self._decision = get_triage_model(name).assess(subject, body)
+            except Exception as exc:
+                logger.exception("Triage model %s failed; using keyword rules for this ticket", name)
+                self._decision = get_triage_model("dummy").assess(subject, body)
+                self._decision.reasons.insert(0, f"Triage model {name} unavailable ({exc}); keyword rules used")
         return self._decision
+
+    def _triage_note(self, ticket: Ticket) -> None:
+        d = self._triage(ticket.subject, ticket.description)
+        lines = [f"Triage ({d.model}): priority {d.priority.value}, "
+                 + ("escalation recommended" if d.should_escalate else "no escalation")]
+        lines += [f"• {r}" for r in d.reasons]
+        self.comments.add(Comment(ticket_id=ticket.id, author="Triage", body="\n".join(lines), is_internal=True))
+        self.db.commit()
 
     def _add_rag_note(self, ticket: Ticket) -> None:
         """Attach the grounded suggested reply + cited precedents as an internal note (best effort)."""
@@ -175,6 +194,10 @@ class EmailIngestionService:
                 subject=subject[:500],
                 description=inbound.body_text,
                 priority=self._triage(subject, inbound.body_text).priority,
+                predicted_type=self._triage(subject, inbound.body_text).ticket_type,
+                predicted_queue=self._triage(subject, inbound.body_text).queue,
+                queue_confidence=self._triage(subject, inbound.body_text).queue_confidence,
+                triage_model=self._triage(subject, inbound.body_text).model,
                 source=TicketSource.EMAIL,
                 requester_email=str(inbound.from_address),
                 requester_name=inbound.from_name,
