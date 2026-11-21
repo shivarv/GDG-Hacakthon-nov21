@@ -1,0 +1,554 @@
+{
+  "gate": {
+    "hp_incident_threshold": 0.3067,
+    "conf_threshold": {
+      "type": 0.0,
+      "queue": 0.0
+    }
+  },
+  "clean_test": {
+    "n": 8437,
+    "type": {
+      "n_scored": 5899,
+      "macro_f1": 0.8982,
+      "accuracy": 0.8969,
+      "ece": 0.0142,
+      "per_class_f1": {
+        "Change": 0.9515,
+        "Incident": 0.8873,
+        "Problem": 0.773,
+        "Request": 0.981
+      },
+      "confusion": {
+        "labels": [
+          "Change",
+          "Incident",
+          "Problem",
+          "Request"
+        ],
+        "matrix": [
+          [
+            530,
+            4,
+            2,
+            33
+          ],
+          [
+            5,
+            2178,
+            197,
+            10
+          ],
+          [
+            2,
+            334,
+            928,
+            8
+          ],
+          [
+            8,
+            3,
+            2,
+            1655
+          ]
+        ]
+      }
+    },
+    "queue": {
+      "n_scored": 5899,
+      "macro_f1": 0.6798,
+      "accuracy": 0.6896,
+      "ece": 0.0492,
+      "per_class_f1": {
+        "Billing and Payments": 0.8247,
+        "Customer Service": 0.659,
+        "General Inquiry": 0.6483,
+        "Human Resources": 0.6871,
+        "IT Support": 0.6156,
+        "Product Support": 0.6562,
+        "Returns and Exchanges": 0.6295,
+        "Sales and Pre-Sales": 0.6555,
+        "Service Outages and Maintenance": 0.7073,
+        "Technical Support": 0.7145
+      },
+      "confusion": {
+        "labels": [
+          "Billing and Payments",
+          "Customer Service",
+          "General Inquiry",
+          "Human Resources",
+          "IT Support",
+          "Product Support",
+          "Returns and Exchanges",
+          "Sales and Pre-Sales",
+          "Service Outages and Maintenance",
+          "Technical Support"
+        ],
+        "matrix": [
+          [
+            480,
+            37,
+            0,
+            0,
+            7,
+            23,
+            1,
+            3,
+            0,
+            49
+          ],
+          [
+            27,
+            630,
+            2,
+            1,
+            24,
+            71,
+            7,
+            3,
+            1,
+            168
+          ],
+          [
+            1,
+            13,
+            47,
+            0,
+            5,
+            9,
+            1,
+            0,
+            0,
+            15
+          ],
+          [
+            1,
+            9,
+            0,
+            56,
+            4,
+            10,
+            0,
+            0,
+            1,
+            21
+          ],
+          [
+            5,
+            57,
+            1,
+            0,
+            374,
+            45,
+            1,
+            4,
+            4,
+            198
+          ],
+          [
+            14,
+            75,
+            2,
+            1,
+            30,
+            693,
+            4,
+            3,
+            3,
+            259
+          ],
+          [
+            15,
+            31,
+            0,
+            0,
+            8,
+            39,
+            141,
+            0,
+            3,
+            47
+          ],
+          [
+            6,
+            26,
+            1,
+            0,
+            5,
+            24,
+            2,
+            98,
+            0,
+            21
+          ],
+          [
+            1,
+            16,
+            1,
+            0,
+            5,
+            15,
+            1,
+            0,
+            145,
+            62
+          ],
+          [
+            14,
+            84,
+            0,
+            3,
+            64,
+            99,
+            6,
+            5,
+            7,
+            1404
+          ]
+        ]
+      }
+    },
+    "priority": {
+      "n_scored": 8437,
+      "macro_f1": 0.8261,
+      "accuracy": 0.8245,
+      "ece": 0.0278,
+      "per_class_f1": {
+        "high": 0.8352,
+        "low": 0.8385,
+        "medium": 0.8047
+      },
+      "confusion": {
+        "labels": [
+          "high",
+          "low",
+          "medium"
+        ],
+        "matrix": [
+          [
+            2765,
+            90,
+            442
+          ],
+          [
+            150,
+            1635,
+            257
+          ],
+          [
+            409,
+            133,
+            2556
+          ]
+        ]
+      }
+    },
+    "queue_all": {
+      "n_scored": 8437,
+      "macro_f1": 0.8813,
+      "accuracy": 0.6396,
+      "ece": 0.0302
+    },
+    "hp_incident": {
+      "n_positive": 1036,
+      "classifier_recall": 0.7954,
+      "hp_head_recall": 0.8909,
+      "hp_head_precision": 0.5834,
+      "gate_recall_any_classifier_rule": 0.8909,
+      "hp_flag_rate": 0.4284,
+      "escalation_rate_classifier_rules": 0.4284,
+      "threshold": 0.3067
+    }
+  },
+  "full_official_test": {
+    "n": 12351,
+    "type": {
+      "n_scored": 9766,
+      "macro_f1": 0.9329,
+      "accuracy": 0.9313,
+      "ece": 0.0121,
+      "per_class_f1": {
+        "Change": 0.9725,
+        "Incident": 0.9222,
+        "Problem": 0.8488,
+        "Request": 0.988
+      },
+      "confusion": {
+        "labels": [
+          "Change",
+          "Incident",
+          "Problem",
+          "Request"
+        ],
+        "matrix": [
+          [
+            974,
+            4,
+            2,
+            33
+          ],
+          [
+            5,
+            3631,
+            220,
+            10
+          ],
+          [
+            2,
+            370,
+            1701,
+            10
+          ],
+          [
+            9,
+            4,
+            2,
+            2789
+          ]
+        ]
+      }
+    },
+    "queue": {
+      "n_scored": 9766,
+      "macro_f1": 0.7911,
+      "accuracy": 0.7916,
+      "ece": 0.0386,
+      "per_class_f1": {
+        "Billing and Payments": 0.8813,
+        "Customer Service": 0.766,
+        "General Inquiry": 0.7705,
+        "Human Resources": 0.7987,
+        "IT Support": 0.7507,
+        "Product Support": 0.768,
+        "Returns and Exchanges": 0.7652,
+        "Sales and Pre-Sales": 0.7776,
+        "Service Outages and Maintenance": 0.8288,
+        "Technical Support": 0.8046
+      },
+      "confusion": {
+        "labels": [
+          "Billing and Payments",
+          "Customer Service",
+          "General Inquiry",
+          "Human Resources",
+          "IT Support",
+          "Product Support",
+          "Returns and Exchanges",
+          "Sales and Pre-Sales",
+          "Service Outages and Maintenance",
+          "Technical Support"
+        ],
+        "matrix": [
+          [
+            843,
+            42,
+            0,
+            0,
+            8,
+            28,
+            1,
+            3,
+            1,
+            56
+          ],
+          [
+            29,
+            1188,
+            3,
+            1,
+            26,
+            82,
+            16,
+            3,
+            1,
+            183
+          ],
+          [
+            1,
+            13,
+            94,
+            0,
+            6,
+            10,
+            1,
+            0,
+            0,
+            16
+          ],
+          [
+            1,
+            13,
+            0,
+            121,
+            5,
+            12,
+            0,
+            0,
+            1,
+            23
+          ],
+          [
+            5,
+            65,
+            1,
+            0,
+            786,
+            50,
+            2,
+            5,
+            5,
+            211
+          ],
+          [
+            16,
+            83,
+            2,
+            2,
+            37,
+            1354,
+            6,
+            6,
+            3,
+            284
+          ],
+          [
+            15,
+            31,
+            1,
+            0,
+            10,
+            42,
+            308,
+            1,
+            3,
+            51
+          ],
+          [
+            6,
+            28,
+            1,
+            0,
+            5,
+            29,
+            2,
+            208,
+            0,
+            25
+          ],
+          [
+            1,
+            16,
+            1,
+            0,
+            6,
+            15,
+            1,
+            0,
+            305,
+            64
+          ],
+          [
+            14,
+            91,
+            0,
+            3,
+            75,
+            111,
+            6,
+            5,
+            8,
+            2524
+          ]
+        ]
+      }
+    },
+    "priority": {
+      "n_scored": 12351,
+      "macro_f1": 0.8652,
+      "accuracy": 0.8646,
+      "ece": 0.0284,
+      "per_class_f1": {
+        "high": 0.8737,
+        "low": 0.8693,
+        "medium": 0.8527
+      },
+      "confusion": {
+        "labels": [
+          "high",
+          "low",
+          "medium"
+        ],
+        "matrix": [
+          [
+            4227,
+            105,
+            485
+          ],
+          [
+            166,
+            2398,
+            298
+          ],
+          [
+            466,
+            152,
+            4054
+          ]
+        ]
+      }
+    },
+    "queue_all": {
+      "n_scored": 12351,
+      "macro_f1": 0.9114,
+      "accuracy": 0.7057,
+      "ece": 0.0414
+    },
+    "hp_incident": {
+      "n_positive": 1692,
+      "classifier_recall": 0.8652,
+      "hp_head_recall": 0.9279,
+      "hp_head_precision": 0.6832,
+      "gate_recall_any_classifier_rule": 0.9279,
+      "hp_flag_rate": 0.353,
+      "escalation_rate_classifier_rules": 0.353,
+      "threshold": 0.3067
+    },
+    "by_eval_subset": {
+      "clean": {
+        "n": 8437,
+        "type_accuracy": 0.8969,
+        "queue_accuracy": 0.6896,
+        "priority_accuracy": 0.8245,
+        "hp_head_recall": 0.8909
+      },
+      "exact_kb_twin": {
+        "n": 2689,
+        "type_accuracy": 0.9888,
+        "queue_accuracy": 0.9636,
+        "priority_accuracy": 0.9658,
+        "hp_head_recall": 0.9958
+      },
+      "near_kb_twin": {
+        "n": 876,
+        "type_accuracy": 0.9892,
+        "queue_accuracy": 0.9687,
+        "priority_accuracy": 0.9658,
+        "hp_head_recall": 0.992
+      },
+      "test_internal_dup": {
+        "n": 349,
+        "type_accuracy": 0.931,
+        "queue_accuracy": 0.7701,
+        "priority_accuracy": 0.8023,
+        "hp_head_recall": 0.8947
+      }
+    },
+    "note": "excludes the 2 empty-body rows"
+  },
+  "latency_single_ticket": {
+    "n": 200,
+    "p50_ms": 631.7,
+    "p95_ms": 642.2
+  },
+  "model": "blend"
+}

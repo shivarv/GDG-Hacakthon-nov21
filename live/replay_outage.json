@@ -1,0 +1,25 @@
+{
+  "description": "Hand-written live replay: 5 VPN-outage tickets (2 German) interleaved with 5 unrelated routine tickets, all inside 15 minutes. Expected: banner fires once the outage cluster reaches 3 tickets; no routine ticket is ever in a burst.",
+  "tickets": [
+    {"ticket_id": "R1", "offset_s": 0, "lang": "en", "triage_type": "Request", "expect_outage": false,
+     "text": "Invoice copy needed\nHello, could you please send me a PDF copy of our invoice for October? Our accounting team needs it for the quarterly close. Thanks, Maria"},
+    {"ticket_id": "O1", "offset_s": 60, "lang": "en", "triage_type": "Incident", "expect_outage": true,
+     "text": "VPN down - cannot connect\nSince about 9:10 nobody in our Hamburg office can connect to the corporate VPN. The client says 'connection timed out' after authentication. We cannot reach any internal systems. Please help urgently."},
+    {"ticket_id": "R2", "offset_s": 120, "lang": "en", "triage_type": "Request", "expect_outage": false,
+     "text": "Add new employee to HR portal\nPlease create an HR portal account for our new hire Jonas Weber, starting December 1st in the marketing department."},
+    {"ticket_id": "O2", "offset_s": 180, "lang": "de", "triage_type": "Incident", "expect_outage": true,
+     "text": "VPN-Verbindung ausgefallen\nSeit heute Morgen können sich alle Mitarbeiter nicht mehr mit dem Firmen-VPN verbinden. Die Verbindung bricht nach der Anmeldung mit einem Timeout ab. Wir haben keinen Zugriff auf interne Systeme. Bitte dringend prüfen."},
+    {"ticket_id": "R3", "offset_s": 240, "lang": "de", "triage_type": "Request", "expect_outage": false,
+     "text": "Rücksendung eines Monitors\nGuten Tag, ich möchte einen Monitor zurückschicken, den ich letzte Woche bestellt habe. Er passt leider nicht an meinen Arbeitsplatz. Wie bekomme ich ein Rücksendeetikett?"},
+    {"ticket_id": "O3", "offset_s": 300, "lang": "en", "triage_type": "Incident", "expect_outage": true,
+     "text": "Remote access VPN not working for whole team\nOur entire sales team is unable to connect to the VPN since this morning. The VPN client times out right after login and we have no access to internal tools or the CRM. This is blocking our work."},
+    {"ticket_id": "R4", "offset_s": 360, "lang": "en", "triage_type": "Change", "expect_outage": false,
+     "text": "Feature request: dark mode in dashboard\nWould it be possible to add a dark mode option to the analytics dashboard? Several of our analysts work late and would appreciate it. Not urgent."},
+    {"ticket_id": "O4", "offset_s": 420, "lang": "de", "triage_type": "Problem", "expect_outage": true,
+     "text": "Kein VPN-Zugang mehr\nHallo, unser VPN funktioniert seit ca. 9 Uhr nicht mehr. Beim Verbinden kommt nach der Authentifizierung ein Verbindungs-Timeout, mehrere Kollegen sind betroffen und wir erreichen keine internen Server."},
+    {"ticket_id": "R5", "offset_s": 480, "lang": "en", "triage_type": "Request", "expect_outage": false,
+     "text": "Question about upgrading our subscription plan\nWe are considering moving from the Basic to the Professional plan. Could you tell us the price difference and whether our existing data is migrated automatically?"},
+    {"ticket_id": "O5", "offset_s": 540, "lang": "en", "triage_type": "Incident", "expect_outage": true,
+     "text": "Cannot connect to VPN - connection timeout\nHi, I and my colleagues are unable to connect to the company VPN. It authenticates but then fails with a connection timeout. Internal systems are unreachable. Is there an outage?"}
+  ]
+}

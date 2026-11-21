@@ -1,0 +1,185 @@
+{
+  "classes": {
+    "type": [
+      "Change",
+      "Incident",
+      "Problem",
+      "Request"
+    ],
+    "queue": [
+      "Billing and Payments",
+      "Customer Service",
+      "General Inquiry",
+      "Human Resources",
+      "IT Support",
+      "Product Support",
+      "Returns and Exchanges",
+      "Sales and Pre-Sales",
+      "Service Outages and Maintenance",
+      "Technical Support"
+    ],
+    "priority": [
+      "high",
+      "low",
+      "medium"
+    ],
+    "hp": [
+      "0",
+      "1"
+    ]
+  },
+  "ft_name": "ft:e5b_s13",
+  "ft_slices": {
+    "type": [
+      0,
+      4
+    ],
+    "queue": [
+      4,
+      14
+    ],
+    "priority": [
+      14,
+      17
+    ],
+    "hp": [
+      17,
+      18
+    ],
+    "queue_all": [
+      18,
+      70
+    ]
+  },
+  "ft_prefix": "query: ",
+  "ft_max_len": 256,
+  "e5s_max_len": 512,
+  "knn": {
+    "e5s": {
+      "type": {
+        "k": 5,
+        "tau": 0.01
+      },
+      "queue": {
+        "k": 25,
+        "tau": 0.01
+      },
+      "priority": {
+        "k": 1,
+        "tau": 0.01
+      },
+      "hp": {
+        "k": 25,
+        "tau": 0.01
+      }
+    },
+    "ft": {
+      "type": {
+        "k": 3,
+        "tau": 0.03
+      },
+      "queue": {
+        "k": 25,
+        "tau": 0.03
+      },
+      "priority": {
+        "k": 10,
+        "tau": 0.03
+      },
+      "hp": {
+        "k": 25,
+        "tau": 0.01
+      }
+    }
+  },
+  "knn_eps": 0.02,
+  "weights": {
+    "type": {
+      "near": {
+        "tfidf": 1.137,
+        "ft:e5b_s13": 0.0,
+        "knn_ft_e5b_s13": 0.468,
+        "knn_e5-small": 2.1
+      },
+      "novel": {
+        "tfidf": 0.361,
+        "ft:e5b_s13": 0.179,
+        "knn_ft_e5b_s13": 0.196,
+        "knn_e5-small": 0.232
+      }
+    },
+    "queue": {
+      "near": {
+        "tfidf": 0.128,
+        "ft:e5b_s13": 0.0,
+        "knn_ft_e5b_s13": 0.564,
+        "knn_e5-small": 1.082
+      },
+      "novel": {
+        "tfidf": 0.151,
+        "ft:e5b_s13": 0.047,
+        "knn_ft_e5b_s13": 0.463,
+        "knn_e5-small": 0.202
+      }
+    },
+    "priority": {
+      "near": {
+        "tfidf": 0.144,
+        "ft:e5b_s13": 0.0,
+        "knn_ft_e5b_s13": 0.832,
+        "knn_e5-small": 0.374
+      },
+      "novel": {
+        "tfidf": 0.125,
+        "ft:e5b_s13": 0.0,
+        "knn_ft_e5b_s13": 0.446,
+        "knn_e5-small": 0.093
+      }
+    },
+    "hp": {
+      "near": {
+        "tfidf": 0.422,
+        "ft:e5b_s13": 0.028,
+        "knn_ft_e5b_s13": 0.456,
+        "knn_e5-small": 1.836
+      },
+      "novel": {
+        "tfidf": 0.091,
+        "ft:e5b_s13": 0.009,
+        "knn_ft_e5b_s13": 0.269,
+        "knn_e5-small": 0.577
+      }
+    }
+  },
+  "src_map": {
+    "tfidf": "tfidf",
+    "ft:e5b_s13": "ft:e5b_s13",
+    "knn_ft_e5b_s13": "knn_ft",
+    "knn_e5-small": "knn_e5-small"
+  },
+  "gate": 0.97,
+  "far": 0.93,
+  "far_knn_weight": 0.7,
+  "hp_tau": 0.13559,
+  "conf_threshold": {
+    "type": 0.3,
+    "queue": 0.4
+  },
+  "ood_sim": 0.89,
+  "dev_tune": {
+    "hp": {
+      "tau": 0.13559,
+      "recall": 0.9507,
+      "flag_rate": 0.3512
+    },
+    "conf_coverage": {
+      "type": 1.0,
+      "queue": 0.884
+    },
+    "escalation_rate_classifier_rules": 0.4564
+  },
+  "built_from": {
+    "lb": "lb_v5",
+    "run": "e5b_s13"
+  }
+}

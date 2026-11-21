@@ -1,0 +1,12 @@
+base 38,026 dev_tune 2,947
+type      K=4   k=1: F1 0.865/acc 0.864  k=5: F1 0.830/acc 0.831  k=10: F1 0.799/acc 0.812  k=25: F1 0.776/acc 0.803  k=50: F1 0.733/acc 0.781
+          1-NN err 0.136 -> Bayes error in [0.071, 0.136] (accuracy ceiling <= 0.929);  1-NN error vs data fraction {0.1: 0.3031, 0.25: 0.2403, 0.5: 0.1994, 1.0: 0.1357}
+queue     K=10  k=1: F1 0.676/acc 0.693  k=5: F1 0.548/acc 0.586  k=10: F1 0.435/acc 0.525  k=25: F1 0.338/acc 0.461  k=50: F1 0.285/acc 0.440
+          1-NN err 0.307 -> Bayes error in [0.170, 0.307] (accuracy ceiling <= 0.830);  1-NN error vs data fraction {0.1: 0.6584, 0.25: 0.5759, 0.5: 0.4512, 1.0: 0.3072}
+priority  K=3   k=1: F1 0.805/acc 0.806  k=5: F1 0.727/acc 0.727  k=10: F1 0.686/acc 0.688  k=25: F1 0.647/acc 0.652  k=50: F1 0.608/acc 0.619
+          1-NN err 0.194 -> Bayes error in [0.106, 0.194] (accuracy ceiling <= 0.894);  1-NN error vs data fraction {0.1: 0.4432, 0.25: 0.3797, 0.5: 0.3027, 1.0: 0.1944}
+
+== kNN clean_test (n=8,437)
+  type      k=1   macroF1 0.876  acc 0.876
+  queue     k=1   macroF1 0.644  acc 0.673
+  priority  k=1   macroF1 0.805  acc 0.806

@@ -1,0 +1,29 @@
+base 38,026  dev_cal 3,038  dev_tune 2,947
+features (38026, 235422) in 40s
+/private/tmp/claude-501/-Users-nathanray-Library-Application-Support-Claude-scratch-workspaces-1425215e-c156-4e0d-916a-02cb63b92855-7f7d7215-cdc8-40f7-935d-01e60d0ff6d9-scratch-2026-11-21-c8040c/8b1af1be-d02b-49b3-be97-abd181f9bf6e/scratchpad/venv/lib/python3.9/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/private/tmp/claude-501/-Users-nathanray-Library-Application-Support-Claude-scratch-workspaces-1425215e-c156-4e0d-916a-02cb63b92855-7f7d7215-cdc8-40f7-935d-01e60d0ff6d9-scratch-2026-11-21-c8040c/8b1af1be-d02b-49b3-be97-abd181f9bf6e/scratchpad/venv/lib/python3.9/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/private/tmp/claude-501/-Users-nathanray-Library-Application-Support-Claude-scratch-workspaces-1425215e-c156-4e0d-916a-02cb63b92855-7f7d7215-cdc8-40f7-935d-01e60d0ff6d9-scratch-2026-11-21-c8040c/8b1af1be-d02b-49b3-be97-abd181f9bf6e/scratchpad/venv/lib/python3.9/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/private/tmp/claude-501/-Users-nathanray-Library-Application-Support-Claude-scratch-workspaces-1425215e-c156-4e0d-916a-02cb63b92855-7f7d7215-cdc8-40f7-935d-01e60d0ff6d9-scratch-2026-11-21-c8040c/8b1af1be-d02b-49b3-be97-abd181f9bf6e/scratchpad/venv/lib/python3.9/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+type         C=8.0  macro_f1=0.849 T=1.13 ECE 0.030->0.019 used T=1.1251 (91s)  grid={'2.0': 0.8355, '4.0': 0.8422, '8.0': 0.8491, '16.0': 0.849, '32.0': 0.8486}
+/private/tmp/claude-501/-Users-nathanray-Library-Application-Support-Claude-scratch-workspaces-1425215e-c156-4e0d-916a-02cb63b92855-7f7d7215-cdc8-40f7-935d-01e60d0ff6d9-scratch-2026-11-21-c8040c/8b1af1be-d02b-49b3-be97-abd181f9bf6e/scratchpad/venv/lib/python3.9/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/private/tmp/claude-501/-Users-nathanray-Library-Application-Support-Claude-scratch-workspaces-1425215e-c156-4e0d-916a-02cb63b92855-7f7d7215-cdc8-40f7-935d-01e60d0ff6d9-scratch-2026-11-21-c8040c/8b1af1be-d02b-49b3-be97-abd181f9bf6e/scratchpad/venv/lib/python3.9/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+queue        C=32.0 macro_f1=0.511 T=1.32 ECE 0.083->0.020 used T=1.3235 (191s)  grid={'2.0': 0.4321, '4.0': 0.4513, '8.0': 0.4999, '16.0': 0.5011, '32.0': 0.5115}
+/private/tmp/claude-501/-Users-nathanray-Library-Application-Support-Claude-scratch-workspaces-1425215e-c156-4e0d-916a-02cb63b92855-7f7d7215-cdc8-40f7-935d-01e60d0ff6d9-scratch-2026-11-21-c8040c/8b1af1be-d02b-49b3-be97-abd181f9bf6e/scratchpad/venv/lib/python3.9/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+priority     C=32.0 macro_f1=0.682 T=1.89 ECE 0.125->0.028 used T=1.8859 (80s)  grid={'2.0': 0.6592, '4.0': 0.6708, '8.0': 0.68, '16.0': 0.68, '32.0': 0.6817}
+/private/tmp/claude-501/-Users-nathanray-Library-Application-Support-Claude-scratch-workspaces-1425215e-c156-4e0d-916a-02cb63b92855-7f7d7215-cdc8-40f7-935d-01e60d0ff6d9-scratch-2026-11-21-c8040c/8b1af1be-d02b-49b3-be97-abd181f9bf6e/scratchpad/venv/lib/python3.9/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+hp_incident  C=32.0 average_precision=0.591 T=1.66 ECE 0.060->0.012 used T=1.6599 (24s)  grid={'2.0': np.float64(0.5708), '4.0': np.float64(0.5819), '8.0': np.float64(0.5874), '16.0': np.float64(0.5898), '32.0': np.float64(0.5907)}
+/private/tmp/claude-501/-Users-nathanray-Library-Application-Support-Claude-scratch-workspaces-1425215e-c156-4e0d-916a-02cb63b92855-7f7d7215-cdc8-40f7-935d-01e60d0ff6d9-scratch-2026-11-21-c8040c/8b1af1be-d02b-49b3-be97-abd181f9bf6e/scratchpad/venv/lib/python3.9/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+queue_all    C=32.0 macro_f1=0.888 T=0.90 ECE 0.025->0.020 used T=0.9009 (1104s)  grid={'2.0': 0.8666, '4.0': 0.8753, '8.0': 0.8795, '16.0': 0.8871, '32.0': 0.8876}
+gate: {"hp_incident_threshold": 0.1167, "conf_threshold": {"type": 0.55, "queue": 0.65}, "dev_tune_hp_recall": 0.9507, "dev_tune_hp_flag_rate": 0.5551, "dev_tune_escalation_rate_classifier_rules": 0.9186, "targets": {"hp_recall": 0.95, "type_acc": 0.85, "queue_acc": 0.8}}
+triage.joblib 16 MB
+queue_all.joblib 46 MB
+done in 1542s

@@ -1,0 +1,49 @@
+{
+  "n": 36,
+  "top1_sim_e5": {
+    "inscope_median": 0.9089934825897217,
+    "ood_median": 0.8725453615188599
+  },
+  "systems": {
+    "tfidf": {
+      "type_acc": 0.714,
+      "queue_in_set": 0.75,
+      "priority_in_set": 0.857,
+      "hp_flag_recall": 0.75,
+      "hp_flag_rate_nonhp_inscope": 0.25,
+      "ood_mean_type_conf": 0.487
+    },
+    "knn_e5-small": {
+      "type_acc": 0.679,
+      "queue_in_set": 0.714,
+      "priority_in_set": 0.714,
+      "hp_flag_recall": 0.833,
+      "hp_flag_rate_nonhp_inscope": 0.188,
+      "ood_mean_type_conf": 0.804
+    },
+    "ft:e5b_s13": {
+      "type_acc": 0.786,
+      "queue_in_set": 0.821,
+      "priority_in_set": 1.0,
+      "hp_flag_recall": 1.0,
+      "hp_flag_rate_nonhp_inscope": 0.062,
+      "ood_mean_type_conf": 0.644
+    },
+    "knn_ft_e5b_s13": {
+      "type_acc": 0.714,
+      "queue_in_set": 0.786,
+      "priority_in_set": 0.893,
+      "hp_flag_recall": 1.0,
+      "hp_flag_rate_nonhp_inscope": 0.25,
+      "ood_mean_type_conf": 0.864
+    },
+    "FUSED": {
+      "type_acc": 0.75,
+      "queue_in_set": 0.893,
+      "priority_in_set": 0.857,
+      "hp_flag_recall": 0.917,
+      "hp_flag_rate_nonhp_inscope": 0.062,
+      "ood_mean_type_conf": 0.661
+    }
+  }
+}
