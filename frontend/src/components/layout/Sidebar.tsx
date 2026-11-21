@@ -46,12 +46,12 @@ export function Sidebar({ open, onClose }: SidebarProps) {
       >
         <div className="flex h-16 shrink-0 items-center justify-between px-5">
           <div className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-brand-600">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500 to-violet-600 shadow-lg shadow-brand-900/40">
               <Headset className="h-4 w-4 text-white" />
             </span>
             <div className="leading-tight">
-              <p className="text-sm font-semibold text-white">HelpDesk</p>
-              <p className="text-[11px] text-slate-400">Support Console</p>
+              <p className="text-base font-semibold text-white">HelpDesk</p>
+              <p className="text-xs text-slate-400">Support Console</p>
             </div>
           </div>
           <button onClick={onClose} className="rounded-md p-1 text-slate-400 hover:text-white lg:hidden" aria-label="Close menu">
@@ -62,7 +62,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         <div className="px-3 pb-2">
           <NavLink
             to="/tickets/new"
-            className="flex w-full items-center justify-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm font-medium text-white ring-1 ring-inset ring-white/10 hover:bg-white/15"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-b from-brand-500 to-brand-600 px-3 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-900/30 hover:from-brand-600 hover:to-brand-700"
           >
             <Plus className="h-4 w-4" />
             New ticket
@@ -70,7 +70,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         </div>
 
         <nav className="flex-1 space-y-0.5 px-3 py-4">
-          <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">Workspace</p>
+          <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">Workspace</p>
           {nav.map(({ to, label, icon: Icon, end, badge }) => (
             <NavLink
               key={to}
@@ -78,15 +78,17 @@ export function Sidebar({ open, onClose }: SidebarProps) {
               end={end}
               className={({ isActive }) =>
                 cn(
-                  'group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
-                  isActive ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white',
+                  'group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                  isActive
+                    ? 'bg-white/10 text-white before:absolute before:inset-y-2 before:-left-3 before:w-1 before:rounded-r-full before:bg-brand-500'
+                    : 'text-slate-400 hover:bg-white/5 hover:text-white',
                 )
               }
             >
-              <Icon className="h-4 w-4 shrink-0" />
+              <Icon className="h-[1.125rem] w-[1.125rem] shrink-0" />
               {label}
               {badge && escalated > 0 && (
-                <span className="ml-auto rounded-full bg-red-500 px-2 py-0.5 text-[11px] font-semibold tabular-nums text-white">{escalated}</span>
+                <span className="ml-auto rounded-full bg-red-500 px-2 py-0.5 text-xs font-semibold tabular-nums text-white">{escalated}</span>
               )}
             </NavLink>
           ))}
@@ -111,7 +113,7 @@ function InboxStatus() {
         <span className={cn('h-2 w-2 rounded-full', live ? 'bg-emerald-400' : 'bg-slate-500')} />
         {live ? 'Email channel live' : 'Email channel offline'}
       </div>
-      {live && <p className="mt-1 truncate font-mono text-[11px] text-slate-400" title={info.address!}>{info.address}</p>}
+      {live && <p className="mt-1 truncate font-mono text-xs text-slate-400" title={info.address!}>{info.address}</p>}
     </div>
   );
 }

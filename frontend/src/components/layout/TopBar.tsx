@@ -25,7 +25,7 @@ export function TopBar({ onMenuClick }: { onMenuClick: () => void }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search tickets…"
-          className="h-9 w-full rounded-md border-0 bg-slate-100 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+          className="h-10 w-full rounded-lg border-0 bg-slate-100 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/30"
         />
       </form>
 

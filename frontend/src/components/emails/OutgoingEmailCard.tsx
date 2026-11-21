@@ -45,7 +45,7 @@ export function OutgoingEmailCard({ onSent }: { onSent: () => void }) {
           {status.problem && <p className="mb-2 font-semibold">{status.problem}</p>}
           <p className="font-semibold">To deliver to Gmail and other real inboxes (free with Brevo):</p>
           <p className="mt-1">Paste a Brevo <strong>API key</strong> into <code className="rounded bg-amber-100 px-1">backend/.env</code>. The backend reloads by itself:</p>
-          <pre className="mt-1.5 overflow-x-auto rounded bg-amber-100/70 p-2 font-mono text-[11px]">{`BREVO_API_KEY=xkeysib-...
+          <pre className="mt-1.5 overflow-x-auto rounded bg-amber-100/70 p-2 font-mono text-xs">{`BREVO_API_KEY=xkeysib-...
 SUPPORT_FROM_ADDRESS=<sender verified in that Brevo account>`}</pre>
           <p className="mt-1.5 text-amber-800">Find keys in Brevo under SMTP &amp; API → API Keys. SMTP credentials also work; see the comments in <code className="rounded bg-amber-100 px-1">.env</code>.</p>
         </div>
