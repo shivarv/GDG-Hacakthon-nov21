@@ -1,0 +1,6 @@
+# Extra packages for TRIAGE_MODEL=sentinel_local (runs Nathan's triage model in-process).
+# Versions must match what triage/models/triage.joblib was saved with.
+scikit-learn==1.6.1
+numpy==2.0.2
+pandas==2.3.3
+joblib==1.6.0

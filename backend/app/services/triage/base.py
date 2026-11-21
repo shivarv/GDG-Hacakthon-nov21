@@ -13,6 +13,9 @@ class TriageDecision:
     confidence: float  # 0..1 (dummy: fixed)
     model: str  # e.g. "dummy-v0"
     reasons: list[str] = field(default_factory=list)
+    ticket_type: str | None = None  # e.g. "Incident" (models that predict it)
+    queue: str | None = None  # department, e.g. "Technical Support"
+    queue_confidence: float | None = None
 
 
 class TriageModel(Protocol):

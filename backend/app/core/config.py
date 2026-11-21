@@ -32,6 +32,9 @@ class Settings(BaseSettings):
     temp_inbox_enabled: bool = False
     temp_inbox_poll_interval_seconds: int = 10
     temp_inbox_state_file: str = ".data/temp_inbox.json"
+    # Hosting: reuse an existing mail.tm inbox (from .data/temp_inbox.json) instead of creating a new one
+    temp_inbox_address: str = ""
+    temp_inbox_password: str = ""
 
     # SMTP (acknowledgement emails)
     smtp_enabled: bool = False
@@ -45,7 +48,10 @@ class Settings(BaseSettings):
 
     # Triage of new email tickets: escalate severe ones automatically
     auto_escalate: bool = True
+    # "dummy" (keywords), "sentinel_remote" (Nathan's Cloud Run service), "sentinel_local" (same model in-process)
     triage_model: str = "dummy"
+    sentinel_triage_url: str = ""  # e.g. https://sentinel-triage-xxxx-uc.a.run.app
+    sentinel_model_path: str = "../triage/models/triage.joblib"
 
     # Resolution-time model used for escalation due dates ("dummy" until a trained one is merged)
     eta_model: str = "dummy"
@@ -56,6 +62,8 @@ class Settings(BaseSettings):
     gmail_api_enabled: bool = False
     gmail_credentials_file: str = ".data/gmail_credentials.json"
     gmail_token_file: str = ".data/gmail_token.json"
+    # Hosting: the token file's JSON contents, written to gmail_token_file at startup
+    gmail_token_json: str = ""
 
     # Brevo transactional API. When set, it's used instead of SMTP.
     # Takes an API key (xkeysib-...), not an SMTP key.
@@ -93,7 +101,11 @@ class Settings(BaseSettings):
     @field_validator("database_url")
     @classmethod
     def _anchor_sqlite_path(cls, v: str) -> str:
-        """Resolve relative SQLite paths against backend/, not the current directory."""
+        """Resolve relative SQLite paths against backend/, and add the psycopg driver to plain
+        Postgres URLs (Render and Neon hand out postgres://... or postgresql://...)."""
+        for plain in ("postgres://", "postgresql://"):
+            if v.startswith(plain):
+                return "postgresql+psycopg://" + v[len(plain):]
         prefix = "sqlite:///"
         if v.startswith(prefix) and not v.startswith(prefix + "/"):
             path = (BACKEND_DIR / v[len(prefix):]).resolve()
@@ -101,7 +113,7 @@ class Settings(BaseSettings):
             return f"{prefix}{path}"
         return v
 
-    @field_validator("temp_inbox_state_file", "gmail_credentials_file", "gmail_token_file")
+    @field_validator("temp_inbox_state_file", "gmail_credentials_file", "gmail_token_file", "sentinel_model_path")
     @classmethod
     def _anchor_state_file(cls, v: str) -> str:
         return str(v if Path(v).is_absolute() else BACKEND_DIR / v)

@@ -34,6 +34,10 @@ TOPIC_RULES: list[tuple[str, tuple[str, ...]]] = [
     ("Product Support", ("feature", "how do i", "how to", "dashboard", "report", "product", "funktion")),
 ]
 DEFAULT_TEAM = "Customer Service"
+# Use the triage model's predicted queue when no keyword matched and it's reasonably sure,
+# or whenever it's very sure (keywords then only break ties).
+MODEL_QUEUE_MIN_CONF = 0.4
+MODEL_QUEUE_STRONG_CONF = 0.75
 L3_SPECIALIST_TEAMS = {"Information Security", "Service Outages and Maintenance"}
 FALLBACK_L3_TEAM = "Head of Support"
 
@@ -60,6 +64,12 @@ class EscalationRoutingService:
         current = self.escalations.get_active_for_ticket(ticket.id)
         team, keyword = self._detect_team(ticket)
         reasons = [f'Matched "{keyword}" → {team}' if keyword else f"No topic keywords → {team}"]
+        staffed = {c.team for c in contacts}
+        conf = ticket.queue_confidence or 0.0
+        model_team_ok = ticket.predicted_queue in staffed
+        if model_team_ok and (conf >= MODEL_QUEUE_STRONG_CONF or (keyword is None and conf >= MODEL_QUEUE_MIN_CONF)):
+            team = ticket.predicted_queue
+            reasons = [f"Model predicted queue {team} ({ticket.queue_confidence:.2f})"]
 
         level = 2
         if team in L3_SPECIALIST_TEAMS:
