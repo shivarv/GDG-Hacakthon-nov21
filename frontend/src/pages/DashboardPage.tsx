@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { AlertTriangle, ArrowRight, Inbox, Mail, Plus, Ticket } from 'lucide-react';
+import { AlertTriangle, ArrowRight, Inbox, Mail, Plus, Siren, Ticket } from 'lucide-react';
 import { Button, Card, ErrorMessage, Spinner } from '@/components/common';
 import { BreakdownBar, StatCard } from '@/components/dashboard';
 import { PageHeader } from '@/components/layout';
@@ -39,10 +39,13 @@ export function DashboardPage() {
         }
       />
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-5">
         <StatCard label="Total cases" value={s.total} icon={Ticket} />
         <StatCard label="Active" value={active} icon={Inbox} iconClassName="bg-violet-50 text-violet-600" hint="Open · In progress · Pending" />
-        <StatCard label="Urgent" value={s.by_priority.urgent ?? 0} icon={AlertTriangle} iconClassName="bg-red-50 text-red-600" hint="Needs immediate attention" />
+        <Link to="/escalations" className="block">
+          <StatCard label="Escalated" value={s.escalated} icon={Siren} iconClassName="bg-red-50 text-red-600" hint="Awaiting L2 / L3" />
+        </Link>
+        <StatCard label="Urgent" value={s.by_priority.urgent ?? 0} icon={AlertTriangle} iconClassName="bg-orange-50 text-orange-600" hint="Needs immediate attention" />
         <StatCard label="Via email" value={s.by_source.email ?? 0} icon={Mail} iconClassName="bg-emerald-50 text-emerald-600" hint="Converted automatically" />
       </div>
 

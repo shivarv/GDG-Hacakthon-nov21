@@ -27,3 +27,8 @@ def init_db() -> None:
     from app import models  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
+
+    from app.core.seed import seed_users
+
+    with SessionLocal() as db:
+        seed_users(db)

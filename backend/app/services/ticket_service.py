@@ -31,6 +31,7 @@ class TicketService:
         source: TicketSource | None,
         query: str | None,
         page: int,
+        escalated: bool | None = None,
         page_size: int,
     ) -> Page[TicketRead]:
         items, total = self.tickets.search(
@@ -38,6 +39,7 @@ class TicketService:
             priority=priority,
             source=source,
             query=query,
+            escalated=escalated,
             offset=(page - 1) * page_size,
             limit=page_size,
         )
@@ -52,6 +54,11 @@ class TicketService:
         ticket = self.get(ticket_id)
         for field, value in data.model_dump(exclude_unset=True).items():
             setattr(ticket, field, value)
+        if ticket.status in (TicketStatus.RESOLVED, TicketStatus.CLOSED):
+            # Local import: EscalationService depends on this module's siblings.
+            from app.services.escalation_service import EscalationService
+
+            EscalationService(self.db).resolve_for_closed_ticket(ticket)
         self.db.commit()
         self.db.refresh(ticket)
         return ticket
@@ -64,6 +71,7 @@ class TicketService:
     def stats(self) -> TicketStats:
         return TicketStats(
             total=self.tickets.count_all(),
+            escalated=self.tickets.count_escalated(),
             by_status=self.tickets.count_by(Ticket.status),
             by_priority=self.tickets.count_by(Ticket.priority),
             by_source=self.tickets.count_by(Ticket.source),

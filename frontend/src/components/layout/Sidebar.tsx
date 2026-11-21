@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import { Headset, Inbox, LayoutDashboard, Plus, Ticket, X, type LucideIcon } from 'lucide-react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { Headset, Inbox, LayoutDashboard, Plus, Siren, Ticket, X, type LucideIcon } from 'lucide-react';
 import { emailsApi } from '@/api/emails';
+import { ticketsApi } from '@/api/tickets';
 import type { InboxInfo } from '@/types/email';
+import { onEscalationsChanged } from '@/utils/events';
 import { cn } from '@/utils/format';
 
-const nav: { to: string; label: string; icon: LucideIcon; end?: boolean }[] = [
+const nav: { to: string; label: string; icon: LucideIcon; end?: boolean; badge?: 'escalated' }[] = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/tickets', label: 'Tickets', icon: Ticket },
+  { to: '/escalations', label: 'Escalations', icon: Siren, badge: 'escalated' },
   { to: '/emails', label: 'Email channel', icon: Inbox },
 ];
 
@@ -17,6 +20,16 @@ interface SidebarProps {
 }
 
 export function Sidebar({ open, onClose }: SidebarProps) {
+  const location = useLocation();
+  const [escalated, setEscalated] = useState(0);
+
+  // Refresh the escalation count on navigation and whenever escalations change.
+  useEffect(() => {
+    const load = () => ticketsApi.stats().then((s) => setEscalated(s.escalated)).catch(() => undefined);
+    load();
+    return onEscalationsChanged(load);
+  }, [location.pathname]);
+
   return (
     <>
       {/* Mobile overlay */}
@@ -58,7 +71,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
         <nav className="flex-1 space-y-0.5 px-3 py-4">
           <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">Workspace</p>
-          {nav.map(({ to, label, icon: Icon, end }) => (
+          {nav.map(({ to, label, icon: Icon, end, badge }) => (
             <NavLink
               key={to}
               to={to}
@@ -72,6 +85,9 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             >
               <Icon className="h-4 w-4 shrink-0" />
               {label}
+              {badge && escalated > 0 && (
+                <span className="ml-auto rounded-full bg-red-500 px-2 py-0.5 text-[11px] font-semibold tabular-nums text-white">{escalated}</span>
+              )}
             </NavLink>
           ))}
         </nav>

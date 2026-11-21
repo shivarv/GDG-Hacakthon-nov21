@@ -3,18 +3,20 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Plus, SearchX } from 'lucide-react';
 import { Button, EmptyState, ErrorMessage, Pagination, Spinner, Tabs, type TabItem } from '@/components/common';
 import { PageHeader } from '@/components/layout';
+import { EscalateDialog } from '@/components/escalations';
 import { TicketFilters, TicketTable } from '@/components/tickets';
 import { useTickets, useTicketStats } from '@/hooks/useTickets';
-import { TICKET_STATUSES, type TicketFilters as Filters, type TicketStatus } from '@/types/ticket';
+import { TICKET_STATUSES, type Ticket, type TicketFilters as Filters, type TicketStatus } from '@/types/ticket';
 import { humanize } from '@/utils/format';
 
-type StatusTab = TicketStatus | 'all';
+type StatusTab = TicketStatus | 'all' | 'escalated';
 
 export function TicketsPage() {
   const [params] = useSearchParams();
   const [filters, setFilters] = useState<Filters>({ page: 1, page_size: 20, q: params.get('q') ?? '' });
   const { data, loading, error, reload } = useTickets(filters);
   const stats = useTicketStats();
+  const [escalating, setEscalating] = useState<Ticket | null>(null);
   const onFiltersChange = useCallback((f: Filters) => setFilters(f), []);
 
   // Pick up searches made from the top bar.
@@ -26,7 +28,17 @@ export function TicketsPage() {
   const tabs: TabItem<StatusTab>[] = [
     { value: 'all', label: 'All', count: stats.data?.total },
     ...TICKET_STATUSES.map((s) => ({ value: s, label: humanize(s), count: stats.data?.by_status[s] ?? 0 })),
+    { value: 'escalated', label: 'Escalated', count: stats.data?.escalated ?? 0 },
   ];
+  const activeTab: StatusTab = filters.escalated ? 'escalated' : filters.status || 'all';
+
+  const selectTab = (v: StatusTab) =>
+    setFilters({
+      ...filters,
+      status: v === 'all' || v === 'escalated' ? '' : v,
+      escalated: v === 'escalated' ? true : undefined,
+      page: 1,
+    });
 
   return (
     <>
@@ -41,7 +53,7 @@ export function TicketsPage() {
       />
       <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-card">
         <div className="border-b border-slate-200">
-          <Tabs items={tabs} value={filters.status || 'all'} onChange={(v) => setFilters({ ...filters, status: v === 'all' ? '' : v, page: 1 })} />
+          <Tabs items={tabs} value={activeTab} onChange={selectTab} />
         </div>
         <TicketFilters filters={filters} onChange={onFiltersChange} />
         {loading ? (
@@ -50,13 +62,22 @@ export function TicketsPage() {
           <div className="p-4 sm:p-6"><ErrorMessage message={error} onRetry={reload} /></div>
         ) : data && data.items.length > 0 ? (
           <>
-            <TicketTable tickets={data.items} />
+            <TicketTable tickets={data.items} onEscalate={setEscalating} />
             <Pagination page={data.page} pageSize={data.page_size} total={data.total} onChange={(page) => setFilters({ ...filters, page })} />
           </>
         ) : (
           <EmptyState icon={SearchX} title="No tickets match" description="Try adjusting the filters or search term." />
         )}
       </section>
+      <EscalateDialog
+        ticket={escalating}
+        onClose={() => setEscalating(null)}
+        onEscalated={() => {
+          setEscalating(null);
+          void reload();
+          void stats.reload();
+        }}
+      />
     </>
   );
 }

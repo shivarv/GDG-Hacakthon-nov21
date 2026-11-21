@@ -11,6 +11,7 @@ import type {
   TicketUpdateInput,
 } from '@/types/ticket';
 import type { EmailMessage } from '@/types/email';
+import type { Escalation, EscalationCreateInput } from '@/types/escalation';
 
 export const ticketsApi = {
   list: (filters: TicketFilters) => http.get<Page<Ticket>>('/api/tickets', { ...filters }),
@@ -21,5 +22,7 @@ export const ticketsApi = {
   stats: () => http.get<TicketStats>('/api/tickets/stats'),
   addComment: (id: number, data: CommentCreateInput) =>
     http.post<Comment>(`/api/tickets/${id}/comments`, data),
+  escalate: (id: number, data: EscalationCreateInput) => http.post<Escalation>(`/api/tickets/${id}/escalate`, data),
+  deEscalate: (id: number, note?: string) => http.post<Escalation>(`/api/tickets/${id}/de-escalate`, { note }),
   emails: (id: number) => http.get<EmailMessage[]>(`/api/tickets/${id}/emails`),
 };

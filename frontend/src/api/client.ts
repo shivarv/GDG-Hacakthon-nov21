@@ -30,7 +30,7 @@ async function request<T>(method: string, path: string, body?: unknown, query?: 
     let message = res.statusText;
     try {
       const data = await res.json();
-      message = typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail);
+      message = typeof data.detail === 'string' ? data.detail : (data.detail?.[0]?.msg ?? JSON.stringify(data.detail));
     } catch {
       /* non-JSON error body */
     }

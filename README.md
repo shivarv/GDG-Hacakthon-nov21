@@ -73,18 +73,29 @@ DATABASE_URL=sqlite:///./dev.db TEMP_INBOX_ENABLED=true uvicorn app.main:app
 
 Every inbound email is stored in `email_messages` along with its outcome (`created_ticket`, `appended_comment` or `failed`) for auditing.
 
+## Escalations
+
+Any ticket that is open, in progress or pending can be escalated from the ticket list (the siren button) or the ticket page.
+
+- You pick an **escalation contact** and give a reason. The ticket is reassigned to them, an internal note is added, and they are emailed.
+- **Levels:** team leads are L2. Managers, on-call and security are L3. Escalating again moves the ticket up a level and closes the previous escalation.
+- **Closing:** resolving or closing the ticket closes its escalation automatically. You can also de-escalate by hand.
+- **Dummy contacts:** 9 escalation contacts plus 2 frontline agents are loaded on first start (`backend/app/core/seed.py`). They all use the non-routable `@helpdesk.local` domain.
+- **Storage:** "Escalated" is calculated from the `escalations` table, so no migration of `tickets` is needed. The `source` field (`manual` or `auto`) is reserved for the SentinelDesk escalation gate.
+
 ## Backend layout
 
 ```
 backend/app/
 ├── main.py                  # App factory, CORS, error handler, starts the IMAP listener
 ├── core/                    # config (env settings), database session, exceptions
-├── models/                  # SQLAlchemy entities: Ticket, Comment, EmailMessage
+├── models/                  # SQLAlchemy entities: Ticket, Comment, EmailMessage, User, Escalation
 ├── schemas/                 # Pydantic request/response DTOs
 ├── dao/                     # Data access only (queries); flushes, never commits
 ├── services/                # Business logic and transaction boundaries
 │   ├── ticket_service.py
 │   ├── comment_service.py
+│   ├── escalation_service.py        # escalate / re-escalate / de-escalate + notify
 │   ├── email_ingestion_service.py   # email -> case logic
 │   ├── email_parser.py              # RFC 822 parsing, quote stripping, priority detection
 │   └── notification_service.py      # SMTP acknowledgements
@@ -104,6 +115,11 @@ backend/app/
 | DELETE | `/api/tickets/{id}`                | Delete a ticket                      |
 | POST   | `/api/tickets/{id}/comments`       | Add a reply or internal note         |
 | GET    | `/api/tickets/{id}/emails`         | Emails linked to a ticket            |
+| POST   | `/api/tickets/{id}/escalate`       | Escalate an open ticket to a contact (`escalated_to_id`, `reason`, `reassign`) |
+| POST   | `/api/tickets/{id}/de-escalate`    | Close the active escalation          |
+| GET    | `/api/tickets/{id}/escalations`    | Escalation history for a ticket      |
+| GET    | `/api/escalations`                 | Escalations across tickets (`status=active|resolved`) |
+| GET    | `/api/users`                       | Support staff (`escalation_contacts=true` for escalation targets) |
 | GET    | `/api/emails`                      | Inbound email log                    |
 | POST   | `/api/emails/inbound`              | Inbound-email webhook                |
 

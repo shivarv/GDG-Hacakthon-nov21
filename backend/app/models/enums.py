@@ -25,3 +25,21 @@ class EmailProcessingStatus(str, enum.Enum):
     CREATED_TICKET = "created_ticket"
     APPENDED_COMMENT = "appended_comment"
     FAILED = "failed"
+
+
+class UserRole(str, enum.Enum):
+    AGENT = "agent"
+    TEAM_LEAD = "team_lead"
+    MANAGER = "manager"
+    ON_CALL = "on_call"
+    SECURITY = "security"
+
+
+class EscalationStatus(str, enum.Enum):
+    ACTIVE = "active"
+    RESOLVED = "resolved"
+
+
+class EscalationSource(str, enum.Enum):
+    MANUAL = "manual"
+    AUTO = "auto"  # reserved for the SentinelDesk escalation gate
