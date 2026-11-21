@@ -63,7 +63,7 @@ export function EscalationsPage() {
 
       <section className="mt-8">
         <div className="mb-4">
-          <h2 className="text-base font-semibold text-slate-900">Escalation contacts</h2>
+          <h2 className="text-lg font-semibold text-slate-900">Escalation contacts</h2>
           <p className="text-sm text-slate-500">Who tickets can be escalated to. Each contact is notified by email.</p>
         </div>
         {contacts.loading ? <Spinner /> : contacts.error ? <ErrorMessage message={contacts.error} onRetry={contacts.reload} /> : (

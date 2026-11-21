@@ -21,7 +21,7 @@ export function EscalationBanner({ escalation: e, onReEscalate, onDeEscalate, bu
         Escalated to level {e.level}
         <span className="font-normal text-red-700">· {timeAgo(e.created_at)} by {e.escalated_by}</span>
         {(e.source === 'auto' || e.auto_assigned) && (
-          <span className="ml-auto inline-flex items-center gap-1 rounded bg-white/70 px-1.5 py-0.5 text-[11px] font-medium text-red-700">
+          <span className="ml-auto inline-flex items-center gap-1 rounded bg-white/70 px-1.5 py-0.5 text-xs font-medium text-red-700">
             <Sparkles className="h-3 w-3" /> {e.source === 'auto' ? 'Auto-escalated by triage' : 'Auto-assigned'}
           </span>
         )}
@@ -70,7 +70,7 @@ export function EscalationBanner({ escalation: e, onReEscalate, onDeEscalate, bu
 
 function Status({ ok, icon: Icon, label }: { ok: boolean; icon: typeof MailCheck; label: string }) {
   return (
-    <span className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-medium ${ok ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+    <span className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium ${ok ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
       <Icon className="h-3 w-3" /> {label}
     </span>
   );

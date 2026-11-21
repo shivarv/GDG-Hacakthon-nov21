@@ -13,8 +13,22 @@ class TicketService:
         self.tickets = TicketDAO(db)
 
     def create(self, data: TicketCreate, source: TicketSource = TicketSource.WEB) -> Ticket:
-        ticket = self.tickets.add(Ticket(**data.model_dump(), source=source))
+        """Create a ticket from the form, classified by the same triage model as email tickets.
+        The agent's priority wins if one was chosen; otherwise the model's is used."""
+        from app.services.ticket_triage_service import TicketTriageService  # local import avoids a cycle
+
+        triage = TicketTriageService(self.db)
+        decision = triage.assess(data.subject, data.description)
+        ticket = Ticket(**data.model_dump(exclude={"priority"}), source=source,
+                        priority=data.priority or decision.priority)
+        triage.apply(ticket, decision, set_priority=data.priority is None)
+        ticket = self.tickets.add(ticket)
         self.db.commit()
+        triage.add_notes(ticket, decision, chosen_priority=data.priority)
+        # Escalate severe tickets unless the agent deliberately chose a lower priority.
+        if data.priority in (None, TicketPriority.URGENT):
+            triage.auto_escalate(ticket, decision)
+        self.db.refresh(ticket)
         return ticket
 
     def get(self, ticket_id: int) -> Ticket:

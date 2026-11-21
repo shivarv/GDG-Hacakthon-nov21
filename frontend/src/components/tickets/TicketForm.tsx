@@ -1,27 +1,30 @@
 import { useState, type FormEvent, type ReactNode } from 'react';
+import { Sparkles } from 'lucide-react';
 import { Button, ErrorMessage, Select } from '@/components/common';
-import { TICKET_PRIORITIES, type TicketCreateInput } from '@/types/ticket';
+import { TICKET_PRIORITIES, type TicketCreateInput, type TicketPriority } from '@/types/ticket';
 
 interface Props {
   onSubmit: (data: TicketCreateInput) => Promise<void>;
   onCancel: () => void;
 }
 
-const empty: TicketCreateInput = {
+type FormState = Omit<TicketCreateInput, 'priority'> & { priority: TicketPriority | '' };
+
+const empty: FormState = {
   subject: '',
   description: '',
-  priority: 'medium',
+  priority: '', // '' = auto-detect with the triage model
   requester_email: '',
   requester_name: '',
   assignee: '',
 };
 
 export function TicketForm({ onSubmit, onCancel }: Props) {
-  const [form, setForm] = useState<TicketCreateInput>(empty);
+  const [form, setForm] = useState<FormState>(empty);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const set = <K extends keyof TicketCreateInput>(key: K, value: TicketCreateInput[K]) =>
+  const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
 
   const handleSubmit = async (e: FormEvent) => {
@@ -29,7 +32,12 @@ export function TicketForm({ onSubmit, onCancel }: Props) {
     setSaving(true);
     setError(null);
     try {
-      await onSubmit({ ...form, requester_name: form.requester_name || undefined, assignee: form.assignee || undefined });
+      await onSubmit({
+        ...form,
+        priority: form.priority || undefined,
+        requester_name: form.requester_name || undefined,
+        assignee: form.assignee || undefined,
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create ticket');
     } finally {
@@ -64,9 +72,22 @@ export function TicketForm({ onSubmit, onCancel }: Props) {
           </div>
         </Section>
 
-        <Section title="Routing" description="Set urgency and ownership.">
+        <Section title="Routing" description="Set urgency and ownership. Leave priority on auto to let the AI triage model decide.">
           <div className="grid gap-4 sm:grid-cols-2">
-            <Select label="Priority" options={TICKET_PRIORITIES} value={form.priority} onValueChange={(v) => v && set('priority', v)} />
+            <div>
+              <Select
+                label="Priority"
+                options={TICKET_PRIORITIES}
+                placeholder="Auto-detect (AI triage)"
+                value={form.priority}
+                onValueChange={(v) => set('priority', v)}
+              />
+              {!form.priority && (
+                <p className="mt-1.5 flex items-center gap-1 text-xs text-brand-700">
+                  <Sparkles className="h-3.5 w-3.5" /> The model sets priority and escalates severe tickets automatically.
+                </p>
+              )}
+            </div>
             <Field label="Assignee">
               <input className="input" placeholder="Unassigned" value={form.assignee} onChange={(e) => set('assignee', e.target.value)} />
             </Field>

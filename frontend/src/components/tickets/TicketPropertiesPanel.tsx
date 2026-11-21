@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import { Sparkles } from 'lucide-react';
 import { Avatar, Card, Select } from '@/components/common';
 import { TICKET_PRIORITIES, TICKET_STATUSES, type Ticket, type TicketUpdateInput } from '@/types/ticket';
 import { formatDateTime } from '@/utils/format';
@@ -31,6 +32,22 @@ export function TicketPropertiesPanel({ ticket, onUpdate }: Props) {
           </label>
         </div>
       </Card>
+
+      {ticket.triage_model && (
+        <Card title={<span className="flex items-center gap-2"><Sparkles className="h-4 w-4 text-brand-600" /> AI classification</span>}>
+          <dl className="space-y-3 text-sm">
+            <Row label="Type">{ticket.predicted_type ?? '—'}</Row>
+            <Row label="Queue">
+              {ticket.predicted_queue ?? '—'}
+              {ticket.queue_confidence != null && (
+                <span className="ml-1.5 text-xs text-slate-500">({Math.round(ticket.queue_confidence * 100)}%)</span>
+              )}
+            </Row>
+            <Row label="Model"><code className="text-xs text-slate-600">{ticket.triage_model}</code></Row>
+          </dl>
+          <p className="mt-3 border-t border-slate-100 pt-3 text-xs text-slate-500">Full reasoning is in the Triage note in the conversation.</p>
+        </Card>
+      )}
 
       <Card title="Requester">
         <div className="flex items-center gap-3">

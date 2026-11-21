@@ -20,6 +20,10 @@ export interface Ticket {
   requester_name: string | null;
   assignee: string | null;
   is_escalated: boolean;
+  predicted_type: string | null;
+  predicted_queue: string | null;
+  queue_confidence: number | null;
+  triage_model: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -44,7 +48,8 @@ export interface TicketDetail extends Ticket {
 export interface TicketCreateInput {
   subject: string;
   description: string;
-  priority: TicketPriority;
+  /** Omit to let the AI triage model decide. */
+  priority?: TicketPriority;
   requester_email: string;
   requester_name?: string;
   assignee?: string;

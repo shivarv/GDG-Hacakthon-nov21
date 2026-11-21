@@ -17,7 +17,7 @@ from app.schemas.common import Page
 from app.schemas.email import EmailIngestResult, EmailMessageRead, InboundEmail
 from app.services import email_parser
 from app.services.notification_service import NotificationService
-from app.services.triage import get_triage_model
+from app.services.ticket_triage_service import TicketTriageService
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +37,8 @@ class EmailIngestionService:
         self.tickets = TicketDAO(db)
         self.comments = CommentDAO(db)
         self.notifier = notifier or NotificationService(db)
+        self.triage = TicketTriageService(db, self.notifier)
+        self._decision = None
 
     def ingest(self, inbound: InboundEmail) -> EmailIngestResult:
         message_id = inbound.message_id or email_parser.generate_message_id()
@@ -76,13 +78,11 @@ class EmailIngestionService:
             return self._result(record)
 
         if created:
-            self._triage_note(ticket)
-            self._add_rag_note(ticket)
-            self.db.commit()
+            self.triage.add_notes(ticket, self._decision)
         is_automatic = inbound.auto_generated or email_parser.is_no_reply_address(str(inbound.from_address))
         if created and not is_automatic:
             # Severe tickets are escalated straight away; the escalation email replaces the plain acknowledgement.
-            if not self._auto_escalate(ticket):
+            if not self.triage.auto_escalate(ticket, self._decision):
                 self.notifier.send_ticket_created(ticket)
         return self._result(record)
 
@@ -100,80 +100,6 @@ class EmailIngestionService:
 
     # ---- internals -------------------------------------------------------
 
-    def _triage(self, subject: str, body: str):
-        """Run the configured triage model once per email. If it fails, fall back to keyword rules
-        for this one ticket so the email is never lost."""
-        if not hasattr(self, "_decision"):
-            name = self.notifier.settings.triage_model
-            try:
-                self._decision = get_triage_model(name).assess(subject, body)
-            except Exception as exc:
-                logger.exception("Triage model %s failed; using keyword rules for this ticket", name)
-                self._decision = get_triage_model("dummy").assess(subject, body)
-                self._decision.reasons.insert(0, f"Triage model {name} unavailable ({exc}); keyword rules used")
-        return self._decision
-
-    def _triage_note(self, ticket: Ticket) -> None:
-        d = self._triage(ticket.subject, ticket.description)
-        lines = [f"Triage ({d.model}): priority {d.priority.value}, "
-                 + ("escalation recommended" if d.should_escalate else "no escalation")]
-        lines += [f"• {r}" for r in d.reasons]
-        self.comments.add(Comment(ticket_id=ticket.id, author="Triage", body="\n".join(lines), is_internal=True))
-        self.db.commit()
-
-    def _add_rag_note(self, ticket: Ticket) -> None:
-        """Attach the grounded suggested reply + cited precedents as an internal note (best effort)."""
-        try:
-            rag = getattr(self._triage(ticket.subject, ticket.description), "rag", None)
-            if not rag:
-                return
-            reply = rag.get("reply") or {}
-            cited = [str(c) for c in (reply.get("cited_ticket_ids") or [])]
-            lines = []
-            text = (reply.get("text") or "").strip()
-            if text and not reply.get("needs_human"):
-                lines.append(f"Suggested reply (grounded in {', '.join(cited) or 'precedents'}):\n{text}")
-            elif reply.get("needs_human"):
-                lines.append("Needs a human: " + (reply.get("reason") or "no grounded reply available"))
-            precs = []
-            for p in (rag.get("precedents") or [])[:5]:
-                bits = [f"sim {float(p.get('similarity', 0)):.2f}"]
-                if p.get("queue"):
-                    bits.append(f"queue {p['queue']}")
-                if p.get("priority"):
-                    bits.append(f"priority {p['priority']}")
-                precs.append(f"{p.get('ticket_id')} ({', '.join(bits)})")
-            if precs:
-                lines.append("Precedents: " + ", ".join(precs))
-            if lines:
-                self.comments.add(Comment(ticket_id=ticket.id, author="Triage (RAG)",
-                                          body="\n\n".join(lines), is_internal=True))
-        except Exception:
-            logger.exception("Could not attach RAG note")
-
-    def _auto_escalate(self, ticket: Ticket) -> bool:
-        """Escalate a new ticket when the triage model says it's severe. Returns True if escalated."""
-        decision = self._triage(ticket.subject, ticket.description)
-        if not (self.notifier.settings.auto_escalate and decision.should_escalate):
-            return False
-        # Local import avoids a cycle (escalation service -> notification -> ...).
-        from app.models import EscalationSource
-        from app.schemas.escalation import EscalationCreate
-        from app.services.escalation_service import EscalationService
-
-        try:
-            EscalationService(self.db, notifier=self.notifier).escalate(
-                ticket.id,
-                EscalationCreate(reason="Auto-escalated by triage: " + "; ".join(decision.reasons),
-                                 escalated_by=f"Triage ({decision.model})"),
-                source=EscalationSource.AUTO,
-            )
-            logger.info("Auto-escalated %s (%s)", ticket.ticket_number, "; ".join(decision.reasons))
-            return True
-        except Exception:
-            self.db.rollback()
-            logger.exception("Auto-escalation failed for %s; sending a normal acknowledgement", ticket.ticket_number)
-            return False
 
     def _find_existing_ticket(self, inbound: InboundEmail) -> Ticket | None:
         ticket_id = email_parser.extract_ticket_id(inbound.subject)
@@ -189,20 +115,16 @@ class EmailIngestionService:
 
     def _create_ticket(self, inbound: InboundEmail) -> Ticket:
         subject = email_parser.clean_subject(inbound.subject, inbound.body_text)
-        return self.tickets.add(
-            Ticket(
-                subject=subject[:500],
-                description=inbound.body_text,
-                priority=self._triage(subject, inbound.body_text).priority,
-                predicted_type=self._triage(subject, inbound.body_text).ticket_type,
-                predicted_queue=self._triage(subject, inbound.body_text).queue,
-                queue_confidence=self._triage(subject, inbound.body_text).queue_confidence,
-                triage_model=self._triage(subject, inbound.body_text).model,
-                source=TicketSource.EMAIL,
-                requester_email=str(inbound.from_address),
-                requester_name=inbound.from_name,
-            )
+        self._decision = self.triage.assess(subject, inbound.body_text)
+        ticket = Ticket(
+            subject=subject[:500],
+            description=inbound.body_text,
+            source=TicketSource.EMAIL,
+            requester_email=str(inbound.from_address),
+            requester_name=inbound.from_name,
         )
+        self.triage.apply(ticket, self._decision)
+        return self.tickets.add(ticket)
 
     def _append_reply(self, ticket: Ticket, inbound: InboundEmail) -> None:
         self.comments.add(

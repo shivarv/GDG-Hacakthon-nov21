@@ -62,7 +62,7 @@ function Entry({ author, meta, time, body, internal, viaEmail, highlight }: Entr
           <span className="text-slate-500">{meta}</span>
           {viaEmail && <Mail className="h-3.5 w-3.5 text-slate-400" aria-label="via email" />}
           {internal && (
-            <span className="inline-flex items-center gap-1 rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-medium text-amber-800">
+            <span className="inline-flex items-center gap-1 rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-800">
               <Lock className="h-3 w-3" /> Internal
             </span>
           )}
