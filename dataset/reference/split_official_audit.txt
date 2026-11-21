@@ -1,0 +1,35 @@
+=== FULL DATASET (check against the label policy): 61,765 rows ===
+type:
+type
+Incident    19444
+Request     13950
+None        13178
+Problem     10196
+Change       4997
+priority:
+priority
+medium      23378
+high        21925
+low         12765
+critical     1914
+very_low     1783
+language:
+language
+de    33504
+en    28261
+queue: 52 distinct, null=0
+subject null/empty: 5,299
+answer null: 13,189
+Test bodies that exactly match a kb_train body: 2,685 / 12,353
+{
+  "n_rows": 61765,
+  "split_idx": 49412,
+  "shuffle_seed": 42,
+  "dev_frac": 0.15,
+  "dev_seed": 7,
+  "n_base": 42000,
+  "n_dev": 7412,
+  "n_test": 12353,
+  "n_kb_with_answer": 38810,
+  "test_exact_body_twins": 2685
+}

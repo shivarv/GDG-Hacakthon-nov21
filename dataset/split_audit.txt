@@ -1,0 +1,54 @@
+near-copy check: 9,313 test rows vs 44,011 kb rows ...
+near-copy check: 6,602 dev rows vs 37,409 base rows ...
+
+=== kb_train (clean, de-duplicated): 44,011 rows ===
+type: {'Incident': 13423, None: 10592, 'Request': 9607, 'Problem': 6988, 'Change': 3401}
+priority: {'high': 16917, 'medium': 16566, 'low': 10528}
+language: {'de': 24428, 'en': 19583}
+queue: 52 distinct
+
+=== test (clean): 8,437 rows ===
+type: {None: 2538, 'Incident': 2390, 'Request': 1668, 'Problem': 1272, 'Change': 569}
+priority: {'high': 3297, 'medium': 3098, 'low': 2042}
+language: {'de': 5174, 'en': 3263}
+queue: 52 distinct
+
+{
+  "n_rows_raw": 61765,
+  "split_idx": 49412,
+  "shuffle_seed": 42,
+  "dev_frac": 0.15,
+  "dev_seed": 7,
+  "near_copy_threshold_char_tfidf": 0.9,
+  "kb_raw": 49412,
+  "kb_empty_body_dropped": 0,
+  "kb_exact_dups_collapsed": 5401,
+  "kb_clean": 44011,
+  "kb_label_conflict_groups": 11,
+  "n_base": 38026,
+  "n_dev": 5985,
+  "dev_moved_to_base_near_copy": 617,
+  "n_kb_with_answer": 33412,
+  "test_raw": 12353,
+  "test_eval_subset": {
+    "clean": 8437,
+    "exact_kb_twin": 2689,
+    "near_kb_twin": 876,
+    "test_internal_dup": 349,
+    "empty_body": 2
+  },
+  "n_test_clean": 8437,
+  "core_queues": [
+    "Billing and Payments",
+    "Customer Service",
+    "General Inquiry",
+    "Human Resources",
+    "IT Support",
+    "Product Support",
+    "Returns and Exchanges",
+    "Sales and Pre-Sales",
+    "Service Outages and Maintenance",
+    "Technical Support"
+  ],
+  "seconds": 292
+}

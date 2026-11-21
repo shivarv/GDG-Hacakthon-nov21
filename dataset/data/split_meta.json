@@ -1,0 +1,39 @@
+{
+  "n_rows_raw": 61765,
+  "split_idx": 49412,
+  "shuffle_seed": 42,
+  "dev_frac": 0.15,
+  "dev_seed": 7,
+  "near_copy_threshold_char_tfidf": 0.9,
+  "kb_raw": 49412,
+  "kb_empty_body_dropped": 0,
+  "kb_exact_dups_collapsed": 5401,
+  "kb_clean": 44011,
+  "kb_label_conflict_groups": 11,
+  "n_base": 38026,
+  "n_dev": 5985,
+  "dev_moved_to_base_near_copy": 617,
+  "n_kb_with_answer": 33412,
+  "test_raw": 12353,
+  "test_eval_subset": {
+    "clean": 8437,
+    "exact_kb_twin": 2689,
+    "near_kb_twin": 876,
+    "test_internal_dup": 349,
+    "empty_body": 2
+  },
+  "n_test_clean": 8437,
+  "core_queues": [
+    "Billing and Payments",
+    "Customer Service",
+    "General Inquiry",
+    "Human Resources",
+    "IT Support",
+    "Product Support",
+    "Returns and Exchanges",
+    "Sales and Pre-Sales",
+    "Service Outages and Maintenance",
+    "Technical Support"
+  ],
+  "seconds": 292
+}

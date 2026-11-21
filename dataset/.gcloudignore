@@ -1,0 +1,8 @@
+# Keep local data out of the Cloud Build upload.
+data/
+emb/
+emb_shards/
+__pycache__/
+.git/
+*.npy
+*.parquet
